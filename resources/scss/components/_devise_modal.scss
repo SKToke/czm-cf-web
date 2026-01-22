@@ -1,0 +1,99 @@
+.devise-modal {
+    margin-top: 30px;
+    margin-left: 15%;
+    margin-right: 15%;
+    width: 70%;
+    border-radius: 6px;
+    h5 {
+      color: #000000;
+      opacity: 70%;
+    }
+    .modal-body {
+      padding-left: 35px;
+      padding-right: 50px;
+    }
+  
+    .link-text,
+    input[type="checkbox"] {
+      margin-right: 6px;
+    }
+    .btn-devise-submit {
+      margin-top: 35px;
+      .btn {
+        width: 100%;
+        background-color: $czm-primary;
+        border-color: $czm-primary;
+      }
+    }
+    .line{
+      position: relative;
+      height: 1px;
+      width: 100%;
+      margin: 36px 0;
+      background-color: $admin-gray2;
+    }
+    .line::before{
+      content: 'Or';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #ffffff;
+      color: $czm-gray;
+      padding: 0 15px;
+    }
+    .social-btn a.google-btn {
+      .icon-image {
+        width: 18px;
+        height: 18px;
+      }
+    }
+    .social-btn a.facebook-btn {
+      color: $czm-primary;
+    }
+    .social-btn a.google-btn, .social-btn a.facebook-btn {
+      width: 100%;
+      border: 1px solid $czm-gray;
+      border-radius: 6px;
+      font-size: 18px;
+      margin: 0px 0px 18px;
+  
+      .button-text {
+        color: $czm-gray;
+        margin-left: 6px;
+        font-size: 16px;
+      }
+    }
+    .social-btn {
+      padding-top: 8px;
+    }
+    .field_with_errors {
+      margin-bottom: -1.5em;
+      input {
+        margin-bottom: 1.5em;
+      }
+    }
+    .modal-img {
+      img {
+        height: 100%;
+        width: auto;
+        object-fit: cover;
+      }
+    }
+  }
+  .modal-content .devise-modal {
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+  
+    .modal-img {
+      padding-left: 0;
+      img {
+        height: 100%;
+        width: auto;
+        object-fit: cover;
+      }
+    }
+  }
+  

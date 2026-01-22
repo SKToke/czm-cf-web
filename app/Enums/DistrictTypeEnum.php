@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Enums;
+
+enum DistrictTypeEnum: int
+{
+    use EnumTrait;
+    case Bagerhat = 1;
+    case Bandarban = 2;
+    case Barguna = 3;
+    case Barishal = 4;
+    case Bhola = 5;
+    case Bogra = 6;
+    case Brahmanbaria = 7;
+    case Chandpur = 8;
+    case Chapainawabganj = 9;
+    case Chattogram = 10;
+    case Chuadanga = 11;
+    case Comilla = 12;
+    case Coxsbazar = 13;
+    case Cumilla = 14;
+    case Dhaka = 15;
+    case Dinajpur = 16;
+    case Faridpur = 17;
+    case Feni = 18;
+    case Gaibandha = 19;
+    case Gazipur = 20;
+    case Gopalganj = 21;
+    case Habiganj = 22;
+    case Jamalpur = 23;
+    case Jashore = 24;
+    case Jhalakathi = 25;
+    case Jhenaidah = 26;
+    case Joypurhat = 27;
+    case Khagrachhari = 28;
+    case Khulna = 29;
+    case Kishoreganj = 30;
+    case Kurigram = 31;
+    case Kushtia = 32;
+    case Lakshmipur = 33;
+    case Lalmonirhat = 34;
+    case Madaripur = 35;
+    case Magura = 36;
+    case Manikganj = 37;
+    case Meherpur = 38;
+    case Moulvibazar = 39;
+    case Munshiganj = 40;
+    case Mymensingh = 41;
+    case Naogaon = 42;
+    case Narail = 43;
+    case Narayanganj = 44;
+    case Natore = 45;
+    case Netrokona = 46;
+    case Nilphamari = 47;
+    case Noakhali = 48;
+    case Pabna = 49;
+    case Panchagarh = 50;
+    case Patuakhali = 51;
+    case Pirojpur = 52;
+    case Rajbari = 53;
+    case Rajshahi = 54;
+    case Rangamati = 55;
+    case Rangpur = 56;
+    case Satkhira = 57;
+    case Shariatpur = 58;
+    case Sherpur = 59;
+    case Sirajganj = 60;
+    case Sunamganj = 61;
+    case Sylhet = 62;
+    case Tangail = 63;
+    case Thakurgaon = 64;
+}

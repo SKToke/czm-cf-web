@@ -1,0 +1,140 @@
+.case-card {
+  transition:all 0.5s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;  // Ensures the card takes full height
+
+    .cases {
+      border: 1px solid $czm-gray2;
+        flex-grow: 1;
+    .thumb-img {
+      height: 260px;
+      width: auto;
+      img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+  .cases .case-details {
+    background-color: #ffffff !important;
+    border-top: 4px solid $czm-secondary;
+    padding: 20px 12px 20px 12px !important;
+  }
+  .cases .case-details .title {
+    height: 52px;
+    a {
+      color: $czm-primary;
+    }
+    a:hover {
+      color: $czm-secondary;
+    }
+  }
+  @media (min-width: 1200px) and (max-width: 1500px) {
+    .cases .case-details .title {
+      height: 80px;
+    }
+  }
+  span.case-money {
+    font-size: 16px;
+    font-weight: 600;
+    color: $czm-primary
+  }
+  .thm-btn {
+    text-align: center;
+    width: 47%;
+  }
+  .donate-btn {
+    background-color: $czm-primary-dark;
+  }
+  .donate-btn:hover {
+    background-color: #ffffff;
+    border-color: $czm-primary-dark;
+    color: $czm-primary-dark;
+    i {
+      color: $czm-primary-dark !important;
+    }
+  }
+  .detail-btn {
+    border-color: $czm-primary-dark;
+    color: $czm-primary-dark;
+  }
+  .detail-btn:hover {
+    background-color: $czm-primary-dark;
+    border-color: $czm-primary-dark;
+  }
+  .info-container,
+  .buttons-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  .thm-btn.inverse.btn-xs.detail-btn,
+  .thm-btn.btn-xs.donate-btn {
+    font-size: 14px !important;
+    margin-right: 0;
+  }
+  .info-container {
+    .remaining-days,
+    .supporters,
+    .fund-raised,
+    .fund-goal {
+      width: 47%;
+    }
+  }
+  .info-container .supporters i {
+    color: $czm-secondary;
+  }
+  .info-container .remaining-days i {
+    color: $czm-primary;
+  }
+}
+.case-card:hover {
+  box-shadow: 0 3px 6px 0 $czm-gray;
+}
+.case-card,
+.case-detail {
+  .progress-item {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  .progress {
+    height: 12px;
+    background-color: $czm-gray2;
+    box-shadow: 0 0 1px rgba(0,0,0,0.4) inset;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: visible;
+  }
+  .progress-bar {
+    background-color: $czm-secondary;
+    border-radius: 8px 0 0 8px;
+    font-size: 12px;
+    height: 12px;
+    line-height: 18px;
+    padding-left: 10px;
+    position: relative;
+    text-align: left;
+    overflow: visible;
+    transition: all 1s ease 0s;
+  }
+  .value-holder {
+    border: 2px solid #fcfcfc;
+    border-radius: 50%;
+    color: #ffffff;
+    background-color: $czm-secondary;
+    font-size: 10px;
+    line-height: 10px;
+    padding: 10px 5px;
+    position: absolute;
+    right: -10px;
+    text-align: center;
+    top: -9px;
+  }
+  .value {
+    color: #ffffff;
+    font-size: 10px;
+    line-height: 10px;
+  }
+}

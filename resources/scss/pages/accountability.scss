@@ -1,0 +1,93 @@
+// Define colors and dimensions
+$checkmark-color: #007bff; // Example blue color for checkmark
+$checkmark-size: 20px; // Size of the checkmark box
+$text-padding-left: 35px; // Space for the checkmark plus some padding
+.accountabilty {
+    .transparency-list {
+        list-style-type: none; // Removes default list styling
+        padding-left: 0; // Removes default padding
+
+        li {
+            position: relative; // Establishes the reference for the absolutely positioned pseudo-element
+            padding: 5px 0;
+            padding-left: $text-padding-left; // Add padding to avoid overlap
+            margin-bottom: 5px;
+
+
+            &:before {
+                content: '✔';
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: $checkmark-size;
+                height: $checkmark-size;
+                background-color: $czm-primary-dark;
+                color: white;
+                text-align: center; // Centers the checkmark symbol horizontally
+                line-height: $checkmark-size; // Centers the checkmark symbol vertically
+            }
+        }
+    }
+    .trust-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: flex-start;
+        max-width: 1200px;
+        margin: 0 auto;
+        .feature{
+            padding: 10px;
+            height: 250px;
+        }
+
+    }
+
+    .feature {
+        width: calc(33.333% - 20px); // Adjust for margin/padding
+        margin: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+
+        .icon {
+            // Placeholder for icon styling
+        }
+
+        h2 {
+            color: #333;
+            font-size: 1.25rem;
+            margin-top: 0.5em;
+        }
+
+        p {
+            color: #666;
+            font-size: 12px;
+            text-align: justify;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .feature {
+            width: calc(50% - 20px); // Adjust for smaller screens
+        }
+    }
+
+    @media (max-width: 480px) {
+        .feature {
+            width: 100%; // Full width on very small screens
+        }
+    }
+    .contribute-container{
+        width: 100%;
+        background-color: $czm-primary-dark;
+        color: white;
+        padding: 25px 50px;
+    }
+    .icon{
+        img{
+            width: 60px;
+            height: 60px;
+        }
+    }
+}

@@ -1,0 +1,310 @@
+.view-cases-link {
+    margin-top: 10px;
+    a {
+        font-size: 20px;
+        color: $czm-primary-dark;
+    }
+    a:hover {
+        color: $czm-secondary;
+    }
+}
+.text-warning {
+    color: #FFC825;
+}
+.case-sec.meet-Volunteer {
+  .sec-title {
+    margin-bottom: 35px;
+  }
+  .sec-title h2 {
+    color: $czm-primary-dark;
+  }
+  .owl-nav {
+    position: absolute;
+    top: -140px;
+    right: 0;
+  }
+  .owl-theme .owl-nav {
+    margin: 0;
+  }
+  .owl-carousel .owl-nav.disabled {
+    display: block;
+  }
+  .owl-theme .owl-nav [class*=owl-] {
+    background: $czm-secondary;
+    color: #fff;
+    width: 45px;
+    height: 45px;
+    border: 2px solid $czm-secondary;
+    font-size: 22px;
+    line-height: 43px;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    margin-left: 15px;
+  }
+  .owl-theme .owl-nav [class*=owl-]:hover {
+    background: #fff;
+    color: $czm-secondary;
+  }
+}
+@media (max-width: 520px) {
+  .case-sec.meet-Volunteer .owl-nav {
+    top: -60px;
+  }
+  .view-cases-link a {
+    font-size: 16px;
+  }
+}
+.sec-padding {
+  padding-top: 40px;
+  @media (min-width: 1200px) {
+    .container {
+      padding: 0;
+      width: 1320px;
+    }
+  }
+}
+.case-list {
+  .single-case {
+    margin-bottom: 40px;
+  }
+  form {
+    text-align: center;
+    margin-bottom: 35px;
+    label {
+      font-size: 18px;
+      color: #000000;
+    }
+    select option {
+      margin-bottom: 20px !important;
+    }
+    input[type="submit"] {
+      display: inline-block;
+      background-color: $czm-primary-dark;
+      color: #ffffff;
+    }
+  }
+  @media (max-width: 1199px) {
+    label,
+    select,
+    input {
+      margin-bottom: 10px;
+    }
+  }
+}
+.case-detail-top {
+  h2.case-title {
+    font-size: 30px;
+  }
+  .subscription-alert,
+  .urgent-alert {
+    border: 1px solid #FFC825;
+    background-color: #FFC825;
+    color: #ffffff;
+    border-radius: 4px;
+    margin-left: 30%;
+    margin-right: 30%;
+  }
+  .subscription-alert {
+    border-color: $czm-secondary;
+    background-color: $czm-secondary;
+  }
+}
+.case-detail {
+  margin-top: 40px;
+  .case-detail-slider .splide__track {
+    border-radius: 10px;
+  }
+  .subscribe-btn {
+    margin-top: 15px;
+    width: 100%;
+    font-size: 20px;
+    border-radius: 10px;
+    text-align: center;
+    background-color: $czm-primary-dark;
+  }
+  .subscribe-btn:hover {
+    background-color: #ffffff;
+    color: $czm-primary-dark;
+    border-color: $czm-primary-dark;
+    i {
+      color: $czm-primary-dark;
+    }
+  }
+  .donate-btn.disabled-btn,
+  .subscribe-btn.disabled-btn {
+    background-color: $czm-gray;
+  }
+  .donate-btn.disabled-btn:hover,
+  .subscribe-btn.disabled-btn:hover {
+    background-color: $czm-gray;
+    border-color: $czm-gray;
+    color: #ffffff;
+    i {
+        color: #ffffff;
+        background-color: $czm-gray;
+    }
+  }
+  .donate-btn {
+    width: 100%;
+    font-size: 20px;
+    border-radius: 10px;
+    text-align: center;
+    background-color: $czm-secondary;
+  }
+  .donate-btn:hover {
+    background-color: #ffffff;
+    color: $czm-secondary;
+    border-color: $czm-secondary;
+    i {
+      color: $czm-secondary;
+    }
+  }
+  .case-social-share {
+    margin-top: 30px;
+    h6 {
+      color: #000;
+    }
+  }
+  .sec-campaign-id {
+    color: #000000;
+    font-size: 18px;
+  }
+  .end-date,
+  .start-date {
+    color: #808080;
+  }
+  .fund-raised {
+    .case-money {
+      color: $czm-primary;
+      font-size: 25px;
+    }
+  }
+  .fund-goal {
+    .case-money {
+      color: #000;
+      font-size: 20px;
+    }
+  }
+  .case-info {
+    display: flex;
+    justify-content: space-between;
+  }
+  .case-info span.days,
+  .case-info span.supporters {
+    color: #000;
+    font-size: 20px;
+  }
+  .case-info i {
+    color: $czm-primary;
+  }
+  .card.case-program-card,
+  .card.case-query-card,
+  .card.case-categories-card,
+  .card.top-donor-card {
+    .card-title {
+      color: $czm-primary-dark;
+      font-weight: 600;
+    }
+  }
+  .card.case-program-card,
+  .card.case-query-card,
+  .card.case-categories-card {
+    width: 100%;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid $czm-gray2;
+    ul {
+      padding-left: 15px;
+    }
+  }
+  .card.top-donor-card {
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid $czm-gray2;
+  }
+  .card.top-donor-card ul {
+    border-top: 4px solid $czm-primary-dark;
+  }
+  .top-donor-card .donor-award i{
+    font-size: 45px;
+    color: $czm-secondary;
+  }
+  .case-detail-tabs.nav-pills {
+    .nav-link {
+      color: $czm-primary-dark;
+      background-color: $czm-gray2;
+      border-radius: 4px;
+    }
+    .nav-link.active {
+      background-color: $czm-primary-dark;
+      color: #ffffff;
+    }
+  }
+  section.case-description {
+    h4.case-title {
+      color: #000;
+      text-align: center;
+    }
+    div.description-paragraph {
+      margin-top: 20px;
+      text-align: justify;
+      color: $czm-gray;
+    }
+  }
+  section.case-documents {
+    h4.documents-title {
+      color: #000;
+    }
+    .case-attachments {
+      margin-top: 20px;
+    }
+  }
+  section.case-updates {
+    h4.updates-title {
+      color: #000;
+    }
+    ul.case-attachments {
+      margin-top: 20px;
+      list-style-type: square;
+      padding-left: 10px;
+    }
+    li {
+      h6 {
+        color: #000000;
+      }
+    }
+    li::marker {
+      color: $czm-secondary;
+    }
+  }
+  .card.social-share-card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .donation-money {
+    color: $czm-primary-dark;
+  }
+}
+.case-query-btn {
+    width: 100%;
+    background-color: $czm-primary;
+    border-color: $czm-primary;
+    color: #ffffff;
+}
+.case-query-btn:hover {
+    background-color: #ffffff;
+    border-color: $czm-primary;
+    color: $czm-primary;
+}
+.related-cases-sec {
+  margin-top: 20px;
+  padding-top: 30px;
+  padding-bottom: 35px;
+}
+.related-cases-sec h3 {
+  color: $czm-primary;
+  margin-bottom: 18px;
+}

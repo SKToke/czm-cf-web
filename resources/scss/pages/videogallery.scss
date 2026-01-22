@@ -1,0 +1,184 @@
+.video-gallery-section {
+  .box {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 350px;
+    flex-direction: column;
+    justify-content: center;
+
+    .card-img-top {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  .box:hover .overlay {
+    top: 0;
+  }
+
+  .youtube-icon-large-red {
+    font-size: 3rem;
+    color: #ff0000;
+  }
+
+
+  .form-label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  .custom-select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+  }
+
+  .btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+  }
+
+  .video-title {
+    color: black;
+  }
+
+  .video-category {
+    width: 100%;
+    color: black;
+    font-size: smaller;
+  }
+
+  .video-category span {
+    white-space: nowrap; /* Keep the category name in a single line */
+    overflow: hidden;    /* Hide overflow content */
+    text-overflow: ellipsis; /* Show an ellipsis ('...') to represent clipped text */
+    display: inline-block;   /* Treat the span as an inline block */
+    max-width: 100px;        /* Set a max-width to fit your layout */
+  }
+
+
+  .lightbox-image {
+    position: relative;
+    display: block;
+  }
+
+  .play-button-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3em; // Adjust size as needed
+    color: white; // Adjust color as needed
+    cursor: pointer;
+  }
+
+
+  .video-container .default-thumbnail {
+    display: none; /* Hides the default thumbnail */
+  }
+
+  .video-container .custom-thumbnail {
+    display: block; /* Shows the custom thumbnail */
+  }
+
+
+  #box {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    flex-direction: column;
+    align-items: stretch;
+    z-index: 99;
+    margin-top: 100px;
+  }
+
+  #box .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+  }
+
+  #box iframe {
+    width: 75vw;
+    height: 75vh;
+    gap: 10px;
+    z-index: 50;
+    top: 100px;
+  }
+
+  .video-container .image-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    overflow: hidden;
+
+    .card-img-top.img-fluid {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  .fa.fa-play-circle {
+    font-size: 24px;
+    color: white;
+  }
+
+  .btn-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 60px;
+    color: red;
+  }
+
+  .fa-play-circle {
+    position: relative;
+    z-index: 1;
+  }
+
+
+  .fa-brands.fa-youtube {
+    color: #FF0000;
+    font-size: 100px;
+  }
+
+  .modal-close-button {
+    background-color: #c5c5c5;
+    color: black;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+}

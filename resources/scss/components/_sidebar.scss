@@ -1,0 +1,59 @@
+.sticky-sidebar {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+
+  .sidebar-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+
+    img {
+      transition: transform 0.3s ease;
+      z-index: 1;
+    }
+
+    .icon-text {
+      position: absolute;
+      top: 50%;
+      left: -130%;
+      transform: translateX(50%);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s ease, left 0.3s ease;
+      color: #fff;
+      padding: 0.2em 0.6em;
+      z-index: 2;
+      pointer-events: none;
+      font-size: 0.9em;
+      height: 100%;
+      font-family: "Poppins", sans-serif;;
+    }
+
+    &:hover {
+      .icon-text {
+        opacity: 1;
+        right: 0;
+        transform: translateY(-50%);
+      }
+
+      img {
+        opacity: 1;
+        transform: translateX(-230%);
+      }
+    }
+    .sponsor { background-color: #408ac7; }
+    .zakat { background-color: #be1b55; }
+    .success { background-color: #228b22; }
+    .calculator { background-color: #6699ce; }
+  }
+}
+@media (max-width: 767px) {
+    .sticky-sidebar {
+        display: none; /* Hide sticky sidebar on mobile devices */
+    }
+}

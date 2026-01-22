@@ -1,0 +1,53 @@
+.marketing-banner-img {
+    width: 400px;
+    height: auto;
+}
+
+.thm-btn-banner {
+    @extend .thm-btn;
+    @extend .czm-dark-bg;
+    width: 70%;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.marketing-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.marketing-banner-btn{
+    width: 70%;
+    height: 65px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 10px;
+    box-shadow: 5px 10px 18px #ccc;
+    color: #fff;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease;
+}
+.marketing-banner-btn:hover {
+    width: 72%;
+    height: 68px;
+    font-size: 20px;
+}
+.marketing-banner-btn.sponsor-btn {
+    background-color: #408ac7;
+}
+.marketing-banner-btn.pay-zakat-btn {
+    background-color: #be1b55;
+}
+.marketing-banner-btn.stories-btn {
+    background-color: #228b22;
+}
+.marketing-banner-btn.calculator-btn {
+    background-color: #6699ce;
+}

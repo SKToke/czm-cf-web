@@ -1,0 +1,75 @@
+@import '@splidejs/splide/dist/css/splide.min';
+
+.splide {
+  margin-bottom: 25px;
+}
+
+.hero-slider {
+  background-color: #eee;
+  display: inline-block;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+
+  img {
+    width: 100%;
+    height: 550px;
+    object-fit: cover;
+    object-position: center;
+
+    @media (max-width: 1200px) {
+      height: 500px;
+    }
+
+    @media (max-width: 768px) {
+      height: 200px;
+    }
+  }
+}
+
+.program-slider {
+  background-color: #eee;
+  display: inline-block;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+
+  img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    object-position: center;
+
+    @media (max-width: 1200px) {
+      height: 500px;
+    }
+
+    @media (max-width: 768px) {
+      height: 200px;
+    }
+  }
+}
+
+.hero-overlay-text {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  position: absolute;
+  z-index: 2;
+  padding: 0.2em 0.5em;
+  top: 70%;
+  left: 15%;
+  right: 15%;
+  max-width: 70%;
+
+  @media (max-width: 1200px) {
+    opacity: 0.95;
+  }
+
+  @media (max-width: 768px) {
+    top: 75%;
+    left: 10%;
+    max-width: 100% !important;
+    opacity: 0.85;
+  }
+}

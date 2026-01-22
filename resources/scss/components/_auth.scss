@@ -1,0 +1,141 @@
+.czm-auth-container {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: url("/public/images/auth-user.png") center/cover;
+    background-size: cover;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: box-shadow 0.3s ease;
+    pointer-events: auto;
+}
+
+.czm-auth-container.active {
+    background: url("/public/images/auth-user.png") center/cover;
+    box-shadow: 0 0 0 4px $czm-vivid-cyan;
+    z-index: 9999;
+}
+
+.notification-container {
+    position: relative;
+    display: inline-block;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 14px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 4px 8px 3px 8px;
+    font-size: 12px;
+}
+
+li.dropdown > ul.submenu {
+    cursor: pointer;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.czm-navigation .nav-header > ul {
+    padding: 0;
+    margin: 0;
+}
+.czm-navigation .nav-header > ul > li {
+    display: inline-block;
+    position: relative;
+}
+.czm-navigation .nav-header > ul > li:first-child > a {
+    padding-left: 0;
+}
+.czm-navigation .nav-header > ul > li > a {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    padding: 23px 19px;
+    transition: all .3s ease;
+}
+.czm-navigation .nav-header > ul > li:hover > a {
+    color: $czm-vivid-cyan;
+}
+.czm-navigation .nav-header > ul > li:hover > ul {
+    opacity: 1;
+    visibility: visible;
+}
+.czm-navigation .nav-header > ul > li > ul {
+    position: absolute;
+    top:100%;
+    left:0;
+    z-index: 999;
+    background: #fff;
+    width: 240px;
+    margin: 0;
+    margin-top: 5px;
+    margin-left: -200px;
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    box-shadow: 2px 0 11px -3px rgba(0,0,0,.2);
+    transition: all .5s ease;
+    border: 2px solid #fff;
+}
+.czm-navigation .nav-header > ul > li > ul > li {
+    display: block;
+    position: relative;
+}
+.czm-navigation .nav-header > ul > li > ul > li:last-child > a {
+    border-bottom: 0;
+}
+.czm-navigation .nav-header > ul > li > ul > li > a {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: #2B2B2B;
+    padding: 14px 19px;
+    border-bottom: 1px solid #E9E9E9;
+    transition: all .3s ease;
+}
+.czm-navigation .nav-header > ul > li > ul > li:hover > a {
+    background: $czm-vivid-cyan;
+    color: #fff;
+    border-color: 0;
+}
+
+.czm-navigation .czm-username{
+    cursor: text;
+    color: black;
+    padding: 5px;
+    border-top: 1px solid $czm-gray3;
+    border-bottom: 1px solid $czm-gray3;
+}
+
+.user-verification-card {
+    .verification-header {
+        background-color: $czm-primary-dark;
+        color: #ffffff;
+    }
+    .home-btn {
+        background-color: $czm-secondary;
+        color: #ffffff;
+    }
+}
+
+.forget-password-card {
+    .forget-password-header {
+        background-color: $czm-primary-dark;
+        color: #ffffff;
+    }
+    .reset-btn {
+        background-color: $czm-secondary;
+        border-color: $czm-secondary;
+        color: #ffffff;
+    }
+    .reset-btn:hover {
+        background-color: $czm-primary-dark;
+        border-color: $czm-primary-dark;
+    }
+}

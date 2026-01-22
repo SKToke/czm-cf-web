@@ -1,0 +1,53 @@
+.pagination {
+    .shadow-sm {
+        box-shadow: none !important;
+    }
+    nav.flex.justify-between > div:first-child {
+        display: none;
+    }
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+    .hidden {
+        margin-top: 15px;
+    }
+    span.relative {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        a,
+        span[aria-current="page"],
+        span[aria-label="« Previous"],
+        span[aria-label="Next »"] {
+            margin-top: 5px;
+        }
+        span, a {
+            border-color: $czm-primary !important;
+            border-radius: 4px !important;
+        }
+        a[aria-label="Next »"],
+        span[aria-label="Next »"] {
+            margin-left: 3px !important;
+        }
+        span[aria-label="« Previous"],
+        a[aria-label="« Previous"] {
+            margin-right: 3px !important;
+        }
+        span[aria-current="page"] span {
+            background-color: $czm-primary !important;
+            color: #ffffff;
+        }
+    }
+    .disabled-button {
+        pointer-events: none;
+        cursor: not-allowed;
+        color: #9c9c9c;
+        border-color: #24408f !important;
+    }
+
+    .disabled-button:hover, .disabled-button:focus, .disabled-button:active {
+        color: #9c9c9c;
+    }
+}

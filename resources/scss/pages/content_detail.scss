@@ -1,0 +1,23 @@
+.content-detail{
+    .img-box{
+        width: 80vw;
+        height: auto;
+        max-width: 100%;
+    }
+
+    .img-box img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+}
+
+/* Mobile view */
+@media (max-width: 767px) {
+    .content-detail{
+        .img-box img {
+            object-fit: contain;
+        }
+    }
+}

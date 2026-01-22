@@ -1,0 +1,129 @@
+.modal-content.subscribe-case-modal {
+  max-height: 90vh;
+  overflow-y: auto;
+    z-index: 100000;
+  .modal-header {
+    text-align: center;
+    z-index: 1070;
+    position: relative;
+    top: 5%;
+  }
+  .modal-title {
+    color: $czm-primary-dark;
+    font-weight: 600;
+      position: relative;
+      top: 5%;
+  }
+  .modal-body {
+    .subscription-form {
+      form {
+        margin-bottom: 30px;
+        label {
+          font-size: 16px;
+        }
+        select {
+          width: auto;
+          margin-left: 10px;
+          margin-right: 10px;
+          color: $czm-primary;
+          border-radius: 25px;
+          padding: .375rem 1.75rem .375rem .75rem;
+          font-size: 1rem;
+          line-height: 1.5;
+          background-color: #fff;
+          border: 1px solid $czm-primary;
+          height: calc(2.25rem + 2px);
+        }
+        select option {
+          margin-bottom: 20px !important;
+        }
+        .custom-number-field {
+          width: 210px;
+          margin-left: 10px;
+          margin-right: 10px;
+          color: $czm-primary;
+          border-radius: 25px;
+          background-color: #fff;
+          border: 1px solid $czm-primary;
+          height: calc(2.25rem + 2px);
+          padding: .375rem 1.75rem .375rem .75rem;
+          font-size: 1rem;
+          line-height: 1.5;
+        }
+        .custom-email-field,
+        .custom-text-field {
+          width: 100%;
+          margin-right: 10px;
+          color: $czm-primary;
+          border-radius: 25px;
+          background-color: #fff;
+          border: 1px solid $czm-primary;
+          height: calc(2.25rem + 2px);
+          padding: .375rem 1.75rem .375rem .75rem;
+          font-size: 1rem;
+          line-height: 1.5;
+        }
+        input#donor-name,
+        input#donor-email,
+        input#donor-mobile-no {
+          cursor: not-allowed;
+        }
+        .line {
+          margin: 36px 100px;
+        }
+        .line::before {
+          content: 'Other Information';
+        }
+        .subscribe-btn {
+          margin-top: 25px;
+          color: #ffffff;
+          background-color: $czm-primary-dark;
+        }
+        .personal-info {
+          padding-left: 12px;
+          padding-right: 12px;
+          label {
+            padding-top: 5px;
+          }
+        }
+      }
+    }
+    .donor-info {
+      p {
+        font-size: 16px;
+      }
+      .login-btn {
+        color: #ffffff;
+        background-color: $czm-primary-dark;
+      }
+    }
+  }
+  .line {
+    position: relative;
+    height: 1px;
+    margin: 36px 130px;
+    background-color: $admin-gray2;
+  }
+  .line::before{
+    content: 'Or';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    color: $czm-gray;
+    padding: 0 15px;
+  }
+}
+
+.modal-dialog {
+    z-index: 2060 !important;
+}
+.mainmenu-area{
+    z-index: 200 !important;
+}
+@media (max-width: 500px) {
+    .modal-content.subscribe-case-modal {
+        top: 8%;
+    }
+}

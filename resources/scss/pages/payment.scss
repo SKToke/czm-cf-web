@@ -1,0 +1,132 @@
+.donation-form-outer h4 {
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:30px;
+    color: $czm-dark;
+
+    @media (max-width: 620px) {
+        font-size:16px;
+    }
+}
+
+.donation-form-outer .field-label {
+    font-weight:600;
+    font-size:16px;
+    color:$czm-dark;
+    padding-left: 4px;
+}
+
+.donation-form-outer input[type="radio"].czm-radio-btn {
+    display: none;
+}
+
+.donation-form-outer label {
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    padding-left: 25px;
+}
+
+.donation-form-outer label::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -5%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: $czm-gray3;
+    border: 7px solid $czm-gray3;
+    border-radius: 50%;
+}
+
+.donation-form-outer input[type="radio"]:checked + label::before {
+    background-color: $czm-secondary-light;
+    border: 5px solid $czm-gray3;
+}
+
+.donation-form-outer .radio-select input[type="radio"]:checked+label {
+    color:$czm-dark;
+}
+
+.czm-payment-radio-label {
+    font-size:16px;
+    padding-top: 2px;
+    margin-left: 10px;
+    color:$czm-dark;
+}
+
+.czm-radio-option-container{
+    box-shadow: 0 0 2px;
+    transition: background-color .5s;
+    border-radius: 10px;
+    display: inline-block;
+    margin-bottom: .5rem;
+    @media (max-width: 620px) {
+    }
+}
+
+.czm-bank-info{
+    font-size: 15px;
+
+    div{
+        margin-top: 10px;
+    }
+}
+
+.czm-donation-declaration{
+    font-size:16px;
+    @media (max-width: 620px) {
+        font-size:13px;
+        margin-left: -45px;
+        margin-right: -45px;
+    }
+}
+
+.other-payment-container{
+    border: 1px solid $czm-gray3;
+    margin-top: 20px;
+    @media (max-width: 620px) {
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        margin-left: -45px;
+        margin-right: -45px;
+    }
+}
+
+.czm-bank-logo{
+    color: $czm-primary-dark;
+}
+
+.czm-payment-success-modal{
+    top: 23%;
+    img{
+        width: 80px;
+        height: auto;
+    }
+}
+
+.payment-poster{
+    color: #000;
+    h1{
+        font-size: 22px;
+        font-weight: 700;
+        color: $czm-secondary;
+    }
+    h2{
+        font-size: 15px;
+        font-weight: 500;
+        color: $czm-dark;
+    }
+    span{
+        font-size: 18px;
+        font-weight: 600;
+        color: $czm-dark;
+    }
+
+    img{
+        overflow: hidden;
+        width: 100%;
+    }
+}

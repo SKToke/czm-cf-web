@@ -1,0 +1,316 @@
+main {
+    overflow: hidden;
+}
+
+.governance-accordion .accordion-header button {
+    font-size: 1.75rem !important;
+    font-weight: 400 !important;
+    padding-left: 0;
+}
+
+.governance-accordion .accordion-body {
+    padding: 0;
+}
+
+.img-container {
+    height: 280px;
+    overflow: hidden;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .governance-title {
+    margin-bottom: 20px;
+  }
+
+  .single-team-member {
+    text-align: center;
+    min-height: 250px;
+    background: #fff;
+    width: 100%;
+    height: 95%;
+    margin-bottom: 5px;
+    border: 1px solid #eef0ef;
+    transition: transform 0.8s ease, box-shadow 0.5s ease;
+  }
+
+  .single-team-member:hover {
+    transform: scale(1.03);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  }
+
+  .single-team-member .img-container img {
+    transition: transform 1.8s ease;
+  }
+
+  .single-team-member:hover .img-container img {
+    transform: scale(1.1);
+  }
+
+  .committee-designation {
+    font-size: 13px;
+    color: #25bada;
+    text-transform: capitalize;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+  }
+
+  .member-content {
+    padding: 0 10px 10px 10px;
+    text-align: center;
+  }
+.bt-titlebar {
+    background: #ffffff;
+    margin-top: 50px;
+    margin-bottom: 50px;
+
+    .titlebar-inner {
+        position: relative;
+        width: 100%;
+        background: #252525;
+        padding: 50px 0;
+
+        .bt-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .bt-page-title {
+            font-size: 14px;
+            line-height: 24px;
+            color: #ffffff;
+            padding: 10px 0;
+        }
+
+        .bt-subheader-inner {
+            position: relative;
+            display: -webkit-box;
+            align-items: center;
+            height: inherit;
+            margin: 0 auto;
+            -moz-box-align: center;
+
+            .bt-content {
+                position: relative;
+                width: 100%;
+                z-index: 9;
+            }
+        }
+    }
+
+
+}
+.bt-main-content {
+
+
+
+    .bt-content {
+        padding: 10px 0;
+        background: #f9f9f9;
+    }
+
+    .bt-thumb {
+        overflow: hidden;
+        border: 10px solid #ffffff;
+        box-shadow: 8px 0 17px #68687633;
+
+
+        &:hover img {
+            transform: scale(1.05);
+        }
+    }
+
+    .bt-title {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+        position: relative;
+    }
+
+    .bt-position {
+        position: relative;
+        font-style: italic;
+        color: #1e73be;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+
+        .bt-position:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: #ececec;
+        }
+    }
+
+
+    .bt-content {
+        font-size: 14px;
+        line-height: 1.5;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .bt-thumb {
+        overflow: hidden;
+        margin-bottom: 30px;
+        border: 10px solid #ffffff;
+        box-shadow: 8px 0 17px rgba(104, 104, 118, 0.2);
+    }
+
+    .bt-info {
+        margin-top: 20px;
+
+        h4 {
+            color: #333;
+            position: relative;
+            font-size: 24px;
+            font-weight: 500;
+            line-height: 28px;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+
+        h4:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: #ececec;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+
+        }
+
+    }
+
+    .bt-social {
+        margin-top: 20px;
+
+        h4 {
+            position: relative;
+            font-size: 24px;
+            font-weight: 500;
+            line-height: 28px;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+
+        h4:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: #ececec;
+        }
+
+        .bt-socials {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 10px;
+
+            li {
+                .social-icon {
+                    display: inline-block;
+                    font-size: 12px;
+                    width: 24px;
+                    height: 24px;
+                    line-height: 21px;
+                    text-align: center;
+                    color: #686876;
+                    background: #dee0ec;
+                    -webkit-border-radius: 50%;
+                    border-radius: 50%;
+
+                    i {
+                        vertical-align: middle;
+                    }
+
+                    &:hover {
+                        background-color: #91A8E3FF;
+                    }
+                }
+            }
+        }
+    }
+
+    .fa {
+        display: inline-block;
+        font: normal normal normal 14px / 1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .single-team .team .bt-social ul li {
+        display: inline-block;
+        margin-left: 0;
+        margin-right: 3px;
+    }
+
+    ul li a, ol li a {
+        color: #666;
+    }
+
+    .bt-title {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+
+    .bt-position {
+        font-size: 18px;
+        color: #25bada;
+        margin-bottom: 15px;
+        text-transform: capitalize;
+        position: relative;
+    }
+
+    .bt-position::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: #ececec;
+    }
+
+    .bt-info h4, .bt-social h4 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #333;
+        position: relative;
+    }
+
+    .bt-info h4::after, .bt-social h4::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: #ececec;
+    }
+}

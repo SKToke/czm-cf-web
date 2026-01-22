@@ -1,0 +1,14 @@
+.mainmenu-area {
+    position: relative;
+}
+
+.navigation .submenu {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    display: none;
+}
+
+.navigation .dropdown:hover .submenu {
+    display: block;
+}

@@ -1,0 +1,78 @@
+.czm-program-card {
+    //border: 1px solid lightgrey !important;
+    max-height: 210px;
+    min-height: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 0 14px rgba(0, 0, 0, 0.15);
+
+
+    &:hover {
+        max-height: 100%;
+    }
+
+    img {
+        height: 90px;
+        width: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    h6.slogan-text {
+        color: #000000;
+    }
+}
+
+.czm-program-counters {
+    @extend .czm-dark-bg;
+    min-height: 300px;
+    max-width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.czm-program-counters-text{
+    @media (max-width: 768px) {
+        margin-bottom: 20px;
+    }}
+
+.czm-program-stories {
+    position: relative;
+    height: 600px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.czm-program-stories::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    z-index: -1;
+}
+
+@media (max-width: 767px) {
+    .single-fact .icon-box {
+        width: 70px;
+        height: 70px;
+    }
+    .single-fact .icon-box i:before {
+        font-size: 30px;
+    }
+    .single-fact span {
+        font-size: 38px;
+    }
+}

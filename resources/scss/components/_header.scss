@@ -1,0 +1,96 @@
+.czm-header-logo{
+    width: 100%;
+    height: auto;
+}
+
+.single-header-info .icon-box .inner-box {
+    line-height: 66px;
+    border: 0;
+
+    i:before{
+        color: $czm-primary;
+    }
+}
+
+.header-info-text {
+    font-size: 13px;
+}
+
+.czm-header-container{
+    width: 100%;
+    @media (max-width: 768px) {
+        width: 100%;
+    }
+}
+
+.czm-header-section h3{
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #2B2B2B;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    margin: 0;
+    margin-bottom: 5px;
+}
+
+.czm-header-section p{
+    font-size: 13px;
+    margin: 0;
+    color: #B6B6B6;
+}
+
+.czm-header-section{
+    margin: 0;
+}
+.custom-width {
+    width: 10%;
+}
+
+.auth-width {
+    width: 5%;
+}
+
+.calc-width {
+    width: 30%;
+}
+
+.dropdown-menu.zakat-header {
+    border-radius: 0;
+}
+
+.dropdown-menu hr {
+    border: 1px solid #ccc;
+    margin: 5px 0;
+}
+
+.dropdown-menu li a {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .custom-width,
+    .auth-width,
+    .calc-width {
+        width: 30%;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .hide-on-ipad {
+        display: none !important;
+    }
+    .auth-width{
+        margin: auto;
+        width: 16%;
+    }
+    .custom-width {
+        width: 16%;
+    }
+    .calc-width {
+        width: 66%;
+        margin-left: 10px;
+    }
+}

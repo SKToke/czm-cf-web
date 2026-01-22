@@ -1,0 +1,39 @@
+.notifications {
+    .mark-btn {
+        font-size: 12px;
+    }
+    .settings-btn {
+        background-color: $czm-primary-dark;
+        border-color: $czm-primary-dark;
+        color: #ffffff;
+    }
+    .settings-btn:hover {
+        background-color: $czm-primary;
+        border-color: $czm-primary;
+    }
+}
+.notifications-settings {
+    .settings-form {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        font-size: 14px;
+    }
+    .label-col {
+        padding-left: 5px;
+    }
+    .input-col select {
+        font-size: 14px;
+    }
+    .submit-btn {
+        background-color: $czm-primary-dark;
+        border-color: $czm-primary-dark;
+        color: #ffffff;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    .submit-btn:hover {
+        background-color: $czm-primary;
+        border-color: $czm-primary;
+    }
+}

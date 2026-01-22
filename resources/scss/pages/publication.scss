@@ -1,0 +1,16 @@
+.publication-title {
+    color: $czm-primary-dark;
+    font-weight: 700;
+}
+
+.publication-links li {
+    margin: 10px 0;
+}
+.publication-links a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 1.2em;
+}
+.publication-links a:hover {
+    text-decoration: underline;
+}

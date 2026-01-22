@@ -1,0 +1,120 @@
+.czm-primary-text{
+    color: $czm-primary;
+}
+
+.czm-secondary-text{
+    color: $czm-secondary;
+}
+
+.czm-vivid-cyan-text{
+    color: $czm-vivid-cyan;
+}
+
+.czm-secondary-text{
+    color: $czm-secondary;
+}
+
+.czm-primary-bg{
+    background-color: $czm-primary;
+}
+
+.czm-primary-dark-bg{
+    background-color: $czm-primary-dark;
+}
+
+.czm-secondary-bg{
+    background-color: $czm-secondary;
+}
+
+.czm-dark-bg{
+    background-color: $czm-dark;
+}
+
+.czm-gray-bg{
+    background-color: $czm-gray;
+}
+
+.czm-gray2-bg{
+    background-color: $czm-gray2;
+}
+
+.main{
+    min-height: 90vh;
+}
+
+.czm-texture-bg-1 {
+    position: relative;
+    background: url('/public/images/texture-1.png') center/cover;
+}
+
+.czm-solid-bg-1 {
+    position: relative;
+    background: #e0ffff;
+}
+
+.czm-texture-bg-2 {
+    position: relative;
+    background: url("/public/images/texture-2.png") center/cover;
+}
+.red-asterisk{
+    color: red;
+    font-weight: bold;
+}
+.banner-overlay{
+
+}
+.banner-image{
+    background: none;
+    z-index: -20;
+    img{
+        object-position: center;
+        object-fit: cover;
+    }
+}
+
+.text-align-justify{
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+.czm-primary-btn {
+    background: $czm-primary-dark;
+    border-radius: 30px;
+    display: inline-block;
+    color: #fff;
+    font-size: 12px;
+    font-family: 'Raleway', sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 12px 35px;
+    border: 2px solid transparent;
+    transition: all .3s ease;
+}
+
+.czm-primary-btn:hover,
+.czm-primary-btn.inverse {
+    background-color: #fff;
+    border-color: $czm-primary-dark;
+    color: $czm-primary-dark;
+}
+
+.czm-secondary-btn {
+    background: $czm-secondary;
+    border-radius: 30px;
+    display: inline-block;
+    color: #fff;
+    font-size: 12px;
+    font-family: 'Raleway', sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 12px 35px;
+    border: 2px solid transparent;
+    transition: all .3s ease;
+}
+
+.czm-secondary-btn:hover,
+.czm-secondary-btn.inverse {
+    background-color: #fff;
+    border-color: $czm-secondary;
+    color: $czm-secondary;
+}

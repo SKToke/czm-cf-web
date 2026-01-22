@@ -1,0 +1,84 @@
+/* Style for the tab container */
+
+.contact-us {
+  .tab {
+    overflow: hidden;
+  }
+
+  /* Style for the tab buttons */
+  .tab button.tablinks {
+    background-color: inherit;
+    border: 1px solid #f3f0f0; /* Black border for content */
+    float: left;
+    outline: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    transition: 0.3s;
+    font-size: 16px;
+    color: black; /* Black text color */
+    margin: 0 2px; /* Small gap between tabs */
+  }
+
+  /* Style for the active tab */
+  .tab button.tablinks.active {
+    background-color: $czm-primary-dark; /* Black background for active tab */
+    color: white; /* White text color for active tab */
+    border-bottom: none; /* No border at the bottom for active tab */
+  }
+
+  /* Style the tab content */
+  .tabcontent {
+    display: flex;
+    padding: 20px;
+    background-color: white; /* White background for content */
+  }
+
+  /* Initial display for the default active tab content */
+  .tabcontent:first-child {
+    display: block;
+  }
+
+
+  /* Center align the form-group */
+  #zakatOptions.form-group {
+    display: flex;
+    justify-content: center; /* Aligns horizontally */
+    align-items: center; /* Aligns vertically */
+    margin-top: 2rem; /* Example spacing from the top */
+    margin-left: 0;
+  }
+
+  /* Style for each radio button and label pair */
+  .f-check {
+    display: flex;
+    align-items: center; /* Aligns label with the radio button vertically */
+    width: 50%; /* Adjust the width as needed */
+  }
+
+  /* Center the radio button and label text */
+  .radio_btn, .f-check label {
+    margin: 0 auto; /* Centers within the .f-check container */
+    display: block; /* Adjusts display for centering */
+  }
+
+  .send-btn {
+    background-color: $czm-primary-dark;
+    border-radius: 20px;
+    color: white;
+  }
+
+  .campaign-field {
+      font-weight: bold;
+  }
+
+    .mobile-margin-top {
+        margin-top: 0; /* Reset the margin-top for non-mobile devices */
+    }
+
+    /* Apply margin-top for mobile devices only */
+    @media (max-width: 767px) {
+        .mobile-margin-top {
+            margin-top: 25px;
+        }
+    }
+}

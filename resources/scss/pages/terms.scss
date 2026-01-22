@@ -1,0 +1,29 @@
+.inner-header {
+    padding-top: 20px;
+    padding-bottom: 30px;
+    position: relative;
+    background-size: cover;
+}
+
+.inner-header .sec-title h3 {
+    color: #000000;
+    font-size: 30px;
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 58px;
+    margin: 0;
+
+    @media (max-width: 620px) {
+        line-height: 40px;
+    }
+}
+
+.privacy-page.contact-sec {
+    h5 {
+        color: #25bada;
+    }
+    p {
+        font-size: 16px;
+        color: #747474;
+    }
+}

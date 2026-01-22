@@ -1,0 +1,65 @@
+.home-slider.sec-padding {
+    padding-top: 0;
+    padding-bottom: 25px;
+}
+.icon-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.icon-large {
+    font-size: 3em;
+    color: $icon-color;
+}
+#map{
+    height: 500px;
+}
+.app-link {
+    font-size: 18px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+.app-link:hover {
+    color: #25bada;
+}
+.single-call-to-action{
+    min-height: 100px !important;
+    padding-top: 25px;
+}
+.blog-img{
+    width: 100%;
+    height: 150px;
+    img{
+        width: 100%;
+        height: 100%;
+        obeject-fit: cover;
+        object-position: center;
+    }
+}
+
+#scrollToTop {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    z-index: 99;
+    border: none;
+    outline: none;
+    background-color: $czm-secondary;
+    opacity: 80%;
+    color: white;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 18px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+}
+
+.hero-text-box {
+    background-color: rgba(64, 174, 73, 0.7); /* Transparent green */
+    border-radius: 10px; /* Rounded corners */
+}
+

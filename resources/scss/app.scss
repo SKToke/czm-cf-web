@@ -1,0 +1,9 @@
+// Import folders as structured
+@import "./base";
+@import "global";
+@import "./components";
+@import "./pages";
+
+// Import stand-alone files
+
+@import 'owl.carousel/dist/assets/owl.carousel.css';

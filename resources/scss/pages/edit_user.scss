@@ -1,0 +1,185 @@
+.profile {
+    .profile-card {
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+        .profile-picture {
+            position: relative;
+            img {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                border: 2px solid white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .icon-camera {
+                position: absolute;
+                bottom: 0;
+                right: 10px;
+                background: #cccccc;
+                border-radius: 50%;
+                padding: 10px;
+            }
+        }
+
+        .profile-info {
+            h1.profile-name {
+                color: #333;
+                font-size: 1.5em;
+                margin-top: 10px;
+            }
+            p.profile-email {
+                color: #666;
+                font-size: 1em;
+            }
+            p.profile-role {
+                color: #666;
+                font-size: 1em;
+                font-weight: bold;
+            }
+            .status {
+                display: inline-block;
+                margin-top: 10px;
+                padding: 5px 15px;
+                border-radius: 10px;
+                color: white;
+                &.active {
+                    background-color: #5cb85c;
+                }
+            }
+        }
+    }
+
+    .personal-information-container {
+        background: #FFFFFF;
+        padding: 1em;
+
+        h2.title {
+            font-size: 1.25em;
+            color: #000000;
+            margin-bottom: 0.5em;
+            display: inline-block;
+        }
+
+        span.edit-icon {
+            margin-left: 0.5em;
+            vertical-align: middle;
+        }
+
+        .personal-information-form {
+            .form-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1em;
+
+                .form-group {
+                    display: flex;
+                    flex-direction: column;
+                    width: 48%;
+
+                    label {
+                        font-size: 0.9em;
+                        color: #000000;
+                        margin-bottom: 0.25em;
+                    }
+
+                    input[type="text"],
+                    input[type="email"],
+                    input[type="tel"],
+                    input[type="date"] {
+                        border: 1px solid #CCCCCC;
+                        border-radius: 10px;
+                        padding: 1em;
+                        font-size: 0.9em;
+
+                        &:focus {
+                            border-color: #000000;
+                            outline: none;
+                        }
+
+                        &::placeholder {
+                            color: #AAAAAA;
+                        }
+
+                        &[type="date"] {
+                            // Custom styles for date input if necessary
+                        }
+                    }
+                }
+
+                .form-group-bottom {
+                    display: flex;
+                    flex-direction: column;
+                    width: 100%;
+
+                    label {
+                        font-size: 0.9em;
+                        color: #000000;
+                        margin-bottom: 0.25em;
+                    }
+
+                    input[type="text"],
+                    input[type="email"],
+                    input[type="tel"],
+                    input[type="date"] {
+                        border: 1px solid #CCCCCC;
+                        border-radius: 10px;
+                        padding: 1em;
+                        font-size: 0.9em;
+
+                        &:focus {
+                            border-color: #000000;
+                            outline: none;
+                        }
+
+                        &::placeholder {
+                            color: #AAAAAA;
+                        }
+
+                        &[type="date"] {
+                            // Custom styles for date input if necessary
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .save-button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1em;
+        cursor: pointer;
+        margin-top: 20px;
+
+        &:hover {
+            background-color: darken(#4CAF50, 10%);
+        }
+
+        &:focus {
+            outline: none;
+        }
+    }
+}
+.user-show {
+    .profile-img {
+        position: relative;
+        img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .icon-camera {
+            position: absolute;
+            bottom: 0;
+            right: 10px;
+            background: #cccccc;
+            border-radius: 50%;
+            padding: 10px;
+        }
+    }
+}

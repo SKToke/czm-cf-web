@@ -1,0 +1,41 @@
+.subscription-history-card {
+  border-radius: 0;
+  padding: 10px;
+  transition:all 0.5s ease-in-out;
+  .card-title {
+    display: inline-block;
+    background-color: $czm-secondary;
+    padding: 8px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .card-text {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    a {
+      color: $czm-primary;
+    }
+  }
+  .amount-sec {
+    p {
+      font-size: 16px;
+    }
+    p.due {
+      color: #FF0000FF;
+    }
+    p.advanced {
+      color: $czm-secondary;
+    }
+  }
+  .view-btn {
+    background-color: $czm-primary;
+    color: #ffffff;
+    border-radius: 0;
+  }
+}
+.subscription-history-card:hover {
+  background-color: $czm-gray2;
+  transform: scale(1.01);
+}

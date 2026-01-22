@@ -1,0 +1,114 @@
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 10px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .image-container {
+        width: 100%;
+        height: 200px;
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
+        img {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s ease;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        &:hover {
+            img {
+                transform: scale(1.1);
+            }
+
+            .overlay {
+                opacity: 1;
+            }
+        }
+    }
+}
+.image-viewer-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 9999999999999999999999999999999999999; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.7); /* Black with opacity */
+
+    .modal-dialog {
+        margin: 0 auto;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 90%; /* Adjust as necessary */
+
+        .modal-content {
+            background-color: transparent;
+            border: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .modal-body {
+                img {
+                    max-height: 80vh; /* Adjust image height to viewport */
+                    max-width: 100%; /* Adjust image width to viewport */
+                    object-fit: contain; /* Ensures image aspect ratio is maintained */
+                }
+
+                .close-modal {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    font-size: 1.5em;
+                    color: white;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+    .nav-button {
+        position: absolute;
+        top: 50%;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 24px;
+        z-index: 1;
+    }
+    #prevImage {
+        left: 10px;
+    }
+    #nextImage {
+        right: 10px;
+    }
+
+}
