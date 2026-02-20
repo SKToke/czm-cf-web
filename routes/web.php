@@ -158,6 +158,9 @@ Route::post('/report-disbursement-download/{id}', [ReportController::class, 'dis
 Route::post('/report-disbursement-by-project-download/{id}', [ReportController::class, 'disbursementReportByProgramDownload'])->name('disbursement-report-by-project');
 
 //Zakat Calculator routes
+Route::get('/daily-sadaqah', function (){
+    return view('daily-sadaqah.index');
+})->name('daily-sadaqah');
 Route::get('/zakat-calculator', [ZakatCalculatorController::class, 'index'])->name('zakat-calculator');
 Route::post('/zakat/personal', [ZakatCalculatorController::class, 'personalZakatCalculation'])->name('zakat.personal');
 Route::post('/zakat/business', [ZakatCalculatorController::class, 'businessZakatCalculation'])->name('zakat.business');

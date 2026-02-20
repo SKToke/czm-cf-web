@@ -40,6 +40,8 @@
             <li><a class="dropdown-item" href="{{ route('zakat-calculator') }}">Zakat Calculator</a></li>
             <hr>
             <li><a class="dropdown-item" href="{{ route('zakat-calculator') }}">Nisab value</a></li>
+            <hr>
+            <li><a class="dropdown-item" href="{{ route('daily-sadaqah') }}">Daily Sadaqah</a></li>
         </ul>
         <a class="czm-secondary-btn d-flex" href="{{ route('payment.index', ['check-donation' => true]) }}">
             Donate Now
