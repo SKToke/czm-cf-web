@@ -3,22 +3,25 @@
         .amount-btn,
         .freq-btn {
             border: 1px solid #ddd;
-            background: #fff;
+            background: #ffffff;
             color: #222;
+            transition: all .2s ease-in-out;
         }
 
+        /* Hover → Secondary */
         .amount-btn:hover,
         .freq-btn:hover {
-            background: var(--czm-secondary);
-            color: #fff;
-            border-color: var(--czm-secondary);
+            background: #24408F; /* replace with your czm-secondary actual color */
+            border-color: #24408F;
+            color: #ffffff;
         }
 
+        /* Active → Primary */
         .amount-btn.active,
         .freq-btn.active {
-            background: var(--czm-primary);
-            color: #fff;
-            border-color: var(--czm-primary);
+            background: #1a7f37; /* replace with your czm-primary actual color */
+            border-color: #1a7f37;
+            color: #ffffff !important;
         }
     </style>
     <div class="container-fluid mt-30">

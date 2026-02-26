@@ -70,7 +70,7 @@
                 this.classList.add('active');
 
                 // minimum value of current set
-                amountInput.value = amounts[0];
+                amountInput.value = amounts[amounts.length - 1];
                 amountInput.focus();
             };
 

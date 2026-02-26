@@ -64,26 +64,42 @@
             {{-- PAYMENT METHOD --}}
             <div class="form-group mb-3">
                 <div class="field-label">Payment Method</div>
+
                 <div class="d-flex gap-4 mt-2">
-                    <label class="d-flex align-items-center gap-2">
-                        <input type="radio"
-                               name="payment_method"
-                               value="bkash"
-                               checked>
-                        <img src="{{ asset('images/payment-logo/bkash-icon-logo.svg') }}"
-                             width="28"
-                             alt="bKash">
-                        bKash
-                    </label>
-                    <label class="d-flex align-items-center gap-2">
-                        <input type="radio"
-                               name="payment_method"
-                               value="card">
-                        <img src="{{ asset('images/payment-logo/visa-master.png') }}"
-                             width="40"
-                             alt="Visa Master">
-                        Visa / Master
-                    </label>
+
+            <span class="czm-radio-option-container">
+                <input type="radio"
+                       class="czm-radio-btn"
+                       id="bkash"
+                       name="payment_method"
+                       value="bkash"
+                       checked>
+
+                <label class="czm-payment-radio-label d-flex align-items-center gap-2"
+                       for="bkash">
+                    <img src="{{ asset('images/payment-logo/bkash-icon-logo.svg') }}"
+                         width="28"
+                         alt="bKash">
+                    bKash
+                </label>
+            </span>
+
+                        <span class="czm-radio-option-container">
+                <input type="radio"
+                       class="czm-radio-btn"
+                       id="card"
+                       name="payment_method"
+                       value="card">
+
+                <label class="czm-payment-radio-label d-flex align-items-center gap-2"
+                       for="card">
+                    <img src="{{ asset('images/payment-logo/visa-master-icon-logo.svg') }}"
+                         width="50"
+                         alt="Card">
+                    Visa / Master
+                </label>
+            </span>
+
                 </div>
             </div>
             {{-- PAYMENT BUTTON --}}
