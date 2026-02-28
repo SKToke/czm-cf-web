@@ -118,3 +118,24 @@
     border-color: $czm-secondary;
     color: $czm-secondary;
 }
+
+.czm-info-btn {
+    background: $czm-bright-cyan;
+    border-radius: 30px;
+    display: inline-block;
+    color: #fff;
+    font-size: 12px;
+    font-family: 'Raleway', sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 12px 35px;
+    border: 2px solid transparent;
+    transition: all .3s ease;
+}
+
+.czm-info-btn:hover,
+.czm-info-btn.inverse {
+    background-color: #fff;
+    border-color: $czm-bright-cyan;
+    color: $czm-bright-cyan;
+}

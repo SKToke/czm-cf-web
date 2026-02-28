@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DailySadaqahController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProgramController;
@@ -103,6 +104,9 @@ Route::post('/fail', [PaymentController::class, 'fail'])->name('payment.fail');
 Route::post('/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 Route::post('/ipn', [PaymentController::class, 'ipn'])->name('payment.ipn');
 
+// Daily Sadaqah
+Route::get('/daily-sadaqah', [DailySadaqahController::class,'index'])->name('daily-sadaqah.index');
+
 //Job Routes
 Route::get('/czm-job-posts', [JobPostController::class, 'index'])->name('jobPost.index');
 Route::post('/filter-job-posts', [JobPostController::class, 'filterJobs'])->name('filter-jobs');
@@ -158,9 +162,9 @@ Route::post('/report-disbursement-download/{id}', [ReportController::class, 'dis
 Route::post('/report-disbursement-by-project-download/{id}', [ReportController::class, 'disbursementReportByProgramDownload'])->name('disbursement-report-by-project');
 
 //Zakat Calculator routes
-Route::get('/daily-sadaqah', function (){
+/*Route::get('/daily-sadaqah', function (){
     return view('daily-sadaqah.index');
-})->name('daily-sadaqah');
+})->name('daily-sadaqah');*/
 Route::get('/zakat-calculator', [ZakatCalculatorController::class, 'index'])->name('zakat-calculator');
 Route::post('/zakat/personal', [ZakatCalculatorController::class, 'personalZakatCalculation'])->name('zakat.personal');
 Route::post('/zakat/business', [ZakatCalculatorController::class, 'businessZakatCalculation'])->name('zakat.business');
