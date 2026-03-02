@@ -78,7 +78,7 @@
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="bkash">
                     <img src="{{ asset('images/payment-logo/bkash-icon-logo.svg') }}"
-                         width="28"
+                         width="25"
                          alt="bKash">
                     bKash
                 </label>
@@ -93,8 +93,8 @@
 
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="card">
-                    <img src="{{ asset('images/payment-logo/visa-master-icon-logo.svg') }}"
-                         width="50"
+                    <img src="{{ asset('images/payment-logo/card-icon-logo.svg') }}"
+                         width="28"
                          alt="Card">
                     Visa / Master
                 </label>

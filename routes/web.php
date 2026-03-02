@@ -96,6 +96,7 @@ Route::get('/czm-content/{slug}', [ContentController::class, 'contentDetails'])-
 Route::get('/czm-filtered-contents', [ContentController::class, 'filterContent'])->name('filter-contents');
 
 // Payment Routes
+Route::get('/donate', fn()=>redirect()->route('payment.index'))->name('payment.donate');
 Route::get('/czm-payment', [PaymentController::class, 'index'])->name('payment.index');
 Route::post('/process-payment', [PaymentController::class, 'processPayment'])->name('payment.process');
 Route::post('/pay-via-ajax', [PaymentController::class, 'payViaAjax'])->name('payment.ajax');

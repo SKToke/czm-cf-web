@@ -61,6 +61,9 @@
                             <a href="{{ route('aboutUs') }}">About us</a>
                         </li>
                         <li>
+                            <a href="{{ route('notices') }}">Announcement</a>
+                        </li>
+                        <li>
                             <a href="{{ route('jobPost.index') }}">Career</a>
                         </li>
                         <li>

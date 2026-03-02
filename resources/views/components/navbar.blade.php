@@ -127,7 +127,7 @@ use App\Models\Program;
                         </ul>
                     </li>
                     <li>
-                        <a href="{{ route('notices') }}">Announcement</a>
+                        <a href="{{ route('zakat-calculator') }}">Calculate Zakat</a>
                     </li>
                     <li>
                         <a href="{{ route('contact-us.index') }}">Contact Us</a>

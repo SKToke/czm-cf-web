@@ -12,17 +12,16 @@
         <i class="fa-solid fa-envelope-open-text fa-2x czm-primary-text me-2"></i>
         <a href="mailto:info@czm-bd.org" class="text-black header-info-text">
             info@czm-bd.org
-            +880 288 70 770
         </a>
     </div>
 
-    {{--<!-- Phone Section (Visible on medium and larger screens) -->
+    <!-- Phone Section (Visible on medium and larger screens) -->
     <div class="d-none d-md-flex align-items-center hide-on-ipad" style="width: 20%;">
         <i class="fa-solid fa-phone-volume fa-2x czm-primary-text me-2"></i>
         <a href="tel:+88028870770" class="text-black header-info-text">
-
+            +880 288 70 770
         </a>
-    </div>--}}
+    </div>
 
     <!-- Address Section (Visible on medium and larger screens) -->
     <div class=" d-none d-md-flex align-items-center hide-on-ipad" style="width: 20%;">
@@ -39,8 +38,15 @@
         </a>
     </div>
 
+    <!-- Address Section (Visible on medium and larger screens) -->
+    <div class=" d-none d-md-flex align-items-center hide-on-ipad" style="width: 15%;">
+        <a class="czm-secondary-btn d-flex" href="{{ route('payment.index', ['check-donation' => true]) }}">
+            Donate Now
+        </a>
+    </div>
+
     <!-- Buttons Section -->
-    <div class="d-flex  align-items-center justify-content-md-between justify-content-between calc-width">
+    {{--<div class="d-flex  align-items-center justify-content-md-between justify-content-between calc-width">
         <a class="czm-primary-btn me-2 d-md-flex d-none"  id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" href="{{ route('payment.index', ['check-donation' => true]) }}">
             Calculate Zakat
         </a>
@@ -52,7 +58,7 @@
         <a class="czm-secondary-btn d-flex" href="{{ route('payment.index', ['check-donation' => true]) }}">
             Donate Now
         </a>
-    </div>
+    </div>--}}
 
 
     <!-- Auth Section -->
