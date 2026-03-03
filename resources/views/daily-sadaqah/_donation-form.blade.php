@@ -1,5 +1,5 @@
 <div class="donation-form-outer py-0">
-    <form action="{{ route('payment.ajax') }}" method="post">
+    <form action="{{ route('daily-sadaqah.store') }}" method="post">
         @csrf
         <div class="p-3">
             {{-- FREQUENCY --}}
@@ -107,7 +107,7 @@
                     class="border shadow text-white w-100 py-3 czm-primary-bg mt_30"
                     token=""
                     postdata=""
-                    endpoint="{{ url('/pay-via-ajax') }}">
+                    endpoint="{{ url('/daily-sadaqah.store') }}">
                 Pay Now
             </button>
         </div>

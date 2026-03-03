@@ -60,6 +60,64 @@ class DailySadaqahController extends Controller
 
         return view('daily-sadaqah.index')->with(['campaign' => $campaign, 'payableZakat' => $payableZakat]);
     }
+    public function store(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:10',
+            'frequency' => 'required|in:daily,monthly'
+        ]);
+
+        $tran_id = Str::uuid();
+
+        $post_data = [
+            "store_id" => env('SSLCZ_STORE_ID'),
+            "store_passwd" => env('SSLCZ_STORE_PASSWORD'),
+            "total_amount" => $request->amount,
+            "currency" => "BDT",
+            "tran_id" => $tran_id,
+            "success_url" => route('ssl.success'),
+            "fail_url" => route('ssl.fail'),
+            "cancel_url" => route('ssl.cancel'),
+            "ipn_url" => route('ssl.ipn'),
+            "product_name" => "Daily Sadaqah Subscription",
+            "product_category" => "Donation",
+            "product_profile" => "non-physical-goods",
+            "cus_name" => auth()->user()->name ?? "Guest",
+            "cus_email" => auth()->user()->email ?? "guest@example.com",
+            "cus_add1" => "Dhaka",
+            "cus_city" => "Dhaka",
+            "cus_country" => "Bangladesh",
+        ];
+
+        $sslc = new \App\Library\SslCommerz\SslCommerzNotification();
+        $payment_options = $sslc->makePayment($post_data, 'hosted');
+
+        return $payment_options;
+    }
+    private function _initiateRecurring(Request $request)
+    {
+        $post_data = [];
+
+        $post_data['total_amount'] = $request->input('payment-amount');
+        $post_data['currency']     = "BDT";
+        $post_data['tran_id']      = uniqid();
+
+        $post_data['cus_name']  = $request->input('payment-name');
+        $post_data['cus_email'] = $request->input('payment-email');
+        $post_data['cus_phone'] = $request->input('payment-phone');
+
+        // Mark recurring
+        $post_data['recurring'] = 1;
+        $post_data['frequency'] = $request->frequency; // daily / monthly
+
+        $post_data['success_url'] = route('daily-sadaqah.success');
+        $post_data['fail_url']    = route('daily-sadaqah.fail');
+        $post_data['cancel_url']  = route('daily-sadaqah.cancel');
+
+        $sslc = new \App\Services\SslRecurringService();
+
+        return $sslc->initiate($post_data);
+    }
 
     public function payViaAjax(Request $request)
     {

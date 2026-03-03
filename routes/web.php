@@ -107,6 +107,11 @@ Route::post('/ipn', [PaymentController::class, 'ipn'])->name('payment.ipn');
 
 // Daily Sadaqah
 Route::get('/daily-sadaqah', [DailySadaqahController::class,'index'])->name('daily-sadaqah.index');
+Route::post('/daily-sadaqah', [DailySadaqahController::class,'store'])->name('daily-sadaqah.store');
+Route::post('/ssl-success', [DailySadaqahController::class, 'success'])->name('ssl.success');
+Route::post('/ssl-fail', [DailySadaqahController::class, 'fail'])->name('ssl.fail');
+Route::post('/ssl-cancel', [DailySadaqahController::class, 'cancel'])->name('ssl.cancel');
+Route::post('/ssl-ipn', [DailySadaqahController::class, 'ipn'])->name('ssl.ipn');
 
 //Job Routes
 Route::get('/czm-job-posts', [JobPostController::class, 'index'])->name('jobPost.index');
