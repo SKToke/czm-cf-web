@@ -30,43 +30,52 @@
             </div>
             {{-- AMOUNT --}}
             <div class="form-group mb-3">
-                <div class="field-label">Amount<span class="text-danger">*</span> *</div>
+                <div class="field-label">Amount<span class="text-danger">*</span></div>
                 <input type="text"
                        id="amount"
-                       name="payment-amount"
+                       name="payment_amount"
                        class="form-control"
                        value="20">
             </div>
-            {{-- NAME --}}
-            <div class="form-group mb-3">
-                <div class="field-label">Name</div>
-                <input type="text"
-                       name="payment-name"
-                       id="name"
-                       class="form-control">
-            </div>
-            {{-- Email --}}
-            <div class="form-group mb-3">
-                <div class="field-label">Email</div>
-                <input type="text"
-                       name="payment-email"
-                       id="email"
-                       class="form-control">
-            </div>
-            {{-- PHONE --}}
-            <div class="form-group mb-3">
-                <div class="field-label">Mobile</div>
-                <input type="text"
-                       name="payment-phone"
-                       id="phone"
-                       class="form-control">
-            </div>
+            @auth
+                {{-- Logged-in user --}}
+                <input type="hidden" name="payment_name" value="{{ auth()->user()->getFullNameAttribute() }}">
+                <input type="hidden" name="payment_email" value="{{ auth()->user()->email }}">
+                <input type="hidden" name="payment_phone" value="{{ auth()->user()->mobile_no }}">
+
+                <div class="p-3 mb-3 rounded bg-light text-dark">
+                    Donating as <strong>{{ auth()->user()->getFullNameAttribute() }}</strong>
+                </div>
+            @else
+                {{-- NAME --}}
+                <div class="form-group mb-3">
+                    <div class="field-label">Name<span class="text-danger">*</span></div>
+                    <input type="text"
+                           name="payment_name"
+                           id="name" required
+                           class="form-control">
+                </div>
+                {{-- Email --}}
+                <div class="form-group mb-3">
+                    <div class="field-label">Email<span class="text-danger">*</span></div>
+                    <input type="text"
+                           name="payment_email"
+                           id="email" required
+                           class="form-control">
+                </div>
+                {{-- PHONE --}}
+                <div class="form-group mb-3">
+                    <div class="field-label">Mobile</div>
+                    <input type="text"
+                           name="payment_phone"
+                           id="phone"
+                           class="form-control">
+                </div>
+            @endauth
             {{-- PAYMENT METHOD --}}
             <div class="form-group mb-3">
                 <div class="field-label">Payment Method</div>
-
                 <div class="d-flex gap-4 mt-2">
-
             <span class="czm-radio-option-container">
                 <input type="radio"
                        class="czm-radio-btn"
@@ -74,7 +83,6 @@
                        name="payment_method"
                        value="bkash"
                        checked>
-
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="bkash">
                     <img src="{{ asset('images/payment-logo/bkash-icon-logo.svg') }}"
@@ -83,14 +91,12 @@
                     bKash
                 </label>
             </span>
-
-                        <span class="czm-radio-option-container">
+                    <span class="czm-radio-option-container">
                 <input type="radio"
                        class="czm-radio-btn"
                        id="card"
                        name="payment_method"
                        value="card">
-
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="card">
                     <img src="{{ asset('images/payment-logo/card-icon-logo.svg') }}"
@@ -99,7 +105,6 @@
                     Visa / Master
                 </label>
             </span>
-
                 </div>
             </div>
             {{-- PAYMENT BUTTON --}}

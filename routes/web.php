@@ -1,25 +1,25 @@
 <?php
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\ContactUsController;
+use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DailySadaqahController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\JobPostController;
+use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProgramController;
-use App\Http\Controllers\CampaignController;
-use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\NoticeController;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\ContactUsController;
-use App\Http\Controllers\JobPostController;
 use App\Http\Controllers\PublicationController;
-use App\Http\Controllers\ContentController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Recurring\RecurringSubscriptionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ZakatCalculatorController;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -30,6 +30,22 @@ use Illuminate\Support\Facades\File;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+/*====== Clear =======*/
+Route::get('/clear', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+    Artisan::call('optimize:clear');
+    return "All (cache,config,view,optimize) Cleared!";
+});
+/*====== Cache =======*/
+Route::get('/cache', function () {
+    Artisan::call('config:cache');
+    Artisan::call('route:cache');
+    Artisan::call('view:cache');
+    return "All (config,view,route) Cached!";
+});
 
 Auth::routes(['verify' => true]);
 
@@ -96,7 +112,7 @@ Route::get('/czm-content/{slug}', [ContentController::class, 'contentDetails'])-
 Route::get('/czm-filtered-contents', [ContentController::class, 'filterContent'])->name('filter-contents');
 
 // Payment Routes
-Route::get('/donate', fn()=>redirect()->route('payment.index'))->name('payment.donate');
+Route::get('/donate', fn() => redirect()->route('payment.index'))->name('payment.donate');
 Route::get('/czm-payment', [PaymentController::class, 'index'])->name('payment.index');
 Route::post('/process-payment', [PaymentController::class, 'processPayment'])->name('payment.process');
 Route::post('/pay-via-ajax', [PaymentController::class, 'payViaAjax'])->name('payment.ajax');
@@ -106,12 +122,12 @@ Route::post('/cancel', [PaymentController::class, 'cancel'])->name('payment.canc
 Route::post('/ipn', [PaymentController::class, 'ipn'])->name('payment.ipn');
 
 // Daily Sadaqah
-Route::get('/daily-sadaqah', [DailySadaqahController::class,'index'])->name('daily-sadaqah.index');
-Route::post('/daily-sadaqah', [DailySadaqahController::class,'store'])->name('daily-sadaqah.store');
-Route::post('/ssl-success', [DailySadaqahController::class, 'success'])->name('ssl.success');
-Route::post('/ssl-fail', [DailySadaqahController::class, 'fail'])->name('ssl.fail');
-Route::post('/ssl-cancel', [DailySadaqahController::class, 'cancel'])->name('ssl.cancel');
-Route::post('/ssl-ipn', [DailySadaqahController::class, 'ipn'])->name('ssl.ipn');
+Route::get('/daily-sadaqah', [DailySadaqahController::class, 'index'])->name('daily-sadaqah.index');
+Route::post('/daily-sadaqah', [RecurringSubscriptionController::class, 'subscribe'])->name('daily-sadaqah.store');
+Route::post('/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
+Route::post('/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
+Route::post('/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
+Route::post('/daily-sadaqah-ipn', [DailySadaqahController::class, 'ipn'])->name('daily-sadaqah.ipn');
 
 //Job Routes
 Route::get('/czm-job-posts', [JobPostController::class, 'index'])->name('jobPost.index');
@@ -158,7 +174,7 @@ Route::get('/auditReports', [PublicationController::class, 'auditReports'])->nam
 Route::get('/books', [PublicationController::class, 'books'])->name('books');
 Route::get('/reports', [PublicationController::class, 'reports'])->name('reports');
 Route::get('/newsletters', [PublicationController::class, 'newsletters'])->name('newsletters');
-Route::match(['get', 'post'],'/publications/download/{id}', [PublicationController::class, 'download'])->name('download');
+Route::match(['get', 'post'], '/publications/download/{id}', [PublicationController::class, 'download'])->name('download');
 
 //Reports route
 Route::post('/report-download/{id}', [ReportController::class, 'download'])->name('report-download');

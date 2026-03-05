@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\DonorTypeEnum;
 use App\Enums\TransactionTypeEnum;
+use App\Models\Recurring\RecurringSubscription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Donor extends Model
 {
-const DONOR_REQUEST_TYPE = [
+    const DONOR_REQUEST_TYPE = [
         'guest' => '1',
         'self' => '2',
         'anonymous' => '3',
@@ -28,9 +29,9 @@ const DONOR_REQUEST_TYPE = [
         return $this->belongsTo(User::class);
     }
 
-    public function donations()
+    public function totalDonation()
     {
-        return $this->hasMany(Donation::class);
+        return $this->successfulDonations()->sum('amount');
     }
 
     public function successfulDonations()
@@ -38,18 +39,19 @@ const DONOR_REQUEST_TYPE = [
         return $this->donations()->where('transaction_status', TransactionTypeEnum::Complete->value);
     }
 
-    public function totalDonation(){
-        return $this->successfulDonations()->sum('amount');
-    }
-
-    public function campaignSubscriptions()
+    public function donations()
     {
-        return $this->hasMany(CampaignSubscription::class,'donor_id');
+        return $this->hasMany(Donation::class);
     }
 
     public function getCampaignSubscriptions()
     {
         return $this->campaignSubscriptions()->get();
+    }
+
+    public function campaignSubscriptions()
+    {
+        return $this->hasMany(CampaignSubscription::class, 'donor_id');
     }
 
     public function getLastTransactionDateAttribute()
@@ -66,9 +68,14 @@ const DONOR_REQUEST_TYPE = [
     public function getCampaignSpecificSubscription($campaignId)
     {
         $campaignSubscriptions = $this->campaignSubscriptions()
-                                ->where('campaign_id', $campaignId)
-                                ->where('active', true);
+            ->where('campaign_id', $campaignId)
+            ->where('active', true);
 
         return $campaignSubscriptions->exists() ? $campaignSubscriptions->first() : null;
+    }
+
+    public function recurringSubscriptions()
+    {
+        return $this->hasMany(RecurringSubscription::class);
     }
 }
