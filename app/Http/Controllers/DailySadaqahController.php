@@ -11,12 +11,16 @@ use App\Models\Campaign;
 use App\Models\CampaignSubscription;
 use App\Models\Donation;
 use App\Models\Donor;
+use App\Models\Recurring\RecurringSubscription;
+use App\Models\Recurring\RecurringTransaction;
 use App\Models\User;
 use App\Models\UserZakatCalculation;
+use App\Services\SslEncryptionHelper;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
@@ -60,486 +64,245 @@ class DailySadaqahController extends Controller
 
         return view('daily-sadaqah.index')->with(['campaign' => $campaign, 'payableZakat' => $payableZakat]);
     }
-    public function store(Request $request)
+    public function subscribe(Request $request)
     {
-        $request->validate([
-            'amount' => 'required|numeric|min:10',
-            'frequency' => 'required|in:daily,monthly'
+        /*
+        |--------------------------------------------------------------------------
+        | Validation
+        |--------------------------------------------------------------------------
+        */
+        $rules = [
+            'payment_amount' => ['required', 'numeric', 'min:1'],
+            'frequency' => ['required', 'in:daily,monthly'],
+            'payment_method' => ['required'],
+        ];
+        if (!auth()->check()) {
+            $rules['payment_name'] = ['required', 'string', 'max:255'];
+            $rules['payment_email'] = ['required', 'email', 'max:255'];
+            $rules['payment_phone'] = ['nullable', 'string'];
+        }
+        $validated = $request->validate($rules);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve User
+        |--------------------------------------------------------------------------
+        */
+        if (auth()->check()) {
+            $user = auth()->user();
+        } else {
+            $user = User::where('email', $request->payment_email)->first();
+            if (!$user) {
+                $user = User::create([
+                    'first_name' => $request->payment_name,
+                    'email' => $request->payment_email,
+                    'mobile_no' => $request->payment_phone,
+                    'password' => bcrypt('123456'),
+                ]);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve Donor
+        |--------------------------------------------------------------------------
+        */
+        $donor = $user->findOrCreateDonor();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Subscription
+        |--------------------------------------------------------------------------
+        */
+        $refer = config('sslcommerz.' . config('sslcommerz.mode') . '.store_refer');
+        $saltKey = config('sslcommerz.' . config('sslcommerz.mode') . '.store_salt_key');
+        $storePass = config('sslcommerz.' . config('sslcommerz.mode') . '.store_password');
+
+        $tranId = 'SUB_' . uniqid();
+
+        $subscription = RecurringSubscription::create([
+            'donor_id' => $donor->id,
+            'refer' => $refer,
+            'amount' => $request->payment_amount,
+            'currency' => 'BDT',
+            'frequency_type' => $request->frequency,
+            'status' => 'initiated',
+            'last_tran_id' => $tranId,
         ]);
 
-        $tran_id = Str::uuid();
 
-        $post_data = [
-            "store_id" => env('SSLCZ_STORE_ID'),
-            "store_passwd" => env('SSLCZ_STORE_PASSWORD'),
-            "total_amount" => $request->amount,
-            "currency" => "BDT",
-            "tran_id" => $tran_id,
-            "success_url" => route('ssl.success'),
-            "fail_url" => route('ssl.fail'),
-            "cancel_url" => route('ssl.cancel'),
-            "ipn_url" => route('ssl.ipn'),
-            "product_name" => "Daily Sadaqah Subscription",
-            "product_category" => "Donation",
-            "product_profile" => "non-physical-goods",
-            "cus_name" => auth()->user()->name ?? "Guest",
-            "cus_email" => auth()->user()->email ?? "guest@example.com",
-            "cus_add1" => "Dhaka",
-            "cus_city" => "Dhaka",
-            "cus_country" => "Bangladesh",
+        /*
+        |--------------------------------------------------------------------------
+        | SSL Schedule
+        |--------------------------------------------------------------------------
+        */
+
+        $schedule = json_encode([
+            'refer' => $refer,
+            'acct_no' => $subscription->id,
+            'type' => $request->frequency,
+            'dayofmonth' => now()->day,
+            'month' => '0',
+        ]);
+
+        $encryptedSchedule = SslEncryptionHelper::encrypt($schedule, $saltKey);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SSL Payload
+        |--------------------------------------------------------------------------
+        */
+
+        $payload = [
+
+            'store_id' => config('sslcommerz.' . config('sslcommerz.mode') . '.store_id'),
+            'store_passwd' => $storePass,
+
+            'total_amount' => $request->payment_amount,
+            'currency' => 'BDT',
+            'tran_id' => $tranId,
+
+//            'success_url' => route('daily-sadaqah.success'),
+//            'fail_url' => route('daily-sadaqah.fail'),
+//            'cancel_url' => route('daily-sadaqah.cancel'),
+//            'ipn_url' => route('daily-sadaqah.ipn'),
+            'success_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-success",
+            'fail_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-fail",
+            'cancel_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-cancel",
+            'ipn_url'=> "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-ipn",
+
+            'cus_name' => $donor->name,
+            'cus_email' => $donor->email,
+            'cus_add1' => 'Bangladesh',
+            'cus_city' => 'Dhaka',
+            'cus_country' => 'Bangladesh',
+            'cus_phone' => $donor->phone ?? '01700000000',
+
+            'shipping_method' => 'NO',
+
+            'product_name' => 'Daily Sadaqah',
+            'product_category' => 'Donation',
+            'product_profile' => 'general',
+
+            'schedule' => $encryptedSchedule,
+            'multi_card_name' => 'visacard,mastercard',
+            'login_req' => 1,
         ];
 
-        $sslc = new \App\Library\SslCommerz\SslCommerzNotification();
-        $payment_options = $sslc->makePayment($post_data, 'hosted');
 
-        return $payment_options;
-    }
-    private function _initiateRecurring(Request $request)
-    {
-        $post_data = [];
+        /*
+        |--------------------------------------------------------------------------
+        | Call SSLCommerz
+        |--------------------------------------------------------------------------
+        */
 
-        $post_data['total_amount'] = $request->input('payment-amount');
-        $post_data['currency']     = "BDT";
-        $post_data['tran_id']      = uniqid();
+        $response = Http::asForm()->post(config('sslcommerz.apiDomain') . config('sslcommerz.apiUrl.make_payment'), $payload);
 
-        $post_data['cus_name']  = $request->input('payment-name');
-        $post_data['cus_email'] = $request->input('payment-email');
-        $post_data['cus_phone'] = $request->input('payment-phone');
+        $data = $response->json();
 
-        // Mark recurring
-        $post_data['recurring'] = 1;
-        $post_data['frequency'] = $request->frequency; // daily / monthly
-
-        $post_data['success_url'] = route('daily-sadaqah.success');
-        $post_data['fail_url']    = route('daily-sadaqah.fail');
-        $post_data['cancel_url']  = route('daily-sadaqah.cancel');
-
-        $sslc = new \App\Services\SslRecurringService();
-
-        return $sslc->initiate($post_data);
-    }
-
-    public function payViaAjax(Request $request)
-    {
-        $phone = "01";
-        $campaignId = $request->get('campaign-id');
-        $rules = self::validation_rules;
-        if($request->get('donor-type') === Donor::DONOR_REQUEST_TYPE['guest']){
-            $rules = array_merge($rules, self::guest_validation_rules);
+        if (!empty($data['GatewayPageURL'])) {
+            return redirect()->away($data['GatewayPageURL']);
         }
 
-        $validator = Validator::make(
-            $request->all(),
-            $rules,
-            self::validation_messages
-        );
-        $paymentFlag = false;
-        $pending_donation=null;
-
-        if($validator->fails()){
-            $errorMessages = [];
-            foreach ($validator->errors()->all() as $error)
-                $errorMessages []= $error;
-
-            FlashHelper::trigger(
-                implode('<br>', $errorMessages),
-                'danger'
-            );
-
-            return redirect()->route('payment.index', [
-                'confirmation' => $paymentFlag ? 'success' : null,
-                'campaign-id' => $campaignId ?? null,
-            ]);
-        }
-        else{
-            if($campaignId && !Campaign::isDonatable($campaignId)){
-                FlashHelper::trigger('Cannot donate to campaign. Kindly check the campaign validity and try again.', 'danger');
-                return redirect()->route('payment.index');
-            }
-            $paymentRequest = Arr::except($validator->getData(), ['_token']);
-
-            if($paymentRequest['donor-type'] === Donor::DONOR_REQUEST_TYPE['guest']){
-
-                if(User::where('email', $paymentRequest['payment-email'])->exists()){
-                    FlashHelper::trigger(
-                        'Email already exists as a registered user. Kindly login to proceed.',
-                        'danger'
-                    );
-                    return redirect()->route('payment.index');
-                }
-
-                /** Currently, if guest uses an email that is previously recorded as an
-                 * unregistered donor, name & phone will be over-written in database.
-                 */
-                $donor = Donor::firstOrNew([
-                    'email' => $paymentRequest['payment-email'],
-                ]);
-                $donor->name = $paymentRequest['payment-name'] ;
-                $donor->phone = $paymentRequest['payment-phone'];
-                $donor->donor_type = DonorTypeEnum::UNREGISTERED;
-                $donor->save();
-
-                $donation = Donation::create([
-                    'amount' => $paymentRequest['payment-amount'],
-                    'donor_id' => $donor->id,
-                    'transaction_id' => Uuid::uuid4()->toString(),
-                    'transaction_status' => TransactionTypeEnum::Pending,
-                    'donation_type' => DonationTypeEnum::from($paymentRequest['payment-type'])->value
-                ]);
-
-                $donation->save();
-
-                if($campaignId) $donation->setCampaign($campaignId);
-
-                $pending_donation=$donation;
-
-                if($campaignId) $donation->setCampaign($campaignId);
-
-                $paymentFlag = true;
-            }
-
-            else if($paymentRequest['donor-type'] === Donor::DONOR_REQUEST_TYPE['self']){
-                // Logged-in user option for donation
-
-                $donor = auth()->user()->findOrCreateDonor();
-                $donation = Donation::create([
-                    'amount' => $paymentRequest['payment-amount'],
-                    'donor_id' => $donor->id,
-                    'transaction_id' => Uuid::uuid4()->toString(),
-                    'transaction_status' => TransactionTypeEnum::Pending,
-                    'donation_type' => DonationTypeEnum::from($paymentRequest['payment-type'])->value,
-                ]);
-                $donation->save();
-                if (auth()->user()->mobile_no) {
-                    $phone = auth()->user()->mobile_no;
-                }
-
-                if($campaignId) $donation->setCampaign($campaignId);
-
-                $pending_donation=$donation;
-                if($campaignId) $donation->setCampaign($campaignId);
-
-                $paymentFlag = true;
-            }
-
-            else if($paymentRequest['donor-type'] === Donor::DONOR_REQUEST_TYPE['anonymous']){
-                // Anonymous option for donation
-                $donation = Donation::create([
-                    'amount' => $paymentRequest['payment-amount'],
-                    'donor_id' => null,
-                    'transaction_id' => Uuid::uuid4()->toString(),
-                    'transaction_status' => TransactionTypeEnum::Pending,
-                    'donation_type' => DonationTypeEnum::from($paymentRequest['payment-type'])->value
-                ]);
-                $donation->save();
-                $pending_donation=$donation;
-                if($campaignId) $donation->setCampaign($campaignId);
-
-                $paymentFlag = true;
-            }
-
-            else{
-                FlashHelper::trigger('Encountered an error. Payment did not initiate', 'danger');
-                return redirect()->route('payment.index', [
-                    'campaign-id' => $campaignId ?? null,
-                ]);
-            }
-        }
-
-        $post_data = array();
-        $post_data['total_amount'] = $request->input('payment-amount'); # You cant not pay less than 10
-        $post_data['currency'] = "BDT";
-        $post_data['tran_id'] = $pending_donation->transaction_id; // tran_id must be unique
-
-        # CUSTOMER INFORMATION
-        $post_data['cus_name'] = $request->input('payment-name') ? $request->input('payment-name') : "customer name";
-        $post_data['cus_email'] = $request->input('payment-email') ? $request->input('payment-email') : "customer email";
-        $post_data['cus_add1'] = "";
-        $post_data['cus_city'] = "";
-        $post_data['cus_country'] = "Bangladesh";
-
-        if ($request->input('payment-phone')) {
-            $post_data['cus_phone'] = $request->input('payment-phone');
-        } else {
-            $post_data['cus_phone'] = $phone;
-        }
-
-        # SHIPMENT INFORMATION
-
-        $post_data['shipping_method'] = "NO";
-
-        # Product INFORMATION
-        $post_data['product_name'] = "Zakat or Sadaqah";
-        $post_data['product_category'] = "Donation";
-        $post_data['product_profile'] = "physical-goods";
-
-        # OPTIONAL PARAMETERS
-        $post_data['donor-type'] = $request->input('donor-type');
-        $post_data['payment-type'] = $request->input('payment-type');
-        $post_data['payment-agree'] = $request->input('payment-agree');
-        $post_data['campaign-id'] = $campaignId;
-
-        # Before  going to initiate the payment order status need to update as Pending.
-
-        $sslc = new SslCommerzNotification();
-        $payment_options = $sslc->makePayment($post_data, 'checkout', 'json');
-
-        if (!is_array($payment_options)) {
-            $payment_options = json_decode($payment_options, true); // Decode to associative array
-
-            if ($payment_options && $payment_options['status'] == 'success') {
-                return redirect()->to($payment_options['data']);
-            } else {
-                FlashHelper::trigger(
-                    'Unable to proceed',
-                    'danger'
-                );
-                return redirect()->route('payment.index', [
-                    'campaign-id' => $campaignId ?? null,
-                ]);
-            }
-        } else {
-            FlashHelper::trigger(
-                'Unexpected response format',
-                'danger'
-            );
-            return redirect()->route('payment.index', [
-                'campaign-id' => $campaignId ?? null,
-            ]);
-        }
-
-    }
-
-    public function success(Request $request)
-    {
-        $tran_id = $request->input('tran_id');
-        $amount = $request->input('amount');
-        $currency = $request->input('currency');
-
-        $sslc = new SslCommerzNotification();
-
-        // Retrieve the donation record using Eloquent
-        $donation = Donation::where('transaction_id', $tran_id)->first();
-
-        if (!$donation) {
-            FlashHelper::trigger('No transaction found.', 'danger');
-            return redirect()->route('payment.index', ['campaign-id' => null]);
-        }
-
-        if ($donation->transaction_status == TransactionTypeEnum::Pending->value) {
-            $validation = $sslc->orderValidate($request->all(), $tran_id, $amount, $currency);
-
-            if ($validation) {
-                // Update the donation record
-                $donation->transaction_status = TransactionTypeEnum::Complete->value;
-                $donation->payment_via = $request->card_type;
-                $donation->data = json_encode($request->all());
-                $donation->save();
-
-                // Call the updateOrCreateReport method on the Donation model instance
-                $donation->updateOrCreateReport();
-                $donation->updateOrCreateTransactionReport();
-
-                if ($donation->campaign_id && $donation->transaction_status==TransactionTypeEnum::Complete->value) {
-                    $campaign = Campaign::find($donation->campaign_id);
-                    $campaign->updateOrCreateReport();
-                }
-
-                if ($donation->campaign_id && $donation->donor_id) {
-                    $this->updateCampaignSubscription($donation->id, $donation->campaign_id, $donation->donor_id);
-                }
-
-                if ($donation->donation_type == DonationTypeEnum::ZAKAT->value) {
-                    $this->updateUserZakatCalculation($donation->id);
-                }
-
-                FlashHelper::trigger('Transaction is successfully completed', 'success');
-                return redirect()->route('payment.index', [
-                    'confirmation' => 'success',
-                    'campaign-id' => $donation->campaign_id ?? null,
-                ]);
-            } else {
-                FlashHelper::trigger('Transaction validation failed', 'danger');
-                return redirect()->route('payment.index', ['campaign-id' => $donation->campaign_id ?? null]);
-            }
-        } else if ($donation->transaction_status == TransactionTypeEnum::Complete->value) {
-            FlashHelper::trigger('Transaction is already completed', 'info');
-            return redirect()->route('payment.index', [
-                'confirmation' => 'success',
-                'campaign-id' => $donation->campaign_id ?? null,
-            ]);
-        } else {
-            FlashHelper::trigger('Invalid transaction', 'danger');
-            return redirect()->route('payment.index', ['campaign-id' => $donation->campaign_id ?? null]);
-        }
-    }
-
-    public function fail(Request $request)
-    {
-        $tran_id = $request->input('tran_id');
-
-        $donation_details = DB::table('donations')
-            ->where('transaction_id', $tran_id)
-            ->select('transaction_id', 'transaction_status', 'amount')->first();
-
-
-        if ($donation_details->transaction_status == TransactionTypeEnum::Pending->value) {
-            $update_product = DB::table('donations')
-                ->where('transaction_id', $tran_id)
-                ->update([
-                    'transaction_status' => TransactionTypeEnum::Failed,
-                    'payment_via' => request()->card_type,
-                    'data' => json_encode(request()->all()),
-                ]);
-
-            $donation = Donation::where('transaction_id', $tran_id)->first();
-            $donation->updateOrCreateTransactionReport();
-
-            FlashHelper::trigger(
-                $request->input('error'),
-                'danger'
-            );
-            return redirect()->route('payment.index', [
-                'campaign-id' => $donation_details->campaign_id ?? null,
-            ]);
-        } else if ($donation_details->transaction_status == TransactionTypeEnum::Complete->value) {
-            FlashHelper::trigger(
-                'Transaction is already Successful',
-                'danger'
-            );
-            return redirect()->route('payment.index', [
-                'campaign-id' => $donation_details->campaign_id ?? null,
-            ]);
-        } else {
-            FlashHelper::trigger(
-                'Invalid transcation',
-                'danger'
-            );
-            return redirect()->route('payment.index', [
-                'campaign-id' => $donation_details->campaign_id ?? null,
-            ]);
-        }
-    }
-
-    public function cancel(Request $request)
-    {
-        $tran_id = $request->input('tran_id');
-
-        $donation_details = DB::table('donations')
-            ->where('transaction_id', $tran_id)
-            ->select('transaction_id', 'transaction_status', 'amount')->first();
-        if ($donation_details->transaction_status == TransactionTypeEnum::Pending->value) {
-            $update_product = DB::table('donations')
-                ->where('transaction_id', $tran_id)
-                ->update([
-                    'transaction_status' => TransactionTypeEnum::Canceled,
-                    'data' => json_encode(request()->all()),
-                ]);
-            $donation = Donation::where('transaction_id', $tran_id)->first();
-            $donation->updateOrCreateTransactionReport();
-            FlashHelper::trigger(
-                'Transaction is Canceled',
-                'danger'
-            );
-            return redirect()->route('payment.index', [
-                'campaign-id' => $donation_details->campaign_id ?? null,
-            ]);
-        } else if ($donation_details->transaction_status == TransactionTypeEnum::Complete->value) {
-            FlashHelper::trigger(
-                'Transaction is already Successful',
-                'danger'
-            );
-            return redirect()->route('payment.index', [
-                'campaign-id' => $donation_details->campaign_id ?? null,
-            ]);
-        } else {
-            FlashHelper::trigger(
-                'Invalid transcation',
-                'danger'
-            );
-            return redirect()->route('payment.index', [
-                'campaign-id' => $donation_details->campaign_id ?? null,
-            ]);
-        }
+        return back()->with('error', 'Unable to start payment gateway.');
     }
 
     public function ipn(Request $request)
     {
-        if ($request->input('tran_id')) #Check transation id is posted or not.
-        {
-            $tran_id = $request->input('tran_id');
+        $tranId = $request->tran_id;
 
-            #Check order status in order tabel against the transaction id or order id.
-            $donation_details = DB::table('donations')
-                ->where('transaction_id', $tran_id)
-                ->select('transaction_id', 'transaction_status', 'amount')->first();
+        $subscription = RecurringSubscription::where('last_tran_id', $tranId)->first();
 
-            if ($donation_details->transaction_status == TransactionTypeEnum::Pending->value) {
-                $sslc = new SslCommerzNotification();
-                $validation = $sslc->orderValidate($request->all(), $tran_id, $donation_details->amount, $donation_details->currency);
-                if ($validation == TRUE) {
-                    /*
-                    That means IPN worked. Here you need to update order status
-                    in order table as Processing or Complete.
-                    Here you can also sent sms or email for successful transaction to customer
-                    */
+        if (!$subscription) {
+            return response()->json(['error' => 'Subscription not found'], 404);
+        }
 
-                    if($request->input('status')=='VALID'){
-                        $update_product = DB::table('donations')
-                            ->where('transaction_id', $tran_id)
-                            ->update([
-                                'transaction_status' => TransactionTypeEnum::Complete,
-                                'payment_via' => request()->card_type,
-                                'data' => json_encode(request()->all()),
-                            ]);
-                    }elseif ($request->input('status')=='FAILED'){
-                        $update_product = DB::table('donations')
-                            ->where('transaction_id', $tran_id)
-                            ->update([
-                                'transaction_status' => TransactionTypeEnum::Failed,
-                                'payment_via' => request()->card_type,
-                                'data' => json_encode(request()->all()),
-                            ]);
-                    }elseif ($request->input('status')=='CANCELLED'){
-                        $update_product = DB::table('donations')
-                            ->where('transaction_id', $tran_id)
-                            ->update([
-                                'transaction_status' => TransactionTypeEnum::Canceled,
-                                'data' => json_encode(request()->all()),
-                            ]);
-                    }
-                }
+        // Activate subscription
+        if ($request->status === 'VALID') {
+
+            $subscription->update([
+                'subscription_id' => $request->subscription_id ?? $subscription->subscription_id,
+                'status' => 'active',
+                'started_at' => now(),
+                'last_payment_at' => now(),
+                'last_payment_status' => 'valid',
+            ]);
+
+            // Calculate next billing date
+            if ($subscription->frequency_type === 'daily') {
+                $nextBilling = now()->addDay();
+            } else {
+                $nextBilling = now()->addMonth();
             }
+
+            $subscription->update([
+                'next_billing_at' => $nextBilling
+            ]);
+
+            // Store payment history
+            RecurringTransaction::create([
+                'recurring_subscription_id' => $subscription->id,
+                'tran_id' => $tranId,
+                'amount' => $subscription->amount,
+                'currency' => 'BDT',
+                'payment_status' => 'valid',
+                'gateway_response' => $request->all(),
+                'paid_at' => now(),
+            ]);
         }
+
+        return response()->json(['success' => true]);
     }
-
-    public function updateCampaignSubscription($donationId, $campaignId, $donorId)
+    public function billQuery(Request $request)
     {
-        $donation = Donation::find($donationId);
-        $subscription = CampaignSubscription::where('campaign_id', $campaignId)
-            ->where('donor_id', $donorId)
-            ->where('active', true)
-            ->first();
-        if($subscription && $donation->transaction_status==TransactionTypeEnum::Complete->value){
-            $subscription->due_amount = $subscription->due_amount + $donation->amount;
-            $subscription->last_donated = $donation->created_at;
-            $subscription->save();
+        $subscriptionId = $request->subscription_id;
+
+        $subscription = RecurringSubscription::where('subscription_id', $subscriptionId)->first();
+
+        if (!$subscription) {
+            return response()->json([
+                'status' => 'FAILED',
+                'failedreason' => 'Subscription not found'
+            ]);
         }
+
+        /*
+        |----------------------------------------------------------
+        | Subscription Status Logic
+        |----------------------------------------------------------
+        */
+
+        if ($subscription->status !== 'active') {
+            return response()->json([
+                'status' => 'FAILED',
+                'failedreason' => 'Subscription inactive'
+            ]);
+        }
+
+        /*
+        |----------------------------------------------------------
+        | Allow Charge
+        |----------------------------------------------------------
+        */
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'subscription_id' => $subscription->subscription_id,
+            'amount' => $subscription->amount,
+            'currency' => 'BDT'
+        ]);
     }
-
-    public function updateUserZakatCalculation($donationId)
+    public function success(Request $request)
     {
-        $donation = Donation::find($donationId);
-        if($donation && $donation->transaction_status==TransactionTypeEnum::Complete->value && $donation->donor_id) {
-            $donor = Donor::find($donation->donor_id);
-            if ($donor) {
-                $userZakatCalculation = UserZakatCalculation::where('email', $donor->email)->orderBy('created_at', 'asc')->first();
-                if ($userZakatCalculation && $userZakatCalculation->paid_to_czm == null) {
-                    $userZakatCalculation->paid_to_czm = $donation->amount;
-                    $userZakatCalculation->save();
-                }
-            }
-        }
-
+        return redirect()->route('daily-sadaqah.index')->with('success','Thank you. Your subscription setup is being processed.');
+    }
+    public function fail(Request $request)
+    {
+        return redirect()->route('daily-sadaqah.index')->with('message', 'Payment failed. Please try again.');
+    }
+    public function cancel(Request $request)
+    {
+        return redirect()->route('daily-sadaqah.index')->with('message', 'Payment was cancelled.');
     }
 }

@@ -123,12 +123,12 @@ Route::post('/ipn', [PaymentController::class, 'ipn'])->name('payment.ipn');
 
 // Daily Sadaqah
 Route::get('/daily-sadaqah', [DailySadaqahController::class, 'index'])->name('daily-sadaqah.index');
-Route::post('/daily-sadaqah', [RecurringSubscriptionController::class, 'subscribe'])->name('daily-sadaqah.store');
-Route::post('/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
-Route::post('/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
-Route::post('/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
+Route::post('/daily-sadaqah', [DailySadaqahController::class, 'subscribe'])->name('daily-sadaqah.store');
+Route::match(['get','post'],'/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
+Route::match(['get','post'],'/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
+Route::match(['get','post'],'/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
 Route::post('/daily-sadaqah-ipn', [DailySadaqahController::class, 'ipn'])->name('daily-sadaqah.ipn');
-
+Route::post('/daily-sadaqah-bill-query', [DailySadaqahController::class, 'billQuery'])    ->name('daily-sadaqah.bill-query');
 //Job Routes
 Route::get('/czm-job-posts', [JobPostController::class, 'index'])->name('jobPost.index');
 Route::post('/filter-job-posts', [JobPostController::class, 'filterJobs'])->name('filter-jobs');

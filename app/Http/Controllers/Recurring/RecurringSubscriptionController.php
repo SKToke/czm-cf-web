@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Recurring;
 
 use App\Http\Controllers\Controller;
 use App\Models\Recurring\RecurringSubscription;
+use App\Models\Recurring\RecurringTransaction;
 use App\Models\User;
 use App\Services\SslEncryptionHelper;
 use Illuminate\Http\Request;
@@ -151,5 +152,52 @@ class RecurringSubscriptionController extends Controller
         }
 
         return back()->with('error', 'Unable to start payment gateway.');
+    }
+
+    public function ipn(Request $request)
+    {
+        $tranId = $request->tran_id;
+
+        $subscription = RecurringSubscription::where('last_tran_id', $tranId)->first();
+
+        if (!$subscription) {
+            return response()->json(['error' => 'Subscription not found'], 404);
+        }
+
+        // Activate subscription
+        if ($request->status === 'VALID') {
+
+            $subscription->update([
+                'subscription_id' => $request->subscription_id ?? $subscription->subscription_id,
+                'status' => 'active',
+                'started_at' => now(),
+                'last_payment_at' => now(),
+                'last_payment_status' => 'valid',
+            ]);
+
+            // Calculate next billing date
+            if ($subscription->frequency_type === 'daily') {
+                $nextBilling = now()->addDay();
+            } else {
+                $nextBilling = now()->addMonth();
+            }
+
+            $subscription->update([
+                'next_billing_at' => $nextBilling
+            ]);
+
+            // Store payment history
+            RecurringTransaction::create([
+                'recurring_subscription_id' => $subscription->id,
+                'tran_id' => $tranId,
+                'amount' => $subscription->amount,
+                'currency' => 'BDT',
+                'payment_status' => 'valid',
+                'gateway_response' => $request->all(),
+                'paid_at' => now(),
+            ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

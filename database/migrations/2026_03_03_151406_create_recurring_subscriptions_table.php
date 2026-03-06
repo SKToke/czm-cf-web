@@ -12,12 +12,9 @@ return new class extends Migration {
     {
         Schema::create('recurring_subscriptions', function (Blueprint $table) {
             $table->id();
-
-            $table->unsignedBigInteger('donor_id');
-
-            $table->string('refer');
             $table->string('subscription_id')->nullable();
-
+            $table->unsignedBigInteger('donor_id');
+            $table->string('refer');
             $table->decimal('amount', 10, 2);
             $table->string('currency')->default('BDT');
 

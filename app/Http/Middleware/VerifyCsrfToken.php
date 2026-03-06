@@ -17,5 +17,11 @@ class VerifyCsrfToken extends Middleware
         '/fail',
         '/ipn',
         '/pay-via-ajax',
+
+        'daily-sadaqah-success',
+        'daily-sadaqah-fail',
+        'daily-sadaqah-cancel',
+        'daily-sadaqah-ipn',
+        'daily-sadaqah-bill-query',
     ];
 }
