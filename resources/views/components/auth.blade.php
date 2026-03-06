@@ -14,14 +14,15 @@
                     }
                 @endphp
                 <div class="notification-container"
-                @php
-                 if ($notifications >= 0) : echo 'data-user="'. $currentUser?->id .'" data-notification-count="'.$notifications.'"';endif;
-               @endphp
-               >
+                    @php
+                        if ($notifications >= 0) : echo 'data-user="'. $currentUser?->id .'" data-notification-count="'.$notifications.'"';endif;
+                    @endphp
+                >
                     <p class="mt-4 czm-auth-container {{ auth()->guest() ? '' : 'active' }}"></p>
 
                     <?php if ($notifications <= 0): ?>
-                    <div class="notification-badge" id="red-badge-for-notification" style="display: none;">{{$notifications}}</div>
+                    <div class="notification-badge" id="red-badge-for-notification"
+                         style="display: none;">{{$notifications}}</div>
                     <?php else: ?>
                     <div class="notification-badge" id="red-badge-for-notification">{{$notifications}}</div>
                     <?php endif; ?>
@@ -29,7 +30,7 @@
                 <ul class="submenu shadow">
                     @if(auth()->guest())
                         <li>
-                            <a data-bs-toggle="modal"  id="require-register">Register</a>
+                            <a data-bs-toggle="modal" id="require-register">Register</a>
                         </li>
                         <li>
                             <a data-bs-toggle="modal" id="require-login">Login</a>
@@ -42,15 +43,20 @@
                             <a href="{{ route('user.show', ['id' => auth()->id()]) }}">Dashboard</a>
                         </li>
                         @if (auth()->user()->hasValidRoles())
-                        <li>
-                            <a href="{{ route('user.admin-dashboard', ['id' => auth()->id()]) }}">Admin Dashboard</a>
-                        </li>
+                            <li>
+                                <a href="{{ route('user.admin-dashboard', ['id' => auth()->id()]) }}">Admin
+                                    Dashboard</a>
+                            </li>
                         @endif
                         <li>
                             <a href="{{ route('user-donations') }}">Donations</a>
                         </li>
                         <li>
-                            <a href="{{ route('user.campaign-supscription-history', ['id' => auth()->user()->id]) }}">Subscription History</a>
+                            <a href="{{ route('user-daily-sadaqah.index') }}">Daily Sadaqah List</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('user.campaign-supscription-history', ['id' => auth()->user()->id]) }}">Subscription
+                                History</a>
                         </li>
                         <li>
                             <a href="{{ route('archived-zakat-calculations') }}">Archived Zakat Calculations</a>

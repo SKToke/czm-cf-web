@@ -2,28 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\DonationTypeEnum;
-use App\Enums\DonorTypeEnum;
-use App\Enums\TransactionTypeEnum;
 use App\Helpers\FlashHelper;
-use App\Library\SslCommerz\SslCommerzNotification;
 use App\Models\Campaign;
-use App\Models\CampaignSubscription;
-use App\Models\Donation;
-use App\Models\Donor;
 use App\Models\Recurring\RecurringSubscription;
 use App\Models\Recurring\RecurringTransaction;
 use App\Models\User;
-use App\Models\UserZakatCalculation;
 use App\Services\SslEncryptionHelper;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Ramsey\Uuid\Uuid;
 
 class DailySadaqahController extends Controller
 {
@@ -31,7 +18,7 @@ class DailySadaqahController extends Controller
         'payment-amount' => 'required|numeric|min:10',
         'payment-type' => 'required|in:1,2,3',
         'payment-agree' => 'accepted',
-        'donor-type' =>'required|in:1,2,3',
+        'donor-type' => 'required|in:1,2,3',
     ];
     const guest_validation_rules = [
         'payment-name' => 'required|string|max:255',
@@ -52,8 +39,8 @@ class DailySadaqahController extends Controller
         'payment-type.required' => 'The donation type is required',
         'payment-type.in' => 'Invalid donation type',
         'payment-agree.accepted' => 'You must agree to the terms and conditions',
-        'donor-type.required' =>'The donor type is required',
-        'donor-type.in' =>'Invalid donor type',
+        'donor-type.required' => 'The donor type is required',
+        'donor-type.in' => 'Invalid donor type',
     ];
 
     public function index(Request $request): View
@@ -64,6 +51,7 @@ class DailySadaqahController extends Controller
 
         return view('daily-sadaqah.index')->with(['campaign' => $campaign, 'payableZakat' => $payableZakat]);
     }
+
     public function subscribe(Request $request)
     {
         /*
@@ -170,7 +158,7 @@ class DailySadaqahController extends Controller
             'success_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-success",
             'fail_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-fail",
             'cancel_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-cancel",
-            'ipn_url'=> "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-ipn",
+            'ipn_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-ipn",
 
             'cus_name' => $donor->name,
             'cus_email' => $donor->email,
@@ -212,29 +200,43 @@ class DailySadaqahController extends Controller
     {
         $tranId = $request->tran_id;
 
-        $subscription = RecurringSubscription::where('last_tran_id', $tranId)->first();
+        // Check duplicate payments
+        if (RecurringTransaction::where('tran_id', $tranId)->exists()) {
+            return response()->json([
+                'message' => 'Duplicate IPN ignored'
+            ]);
+        }
 
+        $subscription = RecurringSubscription::where('last_tran_id', $tranId)->first();
         if (!$subscription) {
             return response()->json(['error' => 'Subscription not found'], 404);
         }
 
         // Activate subscription
         if ($request->status === 'VALID') {
-
-            $subscription->update([
+            $updateData = [
                 'subscription_id' => $request->subscription_id ?? $subscription->subscription_id,
-                'status' => 'active',
-                'started_at' => now(),
                 'last_payment_at' => now(),
+                'status' => 'active',
                 'last_payment_status' => 'valid',
-            ]);
+            ];
+            if (!$subscription->started_at) {
+                $updateData['started_at'] = now();
+            }
+            $subscription->update($updateData);
 
             // Calculate next billing date
-            if ($subscription->frequency_type === 'daily') {
-                $nextBilling = now()->addDay();
+            if ($subscription->next_billing_at) {
+                $nextBilling = $subscription->next_billing_at->copy();
+                if ($subscription->frequency_type === 'daily') {
+                    $nextBilling->addDay();
+                } else {
+                    $nextBilling->addMonth();
+                }
             } else {
-                $nextBilling = now()->addMonth();
+                $nextBilling = $subscription->frequency_type === 'daily' ? now()->addDay() : now()->addMonth();
             }
+
 
             $subscription->update([
                 'next_billing_at' => $nextBilling
@@ -251,13 +253,12 @@ class DailySadaqahController extends Controller
                 'paid_at' => now(),
             ]);
         }
-
         return response()->json(['success' => true]);
     }
+
     public function billQuery(Request $request)
     {
         $subscriptionId = $request->subscription_id;
-
         $subscription = RecurringSubscription::where('subscription_id', $subscriptionId)->first();
 
         if (!$subscription) {
@@ -293,16 +294,24 @@ class DailySadaqahController extends Controller
             'currency' => 'BDT'
         ]);
     }
+
     public function success(Request $request)
     {
-        return redirect()->route('daily-sadaqah.index')->with('success','Thank you. Your subscription setup is being processed.');
+        FlashHelper::trigger('Transaction is successfully completed', 'success');
+        return redirect()->route('daily-sadaqah.index', [
+            'confirmation' => 'success',
+        ]);
     }
+
     public function fail(Request $request)
     {
-        return redirect()->route('daily-sadaqah.index')->with('message', 'Payment failed. Please try again.');
+        FlashHelper::trigger('Transaction failed', 'danger');
+        return redirect()->route('daily-sadaqah.index');
     }
+
     public function cancel(Request $request)
     {
+        FlashHelper::trigger('Transaction cancelled', 'danger');
         return redirect()->route('daily-sadaqah.index')->with('message', 'Payment was cancelled.');
     }
 }

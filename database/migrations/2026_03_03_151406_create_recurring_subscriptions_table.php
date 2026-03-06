@@ -25,7 +25,6 @@ return new class extends Migration {
                 'initiated',
                 'active',
                 'paused',
-                'cancel_requested',
                 'cancelled',
                 'expired',
                 'failed'
@@ -34,6 +33,7 @@ return new class extends Migration {
             $table->timestamp('started_at')->nullable();
             $table->timestamp('next_billing_at')->nullable();
             $table->timestamp('paused_at')->nullable();
+            $table->timestamp('resume_at')->nullable();
             $table->timestamp('cancel_requested_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
 

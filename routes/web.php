@@ -13,9 +13,9 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\PublicationController;
-use App\Http\Controllers\Recurring\RecurringSubscriptionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserDailySadaqahController;
 use App\Http\Controllers\ZakatCalculatorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -124,11 +124,11 @@ Route::post('/ipn', [PaymentController::class, 'ipn'])->name('payment.ipn');
 // Daily Sadaqah
 Route::get('/daily-sadaqah', [DailySadaqahController::class, 'index'])->name('daily-sadaqah.index');
 Route::post('/daily-sadaqah', [DailySadaqahController::class, 'subscribe'])->name('daily-sadaqah.store');
-Route::match(['get','post'],'/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
-Route::match(['get','post'],'/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
-Route::match(['get','post'],'/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
+Route::match(['get', 'post'], '/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
+Route::match(['get', 'post'], '/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
+Route::match(['get', 'post'], '/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
 Route::post('/daily-sadaqah-ipn', [DailySadaqahController::class, 'ipn'])->name('daily-sadaqah.ipn');
-Route::post('/daily-sadaqah-bill-query', [DailySadaqahController::class, 'billQuery'])    ->name('daily-sadaqah.bill-query');
+Route::post('/daily-sadaqah-bill-query', [DailySadaqahController::class, 'billQuery'])->name('daily-sadaqah.bill-query');
 //Job Routes
 Route::get('/czm-job-posts', [JobPostController::class, 'index'])->name('jobPost.index');
 Route::post('/filter-job-posts', [JobPostController::class, 'filterJobs'])->name('filter-jobs');
@@ -167,6 +167,12 @@ Route::post('/save-notification-settings', [UserController::class, 'saveNotifica
 Route::get('/user-payments', [UserController::class, 'userPayments'])->name('user-payments');
 Route::get('/filter-payments', [UserController::class, 'filterPayments'])->name('filter-payments');
 Route::post('/user-payments/export', [UserController::class, 'exportPaymentStatement'])->name('user.export-payment-statement');
+//User Daily Sadaqah
+Route::get('/user-daily-sadaqah', [UserDailySadaqahController::class, 'index'])->name('user-daily-sadaqah.index');
+Route::post('/user-daily-sadaqah/{id}/pause', [UserDailySadaqahController::class, 'pause'])->name('user-daily-sadaqah.pause');
+Route::post('/user-daily-sadaqah/{id}/resume', [UserDailySadaqahController::class, 'resume'])->name('user-daily-sadaqah.resume');
+Route::post('/user-daily-sadaqah/{id}/cancel', [UserDailySadaqahController::class, 'cancel'])->name('user-daily-sadaqah.cancel');
+Route::get('/user-daily-sadaqah/{id}/transactions', [UserDailySadaqahController::class, 'transactions'])->name('user-daily-sadaqah.transactions');
 
 //Publication Routes
 Route::get('/publications', [PublicationController::class, 'publications'])->name('publications');

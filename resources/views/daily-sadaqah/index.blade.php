@@ -1,4 +1,7 @@
 <x-main>
+    @if(request()->has('confirmation') && request()->query('confirmation') == 'success')
+        @include('payment.payment-successful')
+    @endif
     <style>
         .amount-btn,
         .freq-btn {
@@ -31,7 +34,8 @@
                     {{-- NOTICE --}}
                     <div class="p-3 mb-3 rounded bg-light text-center text-dark">
                         <h4>Participate in all the charitable works of the Foundation</h4>
-                        By donating to this section, you can become a partner in all the charitable works of the Foundation. Because this fund is open for all the charitable activities run by the Foundation.
+                        By donating to this section, you can become a partner in all the charitable works of the
+                        Foundation. Because this fund is open for all the charitable activities run by the Foundation.
                     </div>
                     <div class="col-md-6 order-md-1 order-2">
                         @include('daily-sadaqah._left-content')
