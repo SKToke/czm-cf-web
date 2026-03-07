@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Helpers\FlashHelper;
 use App\Models\Campaign;
-use App\Models\Recurring\RecurringSubscription;
-use App\Models\Recurring\RecurringTransaction;
+use App\Models\RecurringSubscription;
+use App\Models\RecurringTransaction;
 use App\Models\User;
 use App\Services\SslEncryptionHelper;
 use Illuminate\Contracts\View\View;

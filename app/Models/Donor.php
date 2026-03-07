@@ -4,8 +4,6 @@ namespace App\Models;
 
 use App\Enums\DonorTypeEnum;
 use App\Enums\TransactionTypeEnum;
-use App\Models\Recurring\RecurringSubscription;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,7 +14,6 @@ class Donor extends Model
         'self' => '2',
         'anonymous' => '3',
     ];
-    use HasFactory;
 
     protected $fillable = ['name', 'email', 'phone', 'user_id', 'donor_type'];
 

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\FlashHelper;
-use App\Models\Recurring\RecurringSubscription;
-use App\Models\Recurring\RecurringTransaction;
+use App\Models\RecurringSubscription;
+use App\Models\RecurringTransaction;
 
 class UserDailySadaqahController extends Controller
 {

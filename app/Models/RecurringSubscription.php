@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Models\Recurring;
+namespace App\Models;
 
-use App\Models\Donor;
 use Illuminate\Database\Eloquent\Model;
 
 class RecurringSubscription extends Model
