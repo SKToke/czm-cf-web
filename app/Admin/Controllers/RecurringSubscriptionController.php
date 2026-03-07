@@ -29,6 +29,16 @@ class RecurringSubscriptionController extends AdminController
     {
         $grid = new Grid(new RecurringSubscription());
 
+        $grid->model()->with('donor');
+        $grid->model()->withCount([
+            'transactions as paid_count' => function ($query) {
+                $query->where('payment_status', 'valid');
+            },
+            'transactions as failed_count' => function ($query) {
+                $query->where('payment_status', 'failed');
+            }
+        ]);
+
         /*$grid->column('id', __('Id'));
         $grid->column('donor_id', __('Donor id'));
         $grid->column('refer', __('Refer'));
@@ -50,7 +60,17 @@ class RecurringSubscriptionController extends AdminController
         $grid->column('updated_at', __('Updated at'));*/
 
         $grid->column('id');
+
         $grid->column('donor.name', 'Donor');
+        $grid->column('donor.email', 'Email');
+        $grid->column('donor.phone', 'Mobile');
+        $grid->column('donor.email')->style('display:none');
+        $grid->column('donor.phone')->style('display:none');
+        $grid->export(function ($export) {
+            $export->column('status', function ($value) {
+                return strip_tags($value);
+            });
+        });
         $grid->column('amount');
         $grid->column('status', 'Status')->display(function ($status) {
             return strtoupper($status);
@@ -64,37 +84,32 @@ class RecurringSubscriptionController extends AdminController
         ]);
         $grid->column('frequency_type', 'Type');
         $grid->column('paid_expected', 'Paid / Expected')->display(function () {
-            // Successful payments
-            $paid = $this->transactions()->where('payment_status', 'valid')->count();
-            // Expected cycles
+            $paid = $this->paid_count;
             $expected = 0;
             if ($this->started_at) {
-                $start = Carbon::parse($this->started_at);
                 if ($this->frequency_type === 'daily') {
-                    $expected = $start->diffInDays(now()) + 1;
-                } elseif ($this->frequency_type === 'monthly') {
-                    $expected = $start->diffInMonths(now()) + 1;
+                    $expected = Carbon::parse($this->started_at)->diffInDays(now()) + 1;
+                }
+                if ($this->frequency_type === 'monthly') {
+                    $expected = Carbon::parse($this->started_at)->diffInMonths(now()) + 1;
                 }
             }
             return "{$paid} / {$expected}";
         });
         $grid->column('started_at');
         $grid->column('next_billing_at');
-        $grid->column('missed_payments', 'Missed (Consecutive)')->display(function () {
-            $transactions = $this->transactions()->orderBy('paid_at', 'desc')->take(5)->get();
+        $grid->column('missed_consecutive', 'Missed')->display(function () {
+            $transactions = $this->transactions()->orderBy('paid_at', 'desc')->limit(5)->get();
             $missed = 0;
             foreach ($transactions as $txn) {
                 if ($txn->payment_status === 'failed') {
                     $missed++;
                 } else {
-                    break; // stop once a successful payment appears
+                    break;
                 }
             }
-            return $missed >= 3
-                ? "<span class='label label-danger'>{$missed}</span>"
-                : "<span class='label label-default'>{$missed}</span>";
+            return $missed;
         });
-
         $grid->filter(function ($filter) {
             $filter->like('donor.name', 'Donor');
             $filter->equal('status');

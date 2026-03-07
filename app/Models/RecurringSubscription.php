@@ -36,7 +36,7 @@ class RecurringSubscription extends Model
         'last_payment_at',
     ];
 
-    public function donor()
+    public function donor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Donor::class);
     }
