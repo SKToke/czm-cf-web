@@ -12,10 +12,10 @@ use App\Models\NewsletterSubscription;
 use App\Models\Nisab;
 use App\Models\Notification;
 use App\Models\Program;
+use App\Models\RecurringSubscription;
 use App\Models\User;
 use App\Models\UserZakatCalculation;
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use OpenAdmin\Admin\Admin;
 
 class CustomDashboard
@@ -53,6 +53,40 @@ class CustomDashboard
         return Admin::component('admin.dashboard.campaigns', compact('campaigns'));
     }
 
+    public static function recurringSubscriptions()
+    {
+        $subscriptions = RecurringSubscription::where('status', 'active')->count();
+
+        return Admin::component('admin.dashboard.subscriptions', compact('subscriptions'));
+    }
+
+    public static function atRiskSubscriptions($times)
+    {
+        $atRiskSubscriptions = RecurringSubscription::where('status', 'active')
+            ->whereHas('transactions', function ($q) {
+                $q->where('payment_status', 'failed');
+            })
+            ->with(['transactions' => function ($q) {
+                $q->orderBy('paid_at', 'desc')->limit(3);
+            }])
+            ->get()
+            ->filter(function ($subscription) use ($times) {
+
+                $transactions = $subscription->transactions;
+
+                if ($transactions->count() < $times) {
+                    return false;
+                }
+
+                return $transactions->every(function ($txn) {
+                    return $txn->payment_status === 'failed';
+                });
+
+            })->count();
+
+        return Admin::component('admin.dashboard.at-risk-subscriptions', compact('atRiskSubscriptions'));
+    }
+
     public static function todaysUpdates()
     {
         $donations = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)->whereDate('created_at', today())->sum('amount');
@@ -79,8 +113,8 @@ class CustomDashboard
         $nisabUpdateDate = $nisab ? $nisab->nisab_update_date : '';
         $contactQueries = ContactUsQuery::where('responded', false)->count();
         $notifications = Notification::whereDate('created_at', '>=', $startDate)
-                                        ->whereDate('created_at', '<=', $endDate)
-                                        ->count();
+            ->whereDate('created_at', '<=', $endDate)
+            ->count();
         return Admin::component('admin.dashboard.extra-visit-section', [
             'zakatCalculations' => $zakatCalculations,
             'goldValue' => $goldValue,

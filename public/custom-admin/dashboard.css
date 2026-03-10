@@ -6,17 +6,20 @@
     color: #fff;
     font-size: 20px;
 }
+
 .top-line-card {
     border-top: 2px solid #3180D9;
 }
+
 .custom-dashboard-top-card {
-    margin-left: 48px;
+    margin-left: 10px;
     top: -45px;
 
     a {
         color: inherit;
         text-decoration: none;
     }
+
     a:hover {
         color: #3180D9;
     }
@@ -26,27 +29,33 @@
         font-size: 20px;
         font-weight: bold;
     }
+
     svg {
         width: 14px;
         margin-left: 140px;
     }
+
     .donor-svg {
         width: 18px;
         margin-left: 130px;
     }
+
     .program-svg {
         margin-left: 110px;
     }
+
     .campaign-svg {
         width: 12px;
         margin-left: 100px;
     }
 }
+
 .extra-visit-card {
     a {
         color: inherit;
         text-decoration: none;
     }
+
     a:hover {
         color: #3180D9;
     }
@@ -55,21 +64,26 @@
         margin-bottom: 25px;
     }
 }
+
 .update-card-dashboard {
     margin-bottom: 40px;
+
     table {
         width: 100%;
         border-collapse: collapse;
         font-size: 16px;
     }
+
     td {
         padding: 8px;
         text-align: left;
         border: 1px solid #ddd;
     }
+
     tr:nth-child(even) {
         background-color: #f0f0f0;
     }
+
     th[colspan="2"] {
         background-color: #34a853;
     }
