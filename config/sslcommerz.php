@@ -35,5 +35,7 @@ return [
     'live' => [
         'store_id' => env("SSLCZ_STORE_ID"),
         'store_password' => env("SSLCZ_STORE_PASSWORD"),
+        'store_refer' => env("SSLCZ_REFER"),
+        'store_salt_key' => env("SSLCZ_SALT_KEY"),
     ]
 ];

@@ -12,7 +12,6 @@ return new class extends Migration {
     {
         Schema::create('recurring_subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->string('subscription_id')->nullable();
             $table->unsignedBigInteger('donor_id');
             $table->string('refer');
             $table->decimal('amount', 10, 2);
@@ -29,6 +28,12 @@ return new class extends Migration {
                 'expired',
                 'failed'
             ])->default('initiated');
+
+
+            $table->string('subscription_id')->nullable();
+            $table->string('subscription_id_onreq')->nullable();
+            $table->string('subscription_status_onreq')->nullable();
+            $table->string('sessionkey_onreq')->nullable();
 
             $table->timestamp('started_at')->nullable();
             $table->timestamp('next_billing_at')->nullable();

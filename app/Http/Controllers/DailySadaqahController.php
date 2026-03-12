@@ -106,7 +106,7 @@ class DailySadaqahController extends Controller
         $saltKey = config('sslcommerz.' . config('sslcommerz.mode') . '.store_salt_key');
         $storePass = config('sslcommerz.' . config('sslcommerz.mode') . '.store_password');
 
-        $tranId = 'SUB_' . uniqid();
+        $tranId = 'S' . uniqid();
 
         $subscription = RecurringSubscription::create([
             'donor_id' => $donor->id,
@@ -151,14 +151,14 @@ class DailySadaqahController extends Controller
             'currency' => 'BDT',
             'tran_id' => $tranId,
 
-//            'success_url' => route('daily-sadaqah.success'),
-//            'fail_url' => route('daily-sadaqah.fail'),
-//            'cancel_url' => route('daily-sadaqah.cancel'),
-//            'ipn_url' => route('daily-sadaqah.ipn'),
-            'success_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-success",
-            'fail_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-fail",
-            'cancel_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-cancel",
-            'ipn_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-ipn",
+            'success_url' => route('daily-sadaqah.success'),
+            'fail_url' => route('daily-sadaqah.fail'),
+            'cancel_url' => route('daily-sadaqah.cancel'),
+            'ipn_url' => route('daily-sadaqah.ipn'),
+//            'success_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-success",
+//            'fail_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-fail",
+//            'cancel_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-cancel",
+//            'ipn_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-ipn",
 
             'cus_name' => $donor->name,
             'cus_email' => $donor->email,
@@ -189,6 +189,12 @@ class DailySadaqahController extends Controller
 
         $data = $response->json();
 
+        if ($data['status'] == 'SUCCESS') {
+            $subscription->subscription_id_onreq = $data['subscription_id'];
+            $subscription->subscription_status_onreq = $data['subscription_status'];
+            $subscription->sessionkey_onreq = $data['sessionkey'];
+        }
+
         if (!empty($data['GatewayPageURL'])) {
             return redirect()->away($data['GatewayPageURL']);
         }
@@ -215,7 +221,7 @@ class DailySadaqahController extends Controller
         // Activate subscription
         if ($request->status === 'VALID') {
             $updateData = [
-                'subscription_id' => $request->subscription_id ?? $subscription->subscription_id,
+                'subscription_id' => $request->subscription_id,
                 'last_payment_at' => now(),
                 'status' => 'active',
                 'last_payment_status' => 'valid',
@@ -264,7 +270,8 @@ class DailySadaqahController extends Controller
         if (!$subscription) {
             return response()->json([
                 'status' => 'FAILED',
-                'failedreason' => 'Subscription not found'
+                'failedreason' => 'Subscription not found',
+                'error_msg_to_display' => 'Subscription not found',
             ]);
         }
 
@@ -277,7 +284,8 @@ class DailySadaqahController extends Controller
         if ($subscription->status !== 'active') {
             return response()->json([
                 'status' => 'FAILED',
-                'failedreason' => 'Subscription inactive'
+                'failedreason' => 'Subscription inactive',
+                'error_msg_to_display' => 'Subscription inactive',
             ]);
         }
 
@@ -289,6 +297,8 @@ class DailySadaqahController extends Controller
 
         return response()->json([
             'status' => 'SUCCESS',
+            'failedreason' => 'Information okay',
+            'error_msg_to_display' => 'Please wait..',
             'subscription_id' => $subscription->subscription_id,
             'amount' => $subscription->amount,
             'currency' => 'BDT'
