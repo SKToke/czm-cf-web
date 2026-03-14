@@ -17,6 +17,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDailySadaqahController;
 use App\Http\Controllers\ZakatCalculatorController;
+use App\Services\BkashService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -207,3 +208,8 @@ Route::get('/images/{imageName}', function ($imageName) {
 
     return response()->file($path);
 })->name('images.logo');
+
+//bKash
+Route::get('/bkash/token', function (BkashService $bkash) {
+    return $bkash->getToken();
+});
