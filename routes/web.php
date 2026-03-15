@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\BkashController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ContentController;
@@ -210,6 +211,46 @@ Route::get('/images/{imageName}', function ($imageName) {
 })->name('images.logo');
 
 //bKash
-Route::get('/bkash/token', function (BkashService $bkash) {
-    return $bkash->getToken();
+Route::get('/bkash/token', fn(BkashService $bkash) => $bkash->getToken());
+Route::get('/bkash/agreement', [BkashController::class, 'createAgreement']);
+Route::get('/bkash/callback', [BkashController::class, 'callback'])->name('bkash.callback');
+Route::get('/bkash/pay', [BkashController::class, 'pay']);
+Route::get('/bkash/payment/callback', [BkashController::class, 'paymentCallback']);
+Route::get('/payment/success', fn() => 'bKash Payment success');
+Route::get('/payment/fail', fn() => 'bKash Payment failed');
+Route::get('/agreement/success', fn() => 'Agreement OK');
+Route::get('/agreement/fail', fn() => 'Agreement failed');
+Route::get('/bkash/refund', function (
+    \App\Services\BkashService $bkash
+) {
+
+    $payment = \App\Models\BkashPayment::latest()->first();
+
+    $refund = $bkash->refund(
+        $payment->payment_id,
+        $payment->trx_id,
+        $payment->amount
+    );
+
+    // fallback
+    if (($refund['transactionStatus'] ?? null) !== 'Completed') {
+
+        $refund = $bkash->refundStatus(
+            $payment->payment_id,
+            $payment->trx_id
+        );
+    }
+
+    return $refund;
+});
+Route::get('/bkash/search', function (
+    \App\Services\BkashService $bkash
+) {
+
+    $payment = \App\Models\BkashPayment::latest()->first();
+
+    return $bkash->searchTransaction(
+        $payment->trx_id
+    );
+
 });
