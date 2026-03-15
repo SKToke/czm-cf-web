@@ -11,6 +11,7 @@ use App\Services\SslEncryptionHelper;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class DailySadaqahController extends Controller
 {
@@ -193,6 +194,7 @@ class DailySadaqahController extends Controller
             $subscription->subscription_id_onreq = $data['subscription_id'];
             $subscription->subscription_status_onreq = $data['subscription_status'];
             $subscription->sessionkey_onreq = $data['sessionkey'];
+            $subscription->save();
         }
 
         if (!empty($data['GatewayPageURL'])) {
@@ -204,17 +206,23 @@ class DailySadaqahController extends Controller
 
     public function ipn(Request $request)
     {
+        Log::info('IPN - Enter', [
+            'request' => $request->all()
+        ]);
         $tranId = $request->tran_id;
 
         // Check duplicate payments
         if (RecurringTransaction::where('tran_id', $tranId)->exists()) {
+            Log::info('IPN - Duplicate IPN ignored');
             return response()->json([
                 'message' => 'Duplicate IPN ignored'
             ]);
         }
 
-        $subscription = RecurringSubscription::where('last_tran_id', $tranId)->first();
+        $subscription = RecurringSubscription::where('subscription_id', $request->subscription_id)
+            ->orWhere('last_tran_id', $tranId)->first();
         if (!$subscription) {
+            Log::info('IPN - Subscription not found');
             return response()->json(['error' => 'Subscription not found'], 404);
         }
 
@@ -222,6 +230,7 @@ class DailySadaqahController extends Controller
         if ($request->status === 'VALID') {
             $updateData = [
                 'subscription_id' => $request->subscription_id,
+                'last_tran_id' => $tranId,
                 'last_payment_at' => now(),
                 'status' => 'active',
                 'last_payment_status' => 'valid',
@@ -231,6 +240,10 @@ class DailySadaqahController extends Controller
             }
             $subscription->update($updateData);
 
+            Log::info('IPN - $request->status === VALID', [
+                'request' => $request->all(),
+                'updateData' => $updateData
+            ]);
             // Calculate next billing date
             if ($subscription->next_billing_at) {
                 $nextBilling = $subscription->next_billing_at->copy();
@@ -248,8 +261,7 @@ class DailySadaqahController extends Controller
                 'next_billing_at' => $nextBilling
             ]);
 
-            // Store payment history
-            RecurringTransaction::create([
+            $transData = [
                 'recurring_subscription_id' => $subscription->id,
                 'tran_id' => $tranId,
                 'amount' => $subscription->amount,
@@ -257,17 +269,48 @@ class DailySadaqahController extends Controller
                 'payment_status' => 'valid',
                 'gateway_response' => $request->all(),
                 'paid_at' => now(),
+            ];
+            // Store payment history
+            RecurringTransaction::create($transData);
+            Log::info('IPN - $request->status === VALID - Create Transaction', [
+                'request' => $request->all(),
+                'transData' => $transData
             ]);
         }
+        if ($request->status === 'FAILED') {
+            $failsData = [
+                'recurring_subscription_id' => $subscription->id,
+                'tran_id' => $tranId,
+                'amount' => $subscription->amount,
+                'currency' => 'BDT',
+                'payment_status' => 'failed',
+                'gateway_response' => $request->all(),
+                'paid_at' => now(),
+            ];
+            Log::info('IPN - $request->status === FAILED', [
+                'request' => $request->all(),
+                'failsData' => $failsData
+            ]);
+            RecurringTransaction::create($failsData);
+        }
+        Log::info('IPN - End', [
+            'request' => $request->all()
+        ]);
         return response()->json(['success' => true]);
     }
 
     public function billQuery(Request $request)
     {
+        Log::info('Billing Query - Enter', [
+            'request' => $request->all()
+        ]);
         $subscriptionId = $request->subscription_id;
         $subscription = RecurringSubscription::where('subscription_id', $subscriptionId)->first();
 
         if (!$subscription) {
+            Log::info('Billing Query - !$subscription', [
+                'request' => $request->all()
+            ]);
             return response()->json([
                 'status' => 'FAILED',
                 'failedreason' => 'Subscription not found',
@@ -282,6 +325,9 @@ class DailySadaqahController extends Controller
         */
 
         if ($subscription->status !== 'active') {
+            Log::info('Billing Query - $subscription->status !== active', [
+                'request' => $request->all()
+            ]);
             return response()->json([
                 'status' => 'FAILED',
                 'failedreason' => 'Subscription inactive',
@@ -295,14 +341,21 @@ class DailySadaqahController extends Controller
         |----------------------------------------------------------
         */
 
-        return response()->json([
+        $data = [
             'status' => 'SUCCESS',
             'failedreason' => 'Information okay',
             'error_msg_to_display' => 'Please wait..',
-            'subscription_id' => $subscription->subscription_id,
+            'tran_id' => $subscription->last_tran_id,
+            'currency' => 'BDT',
             'amount' => $subscription->amount,
-            'currency' => 'BDT'
+            'refer' => $subscription->refer,
+            'subscription_id' => $subscription->subscription_id,
+        ];
+        Log::info('Billing Query - End', [
+            'request' => $request->all(),
+            'response' => $data,
         ]);
+        return response()->json($data);
     }
 
     public function success(Request $request)
