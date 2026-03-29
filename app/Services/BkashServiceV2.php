@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 /**
  *
  */
-class BkashService
+class BkashServiceV2
 {
     protected $baseUrl;
     protected $username;
@@ -64,7 +64,7 @@ class BkashService
         if (Cache::has('bkash_token')) {
             return Cache::get('bkash_token');
         }
-        
+
         $url = $this->baseUrl . 'tokenized-checkout/auth/grant-token';
 
         $headers = [

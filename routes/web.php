@@ -19,6 +19,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDailySadaqahController;
 use App\Http\Controllers\ZakatCalculatorController;
 use App\Services\BkashService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -216,11 +217,23 @@ Route::get('/bkash/agreement', [BkashController::class, 'createAgreement']);
 Route::get('/bkash/callback', [BkashController::class, 'callback'])->name('bkash.callback');
 Route::get('/bkash/pay', [BkashController::class, 'pay']);
 Route::get('/bkash/payment/callback', [BkashController::class, 'paymentCallback']);
-Route::get('/payment/success', fn() => 'bKash Payment success');
-Route::get('/payment/fail', fn() => 'bKash Payment failed');
-Route::get('/agreement/success', fn() => 'Agreement OK');
-Route::get('/agreement/fail', fn() => 'Agreement failed');
-Route::get('/bkash/refund', function (
+Route::get('/bkash/payment/success', fn(Request $request) => [
+    'message' => 'bKash Payment success',
+    'request' => $request->all()
+]);
+Route::get('/bkash/payment/fail', fn(Request $request) => [
+    'message' => 'bKash Payment failed',
+    'request' => $request->all()
+]);
+Route::get('/bkash/agreement/success', fn(Request $request) => [
+    'message' => 'Agreement OK',
+    'request' => $request->all()
+]);
+Route::get('/bkash/agreement/fail', fn(Request $request) => [
+    'message' => 'Agreement failed',
+    'request' => $request->all()
+]);
+Route::get('/bkash/bkash/refund', function (
     \App\Services\BkashService $bkash
 ) {
 

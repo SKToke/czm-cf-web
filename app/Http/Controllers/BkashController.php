@@ -12,7 +12,7 @@ class BkashController extends Controller
     public function createAgreement(BkashService $bkash)
     {
         $payerReference = auth()->id(); // user id
-        $payerReference = "USER001";
+        $payerReference = "USER" . random_int(1, 9999);
 
         $data = $bkash->createAgreement($payerReference);
 
@@ -25,7 +25,7 @@ class BkashController extends Controller
 
     public function pay(BkashService $bkash)
     {
-        $agreement = BkashAgreement::first();
+        $agreement = BkashAgreement::latest()->first();
         $invoice = 'Inv_' . Str::uuid() . '_' . now()->format('YmdHisv');
 
         $data = $bkash->createPaymentWithAgreement(
@@ -42,10 +42,13 @@ class BkashController extends Controller
         return redirect()->away($data['bkashURL']);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function callback(Request $request, BkashService $bkash)
     {
         if ($request->status !== 'success') {
-            return redirect('/agreement/fail');
+            return redirect('/bkash/agreement/fail');
         }
 
         $agreementId = $request->agreementId;
@@ -55,7 +58,7 @@ class BkashController extends Controller
         $body = $result['body'] ?? $result;
 
         if (($body['agreementStatus'] ?? '') !== 'Completed') {
-            return redirect('/agreement/fail');
+            return redirect('/bkash/agreement/fail');
         }
 
         // save DB
@@ -69,9 +72,12 @@ class BkashController extends Controller
             ]
         );
 
-        return redirect('/agreement/success');
+        return redirect('/bkash/agreement/success');
     }
 
+    /**
+     * @throws \Exception
+     */
     public function paymentCallback(
         Request      $request,
         BkashService $bkash
@@ -79,7 +85,7 @@ class BkashController extends Controller
     {
 
         if ($request->status !== 'success') {
-            return redirect('/payment/fail');
+            return redirect('/bkash/payment/fail');
         }
 
         // Step 1 — execute
@@ -98,7 +104,7 @@ class BkashController extends Controller
             );
 
             if (($query['transactionStatus'] ?? null) !== 'Completed') {
-                return redirect('/payment/fail');
+                return redirect('/bkash/payment/fail');
             }
 
             $final = $query;
@@ -114,7 +120,7 @@ class BkashController extends Controller
             'status' => $final['transactionStatus'] ?? null,
         ]);
 
-        return redirect('/payment/success');
+        return redirect('/bkash/payment/success');
     }
 
 }
