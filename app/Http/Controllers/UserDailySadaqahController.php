@@ -17,7 +17,7 @@ class UserDailySadaqahController extends Controller
         }
         $donor = $currentUser->donor;
 
-        $subscriptions = RecurringSubscription::where('donor_id', $donor->id)
+        $subscriptions = RecurringSubscription::withSum('transactions', 'amount')->where('donor_id', $donor->id)
             ->latest()
             ->get();
 

@@ -63,7 +63,7 @@ class DailySadaqahController extends Controller
         $rules = [
             'payment_amount' => ['required', 'numeric', 'min:1'],
             'frequency' => ['required', 'in:daily,monthly'],
-            'payment_method' => ['required'],
+            'payment_method' => ['required', 'in:bkash,card'],
         ];
         if (!auth()->check()) {
             $rules['payment_name'] = ['required', 'string', 'max:255'];
@@ -105,6 +105,7 @@ class DailySadaqahController extends Controller
         */
         $refer = config('sslcommerz.' . config('sslcommerz.mode') . '.store_refer');
         $saltKey = config('sslcommerz.' . config('sslcommerz.mode') . '.store_salt_key');
+        $storeId = config('sslcommerz.' . config('sslcommerz.mode') . '.store_id');
         $storePass = config('sslcommerz.' . config('sslcommerz.mode') . '.store_password');
 
         $tranId = 'TrID' . uniqid();
@@ -145,7 +146,7 @@ class DailySadaqahController extends Controller
 
         $payload = [
 
-            'store_id' => config('sslcommerz.' . config('sslcommerz.mode') . '.store_id'),
+            'store_id' => $storeId,
             'store_passwd' => $storePass,
 
             'total_amount' => $request->payment_amount,
@@ -219,8 +220,7 @@ class DailySadaqahController extends Controller
             ]);
         }
 
-        $subscription = RecurringSubscription::where('subscription_id', $request->subscription_id)
-            ->orWhere('last_tran_id', $tranId)->first();
+        $subscription = RecurringSubscription::where('subscription_id', $request->subscription_id)->orWhere('last_tran_id', $tranId)->first();
         if (!$subscription) {
             Log::channel('sslcommerz')->info('IPN - Subscription not found');
             return response()->json(['error' => 'Subscription not found'], 404);
@@ -234,6 +234,10 @@ class DailySadaqahController extends Controller
                 'last_payment_at' => now(),
                 'status' => 'active',
                 'last_payment_status' => 'valid',
+
+                'bank_tran_id' => $request->bank_tran_id,
+                'card_issuer_bank' => $request->card_issuer,
+                'card_no' => $request->card_no,
             ];
             if (!$subscription->started_at) {
                 $updateData['started_at'] = now();
@@ -255,8 +259,6 @@ class DailySadaqahController extends Controller
             } else {
                 $nextBilling = $subscription->frequency_type === 'daily' ? now()->addDay() : now()->addMonth();
             }
-
-
             $subscription->update([
                 'next_billing_at' => $nextBilling
             ]);
@@ -341,11 +343,12 @@ class DailySadaqahController extends Controller
         |----------------------------------------------------------
         */
 
+        $tranId = 'TrID' . uniqid();
         $data = [
             'status' => 'SUCCESS',
             'failedreason' => 'Information okay',
             'error_msg_to_display' => 'Please wait..',
-            'tran_id' => $subscription->last_tran_id,
+            'tran_id' => $tranId,
             'currency' => 'BDT',
             'amount' => $subscription->amount,
             'refer' => $subscription->refer,

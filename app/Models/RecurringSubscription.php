@@ -27,6 +27,9 @@ class RecurringSubscription extends Model
         'last_tran_id',
         'last_payment_at',
         'last_payment_status',
+        'bank_tran_id',
+        'card_issuer_bank',
+        'card_no',
     ];
 
     protected $dates = [

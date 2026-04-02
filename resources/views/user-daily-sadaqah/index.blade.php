@@ -14,10 +14,11 @@
 
                 <tr>
                     <th>Amount</th>
-                    <th>Frequency</th>
+                    <th>Bank</th>
                     <th>Status</th>
                     <th>Started</th>
                     <th>Next Billing</th>
+                    <th>Total</th>
                     <th>Actions</th>
                 </tr>
 
@@ -28,25 +29,30 @@
                 @foreach($subscriptions as $subscription)
 
                     <tr>
+                        <td style="display: none">{{ $subscription->id }}</td>
+                        <td style="{{ $subscription->frequency_type === 'monthly' ? 'background-color: #808080; color: #fff;' : '' }}">
+                            {{ $subscription->amount }}<br>
+                            {{ ucfirst($subscription->frequency_type) }}
+                        </td>
 
-                        <td>{{ $subscription->amount }} BDT</td>
-
-                        <td>{{ ucfirst($subscription->frequency_type) }}</td>
+                        <td>{{ $subscription->card_issuer_bank }}<br>
+                            {{ ucfirst($subscription->card_no) }}</td>
 
                         <td>
-<span class="badge
-@if($subscription->status == 'active') bg-success
-@elseif($subscription->status == 'paused') bg-warning
-@else bg-secondary
-@endif">
-{{ ucfirst($subscription->status) }}
-</span>
+                        <span class="badge
+                            @if($subscription->status == 'active') bg-success
+                            @elseif($subscription->status == 'paused') bg-warning
+                            @else bg-secondary
+                            @endif">
+                            {{ ucfirst($subscription->status) }}
+                        </span>
                         </td>
 
                         <td>{{ $subscription->started_at ? \Carbon\Carbon::parse($subscription->started_at)->format('Y-m-d') : $subscription->started_at }}</td>
 
                         <td>{{ $subscription->next_billing_at ? \Carbon\Carbon::parse($subscription->next_billing_at)->format('Y-m-d') : $subscription->next_billing_at }}</td>
 
+                        <td>{{ $subscription->transactions_sum_amount }}</td>
                         <td>
 
                             @if($subscription->status == 'active')

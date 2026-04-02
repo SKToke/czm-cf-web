@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('recurring_subscriptions', function (Blueprint $table) {
             $table->id();
+            $table->string('subscription_id')->nullable();
             $table->unsignedBigInteger('donor_id');
             $table->string('refer');
             $table->decimal('amount', 10, 2);
@@ -30,7 +31,6 @@ return new class extends Migration {
             ])->default('initiated');
 
 
-            $table->string('subscription_id')->nullable();
             $table->string('subscription_id_onreq')->nullable();
             $table->string('subscription_status_onreq')->nullable();
             $table->string('sessionkey_onreq')->nullable();
@@ -45,6 +45,10 @@ return new class extends Migration {
             $table->string('last_tran_id')->nullable();
             $table->timestamp('last_payment_at')->nullable();
             $table->string('last_payment_status')->nullable();
+
+            $table->string('bank_tran_id')->nullable();
+            $table->string('card_issuer_bank')->nullable();
+            $table->string('card_no')->nullable();
 
             $table->timestamps();
 
