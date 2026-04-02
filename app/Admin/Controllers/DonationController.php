@@ -5,7 +5,6 @@ namespace App\Admin\Controllers;
 use App\Enums\TransactionTypeEnum;
 use App\Models\Campaign;
 use App\Models\Donation;
-use App\Models\Donor;
 use Carbon\Carbon;
 use OpenAdmin\Admin\Controllers\AdminController;
 use OpenAdmin\Admin\Form;
@@ -15,6 +14,7 @@ use OpenAdmin\Admin\Show;
 class DonationController extends AdminController
 {
     use ModificationTrait;
+
     /**
      * Title for current resource.
      *
@@ -31,19 +31,35 @@ class DonationController extends AdminController
     {
         $grid = new Grid(new Donation());
         $this->modifyGrid($grid);
-        $grid->model()->orderBy('updated_at', 'desc');
+        $grid->model()->with(['donor', 'campaign'])->orderBy('updated_at', 'desc');
         $grid->column('transaction_id', __('Transaction Id'));
         $grid->column('amount', __('Amount (BDT)'));
         $grid->column('payment_via', __('Paid Via'));
         $grid->column('donor_id', __('Donor'))->display(function () {
-            if($this->donor_id) {
+            if ($this->donor_id) {
                 $donor = $this->donor()->first();
                 return "{$donor->name} ({$donor->email})";
-            }else {
+            } else {
                 return 'Anonymous';
             }
         });
 
+
+        $grid->export(function ($export) {
+            $export->column('transaction_status', function ($value) {
+                return strip_tags($value);
+            });
+            $export->column('campaign_id', function ($value) {
+                return strip_tags($value);
+            });
+        });
+        
+        $grid->column('donor.name', 'Donor');
+        $grid->column('donor.email', 'Email');
+        $grid->column('donor.phone', 'Mobile');
+        $grid->column('donor.name')->style('display:none');
+        $grid->column('donor.email')->style('display:none');
+        $grid->column('donor.phone')->style('display:none');
 
         $grid->column('transaction_status')->display(function ($status) {
             return TransactionTypeEnum::from($status)->getTitle();
@@ -54,12 +70,12 @@ class DonationController extends AdminController
             4 => 'warning',
         ]);
 
-        $grid->column('donation_type', __('Donation Type'))->display(function (){
+        $grid->column('donation_type', __('Donation Type'))->display(function () {
             return $this->donation_type->getTitle();
         });
-        $grid->column('campaign_id', __('Donation On'))->display(function() {
+        $grid->column('campaign_id', __('Donation On'))->display(function () {
             if ($this->campaign) {
-                return "<a href='" . route('admin.campaigns.show', $this->campaign->id) . "'>" . $this->campaign->title . "</a>";
+                return "<a href='" . route('admin.campaigns.show', $this->campaign->id) . "'>" . $this->campaign->slug . "</a>";
             } else {
                 return 'General Purpose';
             }
@@ -69,13 +85,13 @@ class DonationController extends AdminController
         });
 
 
-        $grid->filter(function($filter){
+        $grid->filter(function ($filter) {
             $filter->disableIdFilter();
 
-            $filter->column(1/2, function ($filter) {
-                $filter->equal('campaign.id', __('Campaign'))->select(Campaign::all()->pluck('title','id')->toArray());
+            $filter->column(1 / 2, function ($filter) {
+                $filter->equal('campaign.id', __('Campaign'))->select(Campaign::all()->pluck('title', 'id')->toArray());
             });
-            $filter->column(1/2, function ($filter) {
+            $filter->column(1 / 2, function ($filter) {
                 $filter->like('amount', 'Amount (BDT)');
                 $filter->like('transaction_status', 'Transaction status')->select(TransactionTypeEnum::toArray());
             });
@@ -89,6 +105,9 @@ class DonationController extends AdminController
         });
 
         $grid->model()->orderBy('id', 'desc');
+
+        $grid->disableExport(false);
+
         return $grid;
     }
 
@@ -111,17 +130,17 @@ class DonationController extends AdminController
             return TransactionTypeEnum::from($type)->getTitle();
         });
         $show->field('donor_id', __('Donor'))->as(function ($donor_id) {
-            if($donor_id){
+            if ($donor_id) {
                 $donor = $this->donor()->first();
                 return "{$donor->name} ({$donor->email})";
             } else {
                 return 'Anonymous';
             }
         });
-        $show->field('donation_type', __('Donation Type'))->as(function (){
+        $show->field('donation_type', __('Donation Type'))->as(function () {
             return $this->donation_type->getTitle();
         });
-        $show->field('campaign_id', __('Donation On'))->unescape()->as(function() {
+        $show->field('campaign_id', __('Donation On'))->unescape()->as(function () {
             if ($this->campaign) {
                 return "Campaign: <a href='" . route('admin.campaigns.show', $this->campaign->id) . "'>" . $this->campaign->title . "</a>";
             } else {

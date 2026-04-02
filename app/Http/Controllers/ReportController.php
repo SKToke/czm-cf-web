@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReportTypeEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Models\Campaign;
 use App\Models\Donation;
 use App\Models\Program;
+use App\Models\Report;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
-use App\Models\Report;
-use App\Enums\ReportTypeEnum;
 use PDF;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 
 class ReportController extends Controller
 {
@@ -22,10 +25,9 @@ class ReportController extends Controller
         $endDate = $request->input('end_date');
         $program = $request->input('program');
 
-        if($startDate || $endDate || $program){
+        if ($startDate || $endDate || $program) {
             $filteredData = $this->filterDataByDateRange($report->data, $startDate, $endDate, $program, $report->report_type);
-        }
-        else{
+        } else {
             $filteredData = $report->data;
         }
 
@@ -44,16 +46,93 @@ class ReportController extends Controller
                 ->header('Content-Disposition', 'attachment; filename="' . $filename1 . '"');
         }
 
-        $csvData = $this->convertJsonToCsv($filteredData);
+        /*$csvData = $this->convertJsonToCsv($filteredData);
         $filename2 = "{$firstName}_report_{$current_time}.csv";
 
         return Response::make($csvData, 200, [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"$filename2\"",
+        ]);*/
+
+        $filename2 = "{$firstName}_report_{$current_time}.xlsx";
+        return $this->convertJsonToXlsx($filename2, $filteredData);
+    }
+
+    private function filterDataByDateRange($data, $startDate, $endDate, $program, $reportType)
+    {
+        $filteredData = [];
+        $dateField = $this->getDateFieldForReportType($reportType);
+
+        if ($startDate || $endDate) {
+            foreach ($data as $entry) {
+                $registerDate = $entry[$dateField];
+                if ($registerDate >= $startDate && $registerDate <= $endDate) {
+                    $filteredData[] = $entry;
+                }
+            }
+        } else {
+            $filteredData = $data;
+        }
+
+        if ($program) {
+            $filteredData2 = [];
+            foreach ($filteredData as $entry) {
+                if ($entry['Program'] == $program) {
+                    $filteredData2[] = $entry;
+                }
+            }
+            $filteredData = $filteredData2;
+        }
+
+        return $filteredData;
+    }
+
+    private function getDateFieldForReportType($reportType)
+    {
+        $reportTypeDateFieldMapping = [
+            ReportTypeEnum::News_letter->value => 'register_date',
+            ReportTypeEnum::Donor->value => 'Last_Transaction_Date',
+            ReportTypeEnum::Campaign->value => 'Date_of_Created',
+            ReportTypeEnum::Transaction->value => 'Transaction_Date',
+            ReportTypeEnum::User_Zakat_Calculation->value => 'Date',
+            ReportTypeEnum::Publication->value => 'Release_Date',
+            ReportTypeEnum::Publication_Download_History->value => 'Download_Date',
+        ];
+
+        return $reportTypeDateFieldMapping[$reportType] ?? null;
+    }
+
+    private function convertJsonToXlsx($filename2, $filteredData)
+    {
+        return response()->streamDownload(function () use ($filteredData) {
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $headers = array_keys($filteredData[0]);
+
+            // Header
+            foreach ($headers as $colIndex => $header) {
+                $col = Coordinate::stringFromColumnIndex($colIndex + 1);
+                $sheet->setCellValue($col . '1', $header);
+            }
+
+            // Data
+            foreach ($filteredData as $rowIndex => $row) {
+                foreach ($headers as $colIndex => $header) {
+                    $col = Coordinate::stringFromColumnIndex($colIndex + 1);
+                    $sheet->setCellValue($col . ($rowIndex + 2), $row[$header] ?? '');
+                }
+            }
+
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+
+        }, $filename2, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 
-    public function monthlyPaymentDownload(Request $request, $id) {
+    public function monthlyPaymentDownload(Request $request, $id)
+    {
         $data = [
             ['1 - 999',
                 $this->numberOfPayers(1, 999, false, true),
@@ -146,7 +225,77 @@ class ReportController extends Controller
         exit();
     }
 
-    public function disbursementReportDownload(Request $request) {
+    public function numberOfPayers($min, $max, $currentMonth, $lastMonth)
+    {
+        $query = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)
+            ->whereBetween('amount', [$min, $max]);
+
+        if ($lastMonth) {
+            $query = $query->where('updated_at', '<', Carbon::now()->startOfMonth());
+        }
+
+        if ($currentMonth) {
+            $query = $query->whereBetween('updated_at', [Carbon::now()->startOfMonth(), Carbon::now()]);
+        }
+
+        $nullDonorsQuery = (clone $query)->whereNull('donor_id');
+
+        $query = $query->whereNotNull('donor_id')->distinct('donor_id');
+
+        $countDistinctDonors = $query->count('donor_id');
+
+        $countNullDonors = $nullDonorsQuery->count();
+
+        $totalCount = $countDistinctDonors + $countNullDonors;
+
+        return $totalCount;
+    }
+
+    public function totalAmount($min, $max, $currentMonth, $lastMonth)
+    {
+        $query = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)
+            ->whereBetween('amount', [$min, $max]);
+
+        if ($lastMonth) {
+            $query = $query->where('updated_at', '<', Carbon::now()->startOfMonth());
+        } elseif ($currentMonth) {
+            $query = $query->whereBetween('updated_at', [Carbon::now()->startOfMonth(), Carbon::now()]);
+        }
+        $total = $query->sum('amount');
+        return $total;
+    }
+
+    public function cumulativePayersEndCurrentMonth($min, $max)
+    {
+        $query = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)
+            ->where('updated_at', '<=', Carbon::now()->endOfMonth())
+            ->whereBetween('amount', [$min, $max]);
+
+        $nullDonorsQuery = (clone $query)->whereNull('donor_id');
+
+        $query = $query->whereNotNull('donor_id')->distinct('donor_id');
+
+        $countDistinctDonors = $query->count('donor_id');
+
+        $countNullDonors = $nullDonorsQuery->count();
+
+        $totalCumulativeCount = $countDistinctDonors + $countNullDonors;
+
+        return $totalCumulativeCount;
+    }
+
+    public function cumulativeAmountEndCurrentMonth($min, $max)
+    {
+        $cumulativeAmount = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)
+            ->where('updated_at', '<=', Carbon::now()->endOfMonth())
+            ->whereBetween('amount', [$min, $max])
+            ->sum('amount');
+
+        return $cumulativeAmount;
+    }
+
+    public function disbursementReportDownload(Request $request)
+    {
         $data = [
             ['1 - 999',
                 $this->numberOfRecipients(1, 999, false, true, null),
@@ -238,7 +387,135 @@ class ReportController extends Controller
         exit();
     }
 
-    public function disbursementReportByProgramDownload(Request $request) {
+    public function numberOfRecipients($min, $max, $currentMonth, $lastMonth, $programTitle)
+    {
+        $query = Campaign::query();
+
+        if ($lastMonth) {
+            $query = $query->where('donation_start_time', '<', Carbon::now()->startOfMonth());
+        }
+
+        if ($currentMonth) {
+            $query = $query->whereBetween('donation_start_time', [Carbon::now()->startOfMonth(), Carbon::now()]);
+        }
+
+        $campaigns = $query->get();
+        $validCampaigns = null;
+
+        if ($programTitle) {
+            $validCampaigns = $campaigns->filter(function ($campaign) use ($programTitle) {
+                return $campaign->program->title == $programTitle;
+            });
+        } else {
+            $validCampaigns = $campaigns->filter(function ($campaign) use ($min, $max) {
+                $disbursedAmount = $campaign->getTotalDisbursedAmount();
+                return $disbursedAmount <= $max && $disbursedAmount >= $min;
+            });
+        }
+
+        $totalCount = $validCampaigns ? $validCampaigns->sum('number_of_recipients') : 0;
+
+        if (!$totalCount) {
+            $totalCount = 0;
+        }
+
+        return $totalCount;
+    }
+
+    public function totalDisbursedAmount($min, $max, $currentMonth, $lastMonth, $programTitle)
+    {
+        $query = Campaign::query();
+
+        if ($lastMonth) {
+            $query = $query->where('donation_start_time', '<', Carbon::now()->startOfMonth());
+        }
+
+        if ($currentMonth) {
+            $query = $query->whereBetween('donation_start_time', [Carbon::now()->startOfMonth(), Carbon::now()]);
+        }
+
+        $campaigns = $query->get();
+        $validCampaigns = null;
+
+        if ($programTitle) {
+            $validCampaigns = $campaigns->filter(function ($campaign) use ($programTitle) {
+                return $campaign->program->title == $programTitle;
+            });
+        } else {
+            $validCampaigns = $campaigns->filter(function ($campaign) use ($min, $max) {
+                $disbursedAmount = $campaign->getTotalDisbursedAmount();
+                return $disbursedAmount <= $max && $disbursedAmount >= $min;
+            });
+        }
+
+        $totalDisbursedAmount = $validCampaigns ? $validCampaigns->sum(function ($campaign) {
+            return $campaign->getTotalDisbursedAmount();
+        }) : 0;
+
+        if (!$totalDisbursedAmount) {
+            $totalDisbursedAmount = 0;
+        }
+        return $totalDisbursedAmount;
+    }
+
+    public function cumulativeRecipientsEndCurrentMonth($min, $max, $programTitle)
+    {
+        $query = Campaign::where('donation_start_time', '<=', Carbon::now()->endOfMonth());
+
+        $campaigns = $query->get();
+        $validCampaigns = null;
+
+        if ($programTitle) {
+            $validCampaigns = $campaigns->filter(function ($campaign) use ($programTitle) {
+                return $campaign->program->title == $programTitle;
+            });
+        } else {
+            $validCampaigns = $campaigns->filter(function ($campaign) use ($min, $max) {
+                $disbursedAmount = $campaign->getTotalDisbursedAmount();
+                return $disbursedAmount <= $max && $disbursedAmount >= $min;
+            });
+        }
+
+        $totalCount = $validCampaigns ? $validCampaigns->sum('number_of_recipients') : 0;
+
+        if (!$totalCount) {
+            $totalCount = 0;
+        }
+
+        return $totalCount;
+    }
+
+    public function cumulativeDisbursedAmountEndCurrentMonth($min, $max, $programTitle)
+    {
+        $query = Campaign::where('donation_start_time', '<=', Carbon::now()->endOfMonth());
+
+        $campaigns = $query->get();
+        $validCampaigns = null;
+
+        if ($programTitle) {
+            $validCampaigns = $campaigns->filter(function ($campaign) use ($programTitle) {
+                return $campaign->program->title == $programTitle;
+            });
+        } else {
+            $validCampaigns = $campaigns->filter(function ($campaign) use ($min, $max) {
+                $disbursedAmount = $campaign->getTotalDisbursedAmount();
+                return $disbursedAmount <= $max && $disbursedAmount >= $min;
+            });
+        }
+
+        $totalDisbursedAmount = $validCampaigns ? $validCampaigns->sum(function ($campaign) {
+            return $campaign->getTotalDisbursedAmount();
+        }) : 0;
+
+        if (!$totalDisbursedAmount) {
+            $totalDisbursedAmount = 0;
+        }
+
+        return $totalDisbursedAmount;
+    }
+
+    public function disbursementReportByProgramDownload(Request $request)
+    {
         $program = $request->input('program');
         if ($program) {
             $programTitles = Program::where('title', $program)->pluck('title');
@@ -315,7 +592,8 @@ class ReportController extends Controller
         exit();
     }
 
-    public function monthlyReportByProgram(Request $request) {
+    public function monthlyReportByProgram(Request $request)
+    {
         $program = $request->input('program');
         if ($program) {
             $programTitles = Program::where('title', $program)->pluck('title');
@@ -392,199 +670,8 @@ class ReportController extends Controller
         exit();
     }
 
-    public function numberOfRecipients($min, $max, $currentMonth, $lastMonth, $programTitle) {
-        $query = Campaign::query();
-
-        if ($lastMonth) {
-            $query = $query->where('donation_start_time', '<', Carbon::now()->startOfMonth());
-        }
-
-        if ($currentMonth) {
-            $query = $query->whereBetween('donation_start_time', [Carbon::now()->startOfMonth(), Carbon::now()]);
-        }
-
-        $campaigns = $query->get();
-        $validCampaigns = null;
-
-        if ($programTitle) {
-            $validCampaigns = $campaigns->filter(function ($campaign) use ($programTitle) {
-                return $campaign->program->title == $programTitle;
-            });
-        } else {
-            $validCampaigns = $campaigns->filter(function ($campaign) use ($min, $max) {
-                $disbursedAmount = $campaign->getTotalDisbursedAmount();
-                return $disbursedAmount <= $max && $disbursedAmount >= $min;
-            });
-        }
-
-        $totalCount = $validCampaigns ? $validCampaigns->sum('number_of_recipients') : 0;
-
-        if(!$totalCount) {
-            $totalCount = 0;
-        }
-
-        return $totalCount;
-    }
-
-    public function numberOfPayers($min, $max, $currentMonth, $lastMonth) {
-        $query = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)
-            ->whereBetween('amount', [$min, $max]);
-
-        if ($lastMonth) {
-            $query = $query->where('updated_at', '<', Carbon::now()->startOfMonth());
-        }
-
-        if ($currentMonth) {
-            $query = $query->whereBetween('updated_at', [Carbon::now()->startOfMonth(), Carbon::now()]);
-        }
-
-        $nullDonorsQuery = (clone $query)->whereNull('donor_id');
-
-        $query = $query->whereNotNull('donor_id')->distinct('donor_id');
-
-        $countDistinctDonors = $query->count('donor_id');
-
-        $countNullDonors = $nullDonorsQuery->count();
-
-        $totalCount = $countDistinctDonors + $countNullDonors;
-
-        return $totalCount;
-    }
-
-    public function totalDisbursedAmount($min, $max, $currentMonth, $lastMonth, $programTitle)
+    public function numberOfPayersByProgram($programTitle, $currentMonth, $lastMonth)
     {
-        $query = Campaign::query();
-
-        if ($lastMonth) {
-            $query = $query->where('donation_start_time', '<', Carbon::now()->startOfMonth());
-        }
-
-        if ($currentMonth) {
-            $query = $query->whereBetween('donation_start_time', [Carbon::now()->startOfMonth(), Carbon::now()]);
-        }
-
-        $campaigns = $query->get();
-        $validCampaigns = null;
-
-        if ($programTitle) {
-            $validCampaigns = $campaigns->filter(function ($campaign) use ($programTitle) {
-                return $campaign->program->title == $programTitle;
-            });
-        } else {
-            $validCampaigns = $campaigns->filter(function ($campaign) use ($min, $max) {
-                $disbursedAmount = $campaign->getTotalDisbursedAmount();
-                return $disbursedAmount <= $max && $disbursedAmount >= $min;
-            });
-        }
-
-        $totalDisbursedAmount = $validCampaigns ? $validCampaigns->sum(function ($campaign) {
-            return $campaign->getTotalDisbursedAmount();
-        }) : 0;
-
-        if (!$totalDisbursedAmount) {
-            $totalDisbursedAmount = 0;
-        }
-        return $totalDisbursedAmount;
-    }
-
-    public function totalAmount($min, $max,$currentMonth,$lastMonth)
-    {
-        $query = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)
-            ->whereBetween('amount', [$min, $max]);
-
-        if ($lastMonth) {
-            $query = $query->where('updated_at', '<', Carbon::now()->startOfMonth());
-        } elseif ($currentMonth) {
-            $query = $query->whereBetween('updated_at', [Carbon::now()->startOfMonth(), Carbon::now()]);
-        }
-        $total = $query->sum('amount');
-        return $total;
-    }
-
-    public function cumulativeRecipientsEndCurrentMonth($min, $max, $programTitle)
-    {
-        $query = Campaign::where('donation_start_time', '<=', Carbon::now()->endOfMonth());
-
-        $campaigns = $query->get();
-        $validCampaigns = null;
-
-        if ($programTitle) {
-            $validCampaigns = $campaigns->filter(function ($campaign) use ($programTitle) {
-                return $campaign->program->title == $programTitle;
-            });
-        } else {
-            $validCampaigns = $campaigns->filter(function ($campaign) use ($min, $max) {
-                $disbursedAmount = $campaign->getTotalDisbursedAmount();
-                return $disbursedAmount <= $max && $disbursedAmount >= $min;
-            });
-        }
-
-        $totalCount = $validCampaigns ? $validCampaigns->sum('number_of_recipients') : 0;
-
-        if(!$totalCount) {
-            $totalCount = 0;
-        }
-
-        return $totalCount;
-    }
-
-    public function cumulativePayersEndCurrentMonth($min, $max)
-    {
-        $query = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)
-            ->where('updated_at', '<=', Carbon::now()->endOfMonth())
-            ->whereBetween('amount', [$min, $max]);
-
-        $nullDonorsQuery = (clone $query)->whereNull('donor_id');
-
-        $query = $query->whereNotNull('donor_id')->distinct('donor_id');
-
-        $countDistinctDonors = $query->count('donor_id');
-
-        $countNullDonors = $nullDonorsQuery->count();
-
-        $totalCumulativeCount = $countDistinctDonors + $countNullDonors;
-
-        return $totalCumulativeCount;
-    }
-
-    public function cumulativeAmountEndCurrentMonth($min, $max){
-        $cumulativeAmount = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)
-            ->where('updated_at', '<=', Carbon::now()->endOfMonth())
-            ->whereBetween('amount', [$min, $max])
-            ->sum('amount');
-
-        return $cumulativeAmount;
-    }
-
-    public function cumulativeDisbursedAmountEndCurrentMonth($min, $max, $programTitle){
-        $query = Campaign::where('donation_start_time', '<=', Carbon::now()->endOfMonth());
-
-        $campaigns = $query->get();
-        $validCampaigns = null;
-
-        if ($programTitle) {
-            $validCampaigns = $campaigns->filter(function ($campaign) use ($programTitle) {
-                return $campaign->program->title == $programTitle;
-            });
-        } else {
-            $validCampaigns = $campaigns->filter(function ($campaign) use ($min, $max) {
-                $disbursedAmount = $campaign->getTotalDisbursedAmount();
-                return $disbursedAmount <= $max && $disbursedAmount >= $min;
-            });
-        }
-
-        $totalDisbursedAmount = $validCampaigns ? $validCampaigns->sum(function ($campaign) {
-            return $campaign->getTotalDisbursedAmount();
-        }) : 0;
-
-        if (!$totalDisbursedAmount) {
-            $totalDisbursedAmount = 0;
-        }
-
-        return $totalDisbursedAmount;
-    }
-
-    public function numberOfPayersByProgram($programTitle, $currentMonth, $lastMonth) {
         $query = Donation::where('transaction_status', TransactionTypeEnum::Complete->value);
 
         $query = $query->whereHas('campaign.program', function ($query) use ($programTitle) {
@@ -612,7 +699,7 @@ class ReportController extends Controller
         return $totalCount;
     }
 
-    public function totalAmountByProgram($programTitle,$currentMonth,$lastMonth)
+    public function totalAmountByProgram($programTitle, $currentMonth, $lastMonth)
     {
         $query = Donation::where('transaction_status', TransactionTypeEnum::Complete->value);
 
@@ -628,7 +715,6 @@ class ReportController extends Controller
         $total = $query->sum('amount');
         return $total;
     }
-
 
     public function cumulativePayersEndCurrentMonthByProject($programTitle)
     {
@@ -651,7 +737,8 @@ class ReportController extends Controller
         return $totalCumulativeCount;
     }
 
-    public function cumulativeAmountEndCurrentMonthByProgram($programTitle) {
+    public function cumulativeAmountEndCurrentMonthByProgram($programTitle)
+    {
         $cumulativeAmount = Donation::whereHas('campaign.program', function ($query) use ($programTitle) {
             $query->where('title', $programTitle);
         })
@@ -661,7 +748,6 @@ class ReportController extends Controller
 
         return $cumulativeAmount;
     }
-
 
     private function convertJsonToCsv($jsonData)
     {
@@ -685,49 +771,5 @@ class ReportController extends Controller
         fclose($csv);
 
         return $output;
-    }
-
-    private function filterDataByDateRange($data, $startDate, $endDate, $program, $reportType)
-    {
-        $filteredData = [];
-        $dateField = $this->getDateFieldForReportType($reportType);
-
-        if ($startDate || $endDate) {
-            foreach ($data as $entry) {
-                $registerDate = $entry[$dateField];
-                if ($registerDate >= $startDate && $registerDate <= $endDate) {
-                    $filteredData[] = $entry;
-                }
-            }
-        } else {
-            $filteredData = $data;
-        }
-
-        if ($program) {
-            $filteredData2 = [];
-            foreach ($filteredData as $entry) {
-                if ($entry['Program'] == $program) {
-                    $filteredData2[] = $entry;
-                }
-            }
-            $filteredData = $filteredData2;
-        }
-
-        return $filteredData;
-    }
-
-    private function getDateFieldForReportType($reportType)
-    {
-        $reportTypeDateFieldMapping = [
-            ReportTypeEnum::News_letter->value => 'register_date',
-            ReportTypeEnum::Donor->value => 'Last_Transaction_Date',
-            ReportTypeEnum::Campaign->value => 'Date_of_Created',
-            ReportTypeEnum::Transaction->value => 'Transaction_Date',
-            ReportTypeEnum::User_Zakat_Calculation->value => 'Date',
-            ReportTypeEnum::Publication->value => 'Release_Date',
-            ReportTypeEnum::Publication_Download_History->value => 'Download_Date',
-        ];
-
-        return $reportTypeDateFieldMapping[$reportType] ?? null;
     }
 }
