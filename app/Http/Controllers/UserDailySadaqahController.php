@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\FlashHelper;
 use App\Models\RecurringSubscription;
 use App\Models\RecurringTransaction;
+use Illuminate\Support\Facades\Http;
 
 class UserDailySadaqahController extends Controller
 {
@@ -27,6 +28,23 @@ class UserDailySadaqahController extends Controller
     public function pause($id)
     {
         $subscription = RecurringSubscription::findOrFail($id);
+
+        $refer = config('sslcommerz.' . config('sslcommerz.mode') . '.store_refer');
+        $storeId = config('sslcommerz.' . config('sslcommerz.mode') . '.store_id');
+        $storePass = config('sslcommerz.' . config('sslcommerz.mode') . '.store_password');
+
+        $payload = [
+            'refer' => $refer,
+            'store_id' => $storeId,
+            'store_passwd' => $storePass,
+            'subscription_id' => $subscription->subscription_id,
+            'action' => 'disableSubscription'
+        ];
+        $url = config('sslcommerz.apiDomain') . config('sslcommerz.apiUrl.check');
+        $response = Http::asForm()->post($url, $payload);
+        $data = $response->json();
+        dd($url, $payload, $data);
+
 
         $subscription->update([
             'paused_at' => now(),

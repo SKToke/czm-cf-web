@@ -130,6 +130,7 @@ Route::post('/daily-sadaqah', [DailySadaqahController::class, 'subscribe'])->nam
 Route::match(['get', 'post'], '/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
 Route::match(['get', 'post'], '/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
 Route::match(['get', 'post'], '/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
+Route::post('/daily-sadaqah-init-ipn', [DailySadaqahController::class, 'init_ipn'])->name('daily-sadaqah.init_ipn');
 Route::post('/daily-sadaqah-ipn', [DailySadaqahController::class, 'ipn'])->name('daily-sadaqah.ipn');
 Route::post('/daily-sadaqah-bill-query', [DailySadaqahController::class, 'billQuery'])->name('daily-sadaqah.bill-query');
 
