@@ -46,9 +46,12 @@ return new class extends Migration {
             $table->timestamp('last_payment_at')->nullable();
             $table->string('last_payment_status')->nullable();
 
+            $table->string('val_id')->nullable();
             $table->string('bank_tran_id')->nullable();
             $table->string('card_issuer_bank')->nullable();
             $table->string('card_no')->nullable();
+            $table->string('card_brand')->nullable();
+            $table->string('card_sub_brand')->nullable();
 
             $table->timestamps();
 
