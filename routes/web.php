@@ -19,7 +19,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDailySadaqahController;
 use App\Http\Controllers\ZakatCalculatorController;
 use App\Services\BkashService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -219,23 +218,14 @@ Route::get('/bkash/agreement', [BkashController::class, 'createAgreement']);
 Route::get('/bkash/callback', [BkashController::class, 'callback'])->name('bkash.callback');
 Route::get('/bkash/pay', [BkashController::class, 'pay']);
 Route::get('/bkash/payment/callback', [BkashController::class, 'paymentCallback']);
-Route::get('/bkash/payment/success', fn(Request $request) => [
-    'message' => 'bKash Payment success',
-    'request' => $request->all()
-]);
-Route::get('/bkash/payment/fail', fn(Request $request) => [
-    'message' => 'bKash Payment failed',
-    'request' => $request->all()
-]);
-Route::get('/bkash/agreement/success', fn(Request $request) => [
-    'message' => 'Agreement OK',
-    'request' => $request->all()
-]);
-Route::get('/bkash/agreement/fail', fn(Request $request) => [
-    'message' => 'Agreement failed',
-    'request' => $request->all()
-]);
-Route::get('/bkash/bkash/refund', function (
+
+Route::get('/bkash/payment/success', fn() => 'Payment Successful');
+Route::get('/bkash/payment/fail', fn() => session('message') ?? 'Payment Failed');
+Route::get('/bkash/payment/cancel', fn() => session('message') ?? 'Payment Cancelled');
+Route::get('/bkash/agreement/success', fn() => 'Agreement Successful');
+Route::get('/bkash/agreement/fail', fn() => 'Agreement Failed');
+
+Route::get('/bkash/refund', function (
     \App\Services\BkashService $bkash
 ) {
 
@@ -268,4 +258,19 @@ Route::get('/bkash/search', function (
         $payment->trx_id
     );
 
+});
+Route::get('/bkash/query-test', function (
+    \App\Services\BkashService $bkash
+) {
+    $payment = \App\Models\BkashPayment::latest()->first();
+
+    return $bkash->queryPayment($payment->payment_id);
+});
+
+Route::get('/bkash/agreement/query', function (
+    \App\Services\BkashService $bkash
+) {
+    $agreement = \App\Models\BkashAgreement::latest()->first();
+
+    return $bkash->queryAgreement($agreement->agreement_id);
 });
