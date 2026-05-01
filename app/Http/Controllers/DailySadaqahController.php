@@ -195,7 +195,7 @@ class DailySadaqahController extends Controller
         $response = Http::asForm()->post($url, $payload);
         $data = $response->json();
 
-        if ($data['status'] == 'SUCCESS') {
+        if ($data['status'] == 'success') {
             $subscription->subscription_id_onreq = $data['subscription_id'];
             $subscription->subscription_status_onreq = $data['subscription_status'];
             $subscription->sessionkey_onreq = $data['sessionkey'];
@@ -373,7 +373,7 @@ class DailySadaqahController extends Controller
         */
 
         $data = [
-            'status' => 'SUCCESS',
+            'status' => 'success',
             'failedreason' => 'Information okay',
             'error_msg_to_display' => 'Please wait..',
             'tran_id' => 'TrID' . uniqid(),

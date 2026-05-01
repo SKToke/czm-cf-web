@@ -45,6 +45,7 @@ class BkashService
             "payerReference" => (string)$payerReference,
             "callbackURL" => $callback,
         ];
+//        dd($token, $callback, $url, $body, $headers);
         $response = Http::timeout(30)->withHeaders($headers)->post($url, $body);
 
         //log
@@ -64,7 +65,7 @@ class BkashService
         if (Cache::has('bkash_token')) {
             return Cache::get('bkash_token');
         }
-        
+
         $url = $this->baseUrl . 'tokenized-checkout/auth/grant-token';
 
         $headers = [
@@ -103,6 +104,27 @@ class BkashService
         return $data['id_token'];
     }
 
+    public function queryAgreement($agreementId)
+    {
+        $token = trim($this->getToken());
+
+        $url = $this->baseUrl . 'tokenized-checkout/query/agreement';
+
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Authorization' => $token,
+                'X-App-Key' => $this->appKey,
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ])
+            ->asJson()
+            ->post($url, [
+                "agreementId" => $agreementId
+            ]);
+
+        return $response->json();
+    }
+
     /**
      * @throws \Exception
      */
@@ -115,10 +137,8 @@ class BkashService
         $headers = [
             'Authorization' => $token,
             'X-App-Key' => $this->appKey,
-            'username' => $this->username,
-            'password' => $this->password,
-            'Accept' => 'application/json',
             'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
         ];
 
         $body = [
@@ -314,10 +334,7 @@ class BkashService
             'response' => $response->body(),
         ]);
 
-        return [
-            'status' => $response->status(),
-            'body' => $response->body(),
-        ];
+        return $response->json();
     }
 
     public function refundStatus($paymentId, $trxId)
