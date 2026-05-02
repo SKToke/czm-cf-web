@@ -262,6 +262,7 @@ class DailySadaqahController extends Controller
             } else {
                 $nextBilling = $subscription->frequency_type === 'daily' ? now()->addDay() : now()->addMonth();
             }
+            Log::channel('sslcommerz')->info('IPN - Before update $nextBilling');
             $subscription->update([
                 'next_billing_at' => $nextBilling
             ]);
@@ -275,8 +276,18 @@ class DailySadaqahController extends Controller
                 'gateway_response' => $request->all(),
                 'paid_at' => now(),
             ];
+            Log::channel('sslcommerz')->info('IPN - Before create', $transData);
             // Store payment history
-            RecurringTransaction::create($transData);
+            $txn = new RecurringTransaction();
+            $txn->recurring_subscription_id = $subscription->id;
+            $txn->tran_id = $tranId;
+            $txn->amount = $subscription->amount;
+            $txn->currency = 'BDT';
+            $txn->payment_status = 'valid';
+            $txn->gateway_response = json_encode($request->all());
+            $txn->paid_at = now();
+            $txn->save();
+//            RecurringTransaction::create($transData);
             Log::channel('sslcommerz')->info('IPN - $request->status === VALID - Create Transaction', [
                 'request' => $request->all(),
                 'transData' => $transData
