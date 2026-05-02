@@ -55,15 +55,11 @@ class DailySadaqahController extends Controller
 
     public function subscribe(Request $request)
     {
-        Log::channel('sslcommerz')->info('Subscribe - Enter', [
+        Log::channel('sslcommerz')->info('Subscribe', [
             'message' => 'Subscribe - Enter',
             'request' => $request->all()
         ]);
-        /*
-        |--------------------------------------------------------------------------
-        | Validation
-        |--------------------------------------------------------------------------
-        */
+
         $rules = [
             'payment_amount' => ['required', 'numeric', 'min:1'],
             'frequency' => ['required', 'in:daily,monthly'],
@@ -76,11 +72,6 @@ class DailySadaqahController extends Controller
         }
         $validated = $request->validate($rules);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Resolve User
-        |--------------------------------------------------------------------------
-        */
         if (auth()->check()) {
             $user = auth()->user();
         } else {
@@ -95,18 +86,8 @@ class DailySadaqahController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Resolve Donor
-        |--------------------------------------------------------------------------
-        */
         $donor = $user->findOrCreateDonor();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Create Subscription
-        |--------------------------------------------------------------------------
-        */
         $refer = config('sslcommerz.' . config('sslcommerz.mode') . '.store_refer');
         $saltKey = config('sslcommerz.' . config('sslcommerz.mode') . '.store_salt_key');
         $storeId = config('sslcommerz.' . config('sslcommerz.mode') . '.store_id');
@@ -132,13 +113,6 @@ class DailySadaqahController extends Controller
             'payment_status' => 'pending',
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | SSL Schedule
-        |--------------------------------------------------------------------------
-        */
-
         $schedule = json_encode([
             'refer' => $refer,
             'acct_no' => $subscription->id,
@@ -149,55 +123,30 @@ class DailySadaqahController extends Controller
 
         $encryptedSchedule = SslEncryptionHelper::encrypt($schedule, $saltKey);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | SSL Payload
-        |--------------------------------------------------------------------------
-        */
-
         $payload = [
-
             'store_id' => $storeId,
             'store_passwd' => $storePass,
-
             'total_amount' => $request->payment_amount,
             'currency' => 'BDT',
             'tran_id' => $tranId,
-
             'success_url' => route('daily-sadaqah.success'),
             'fail_url' => route('daily-sadaqah.fail'),
             'cancel_url' => route('daily-sadaqah.cancel'),
             'ipn_url' => route('daily-sadaqah.ipn'),
-//            'success_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-success",
-//            'fail_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-fail",
-//            'cancel_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-cancel",
-//            'ipn_url' => "https://miles-agravic-autochthonously.ngrok-free.dev/daily-sadaqah-ipn",
-
             'cus_name' => $donor->name,
             'cus_email' => $donor->email,
             'cus_add1' => 'Bangladesh',
             'cus_city' => 'Dhaka',
             'cus_country' => 'Bangladesh',
             'cus_phone' => $donor->phone ?? '01700000000',
-
             'shipping_method' => 'NO',
-
             'product_name' => 'Daily Sadaqah',
             'product_category' => 'Donation',
             'product_profile' => 'general',
-
             'schedule' => $encryptedSchedule,
             'multi_card_name' => 'visacard,mastercard',
             'login_req' => 1,
         ];
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Call SSLCommerz
-        |--------------------------------------------------------------------------
-        */
 
         $url = config('sslcommerz.apiDomain') . config('sslcommerz.apiUrl.make_payment');
         $response = Http::asForm()->post($url, $payload);
@@ -210,7 +159,7 @@ class DailySadaqahController extends Controller
             $subscription->sessionkey_onreq = $data['sessionkey'];
             $subscription->save();
         }
-        Log::channel('sslcommerz')->info('Subscribe - Exit', [
+        Log::channel('sslcommerz')->info('Subscribe', [
             'message' => 'Subscribe - Exit',
             'payload' => $payload,
             'response' => $data
@@ -225,7 +174,7 @@ class DailySadaqahController extends Controller
 
     public function ipn(Request $request)
     {
-        Log::channel('sslcommerz')->info('IPN - Enter', [
+        Log::channel('sslcommerz')->info('IPN', [
             'message' => 'IPN - Enter',
             'request' => $request->all()
         ]);
@@ -236,17 +185,19 @@ class DailySadaqahController extends Controller
         $transaction = RecurringTransaction::where('tran_id', $tranId)->first();
 
         if (!$transaction) {
-            Log::warning('IPN fallback triggered (unexpected)', [
+            Log::channel('sslcommerz')->warning('IPN', [
+                'message' => 'IPN - transaction not found',
                 'tran_id' => $tranId
             ]);
 
             // Safety net only — should almost never happen
-            $subscription = RecurringSubscription::where(
-                'subscription_id',
-                $request->subscription_id
-            )->first();
+            $subscription = RecurringSubscription::where('subscription_id', $request->subscription_id)->first();
 
             if (!$subscription) {
+                Log::channel('sslcommerz')->error('IPN', [
+                    'message' => 'IPN - Subscription not found',
+                    'subscription_id' => $request->subscription_id
+                ]);
                 return response()->json(['error' => 'Subscription not found'], 404);
             }
 
@@ -261,7 +212,7 @@ class DailySadaqahController extends Controller
 
         // Prevent duplicate processing
         if ($transaction->payment_status !== 'pending') {
-            Log::channel('sslcommerz')->warning('IPN - Duplicate', [
+            Log::channel('sslcommerz')->warning('IPN', [
                 'message' => 'IPN - Duplicate',
                 'tran_id' => $tranId
             ]);
@@ -271,28 +222,27 @@ class DailySadaqahController extends Controller
         $subscription = $transaction->subscription;
 
         if (!$subscription) {
-            Log::channel('sslcommerz')->error('IPN - Subscription missing');
-            return response()->json(['error' => 'Subscription missing'], 404);
+            Log::channel('sslcommerz')->error('IPN', [
+                'message' => 'IPN - Subscription not found',
+                'subscription_id' => $transaction->subscription_id
+            ]);
+            return response()->json(['error' => 'Subscription not found'], 404);
         }
 
         if ($request->status === 'VALID') {
 
-            // Update transaction
             $transaction->update([
                 'payment_status' => 'valid',
                 'gateway_response' => json_encode($request->all()),
                 'paid_at' => now(),
             ]);
 
-            // Update subscription
             $subscription->update([
                 'subscription_id' => $request->subscription_id,
-
                 'last_tran_id' => $tranId,
                 'last_payment_at' => now(),
                 'last_payment_status' => 'valid',
                 'status' => 'active',
-
                 'bank_tran_id' => $request->bank_tran_id,
                 'card_issuer_bank' => $request->card_issuer,
                 'card_no' => $request->card_no,
@@ -301,13 +251,15 @@ class DailySadaqahController extends Controller
                 'val_id' => $request->val_id,
             ]);
 
-            // Next billing
-            $nextBilling = $subscription->next_billing_at ?? now();
-
-            if ($subscription->frequency_type === 'daily') {
-                $nextBilling->addDay();
+            if ($subscription->next_billing_at) {
+                $nextBilling = $subscription->next_billing_at->copy();
+                if ($subscription->frequency_type === 'daily') {
+                    $nextBilling->addDay();
+                } else {
+                    $nextBilling->addMonth();
+                }
             } else {
-                $nextBilling->addMonth();
+                $nextBilling = $subscription->frequency_type === 'daily' ? now()->addDay() : now()->addMonth();
             }
 
             $subscription->update([
@@ -316,7 +268,6 @@ class DailySadaqahController extends Controller
         }
 
         if ($request->status === 'FAILED') {
-
             $transaction->update([
                 'payment_status' => 'failed',
                 'gateway_response' => json_encode($request->all()),
@@ -324,8 +275,9 @@ class DailySadaqahController extends Controller
             ]);
         }
 
-        Log::channel('sslcommerz')->info('IPN - End', [
+        Log::channel('sslcommerz')->info('IPN', [
             'message' => 'IPN - End',
+            'subscription_id' => $request->subscription_id,
             'tran_id' => $tranId
         ]);
 
@@ -458,16 +410,16 @@ class DailySadaqahController extends Controller
 
     public function billQuery(Request $request)
     {
-        Log::channel('sslcommerz')->info('Billing Query - Enter', [
+        Log::channel('sslcommerz')->info('billQuery', [
             'message' => 'Billing Query - Enter',
             'request' => $request->all()
         ]);
-        $subscriptionId = $request->subscription_id;
-        $subscription = RecurringSubscription::where('subscription_id', $subscriptionId)->first();
+
+        $subscription = RecurringSubscription::where('subscription_id', $request->subscription_id)->first();
 
         if (!$subscription) {
-            Log::channel('sslcommerz')->info('Billing Query - !$subscription', [
-                'message' => 'Billing Query - !$subscription',
+            Log::channel('sslcommerz')->info('billQuery', [
+                'message' => 'Billing Query - Subscription not found',
                 'request' => $request->all()
             ]);
             return response()->json([
@@ -477,15 +429,10 @@ class DailySadaqahController extends Controller
             ]);
         }
 
-        /*
-        |----------------------------------------------------------
-        | Subscription Status Logic
-        |----------------------------------------------------------
-        */
-
         if ($subscription->status !== 'active') {
-            Log::channel('sslcommerz')->info('Billing Query - $subscription->status !== active', [
-                'message' => 'Billing Query - $subscription->status !== active',
+            Log::channel('sslcommerz')->info('billQuery', [
+                'message' => 'Billing Query - subscription status not active',
+                'subscription_status' => $subscription->status,
                 'request' => $request->all()
             ]);
             return response()->json([
@@ -494,12 +441,6 @@ class DailySadaqahController extends Controller
                 'error_msg_to_display' => 'Subscription inactive',
             ]);
         }
-
-        /*
-        |----------------------------------------------------------
-        | Allow Charge
-        |----------------------------------------------------------
-        */
 
         $tranId = 'TrID' . uniqid();
         $data = [
@@ -519,7 +460,7 @@ class DailySadaqahController extends Controller
             'currency' => 'BDT',
             'payment_status' => 'pending',
         ]);
-        Log::channel('sslcommerz')->info('Billing Query - End', [
+        Log::channel('sslcommerz')->info('billQuery', [
             'message' => 'Billing Query - End',
             'request' => $request->all(),
             'response' => $data,
