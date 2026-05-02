@@ -124,6 +124,14 @@ class DailySadaqahController extends Controller
             'last_tran_id' => $tranId,
         ]);
 
+        RecurringTransaction::create([
+            'recurring_subscription_id' => $subscription->id,
+            'tran_id' => $tranId,
+            'amount' => $subscription->amount,
+            'currency' => 'BDT',
+            'payment_status' => 'pending',
+        ]);
+
 
         /*
         |--------------------------------------------------------------------------
@@ -195,7 +203,8 @@ class DailySadaqahController extends Controller
         $response = Http::asForm()->post($url, $payload);
         $data = $response->json();
 
-        if ($data['status'] == 'success') {
+        if (isset($data['status']) && strtolower($data['status']) === 'success') {
+            $subscription->subscription_id = $data['subscription_id'];
             $subscription->subscription_id_onreq = $data['subscription_id'];
             $subscription->subscription_status_onreq = $data['subscription_status'];
             $subscription->sessionkey_onreq = $data['sessionkey'];
@@ -215,6 +224,115 @@ class DailySadaqahController extends Controller
     }
 
     public function ipn(Request $request)
+    {
+        Log::channel('sslcommerz')->info('IPN - Enter', [
+            'message' => 'IPN - Enter',
+            'request' => $request->all()
+        ]);
+
+        $tranId = $request->tran_id;
+
+        // Find transaction FIRST (not subscription)
+        $transaction = RecurringTransaction::where('tran_id', $tranId)->first();
+
+        if (!$transaction) {
+            Log::warning('IPN fallback triggered (unexpected)', [
+                'tran_id' => $tranId
+            ]);
+
+            // Safety net only — should almost never happen
+            $subscription = RecurringSubscription::where(
+                'subscription_id',
+                $request->subscription_id
+            )->first();
+
+            if (!$subscription) {
+                return response()->json(['error' => 'Subscription not found'], 404);
+            }
+
+            $transaction = RecurringTransaction::create([
+                'recurring_subscription_id' => $subscription->id,
+                'tran_id' => $tranId,
+                'amount' => $subscription->amount,
+                'currency' => 'BDT',
+                'payment_status' => 'pending',
+            ]);
+        }
+
+        // Prevent duplicate processing
+        if ($transaction->payment_status !== 'pending') {
+            Log::channel('sslcommerz')->warning('IPN - Duplicate', [
+                'message' => 'IPN - Duplicate',
+                'tran_id' => $tranId
+            ]);
+            return response()->json(['message' => 'Duplicate']);
+        }
+
+        $subscription = $transaction->subscription;
+
+        if (!$subscription) {
+            Log::channel('sslcommerz')->error('IPN - Subscription missing');
+            return response()->json(['error' => 'Subscription missing'], 404);
+        }
+
+        if ($request->status === 'VALID') {
+
+            // Update transaction
+            $transaction->update([
+                'payment_status' => 'valid',
+                'gateway_response' => json_encode($request->all()),
+                'paid_at' => now(),
+            ]);
+
+            // Update subscription
+            $subscription->update([
+                'subscription_id' => $request->subscription_id,
+
+                'last_tran_id' => $tranId,
+                'last_payment_at' => now(),
+                'last_payment_status' => 'valid',
+                'status' => 'active',
+
+                'bank_tran_id' => $request->bank_tran_id,
+                'card_issuer_bank' => $request->card_issuer,
+                'card_no' => $request->card_no,
+                'card_brand' => $request->card_brand,
+                'card_sub_brand' => $request->card_sub_brand,
+                'val_id' => $request->val_id,
+            ]);
+
+            // Next billing
+            $nextBilling = $subscription->next_billing_at ?? now();
+
+            if ($subscription->frequency_type === 'daily') {
+                $nextBilling->addDay();
+            } else {
+                $nextBilling->addMonth();
+            }
+
+            $subscription->update([
+                'next_billing_at' => $nextBilling
+            ]);
+        }
+
+        if ($request->status === 'FAILED') {
+
+            $transaction->update([
+                'payment_status' => 'failed',
+                'gateway_response' => json_encode($request->all()),
+                'paid_at' => now(),
+            ]);
+        }
+
+        Log::channel('sslcommerz')->info('IPN - End', [
+            'message' => 'IPN - End',
+            'tran_id' => $tranId
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function _ipn(Request $request)
     {
         Log::channel('sslcommerz')->info('IPN - Enter', [
             'message' => 'IPN - Enter',
@@ -372,16 +490,24 @@ class DailySadaqahController extends Controller
         |----------------------------------------------------------
         */
 
+        $tranId = 'TrID' . uniqid();
         $data = [
             'status' => 'success',
             'failedreason' => 'Information okay',
             'error_msg_to_display' => 'Please wait..',
-            'tran_id' => 'TrID' . uniqid(),
+            'tran_id' => $tranId,
             'currency' => 'BDT',
             'amount' => $subscription->amount,
             'refer' => $subscription->refer,
             'subscription_id' => $subscription->subscription_id,
         ];
+        RecurringTransaction::create([
+            'recurring_subscription_id' => $subscription->id,
+            'tran_id' => $tranId,
+            'amount' => $subscription->amount,
+            'currency' => 'BDT',
+            'payment_status' => 'pending',
+        ]);
         Log::channel('sslcommerz')->info('Billing Query - End', [
             'message' => 'Billing Query - End',
             'request' => $request->all(),
