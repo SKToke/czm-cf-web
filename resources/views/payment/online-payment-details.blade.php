@@ -30,6 +30,36 @@
             (Merchant Account, Select Payment option)
         </div>
     </div>
+    <div class="row mt-20">
+        <div class="col-2 text-center align-self-center">
+            <img src="images/payment-logo/upay-icon-logo.svg"
+                 alt="upay-logo-payment"
+                 width="30px"
+                 height="auto"
+            >
+        </div>
+        <div class="col-10">
+            <strong>Upay:&nbsp;</strong> 01729 296 296
+            <br>
+            (Merchant Account, Select Payment option)
+        </div>
+    </div>
+
+
+    <div class="row mt-20">
+        <div class="col-2 text-center align-self-center">
+            <img src="images/payment-logo/tap-icon-logo.svg"
+                 alt="tap-logo-payment"
+                 width="30px"
+                 height="auto"
+            >
+        </div>
+        <div class="col-10">
+            <strong>Tap:&nbsp;</strong> 01729 296 296
+            <br>
+            (Merchant Account, Select Payment option)
+        </div>
+    </div>
 
     {{--Rocket payment information--}}
     <div class="row mt-20">
@@ -44,18 +74,6 @@
             <strong>Rocket / DBBL:&nbsp;</strong> 01729 296 296
             <br>
             (Biller ID# 2986)
-        </div>
-    </div>
-
-    {{--Query information--}}
-    <div class="row mt-20">
-        <div class="col-2 text-center align-self-center">
-            <i class="fa-solid fa-phone fa-2x" style="color: #24408F;"></i>
-        </div>
-        <div class="col-10">
-            For any problem regarding payment,
-            <br>
-            Please call: 01729 296 296
         </div>
     </div>
 </div>

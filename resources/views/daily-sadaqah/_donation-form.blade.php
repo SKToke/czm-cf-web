@@ -82,7 +82,8 @@
                        id="bkash"
                        name="payment_method"
                        value="bkash"
-                       checked>
+                       disabled
+                >
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="bkash">
                     <img src="{{ asset('images/payment-logo/bkash-icon-logo.svg') }}"
@@ -96,7 +97,7 @@
                        class="czm-radio-btn"
                        id="card"
                        name="payment_method"
-                       value="card">
+                       value="card" checked>
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="card">
                     <img src="{{ asset('images/payment-logo/card-icon-logo.svg') }}"
@@ -120,6 +121,6 @@
     {{-- NOTICE --}}
     <div class="p-3 mb-3 rounded bg-light text-center text-dark">
         নিয়মিত অনুদান সংক্রান্ত যেকোনো বিষয় বুঝতে অসুবিধা হলে —
-        autopay@czm-bd.org
+        autopay@czm-bd.org / 01729 296 296
     </div>
 </div>
