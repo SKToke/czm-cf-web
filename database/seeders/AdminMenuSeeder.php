@@ -435,6 +435,16 @@ class AdminMenuSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'parent_id' => 0,
+                'order' => 6,
+                'title' => 'Recurring Subscriptions',
+                'icon' => 'icon-sync',
+                'uri' => 'recurring-subscriptions',
+                'permission' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         foreach ($menuItems as $menuItem) {

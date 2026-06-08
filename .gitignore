@@ -22,3 +22,6 @@ yarn-error.log
 composer.lock
 .env
 storage/app/json
+/czm-cf-web.zip
+/docker
+/sail

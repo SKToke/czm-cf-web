@@ -1,7 +1,6 @@
-import './library/jquery-1.11.1.min.js';
 import 'owl.carousel';
 
-jQuery(document).ready(function($) {
+jQuery(document).ready(function ($) {
     if ($('.navigation .nav-footer button')) {
         $('.navigation .nav-footer button').on('click', function () {
             $('.navigation .nav-header').slideToggle();

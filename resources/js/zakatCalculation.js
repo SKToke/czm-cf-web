@@ -1,52 +1,58 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const tab1 = document.getElementById('tab1');
     const tab2 = document.getElementById('tab2');
 
-    tab1.addEventListener('click', function(e) {
-        document.getElementById('personalForm').style.display = 'block';
-        document.getElementById('businessForm').style.display = 'none';
-        tab1.classList.add('active');
-        tab2.classList.remove('active');
-    });
+    if (tab1 && tab2) {
+        tab1.addEventListener('click', function (e) {
+            document.getElementById('personalForm').style.display = 'block';
+            document.getElementById('businessForm').style.display = 'none';
+            tab1.classList.add('active');
+            tab2.classList.remove('active');
+        });
 
-    tab2.addEventListener('click', function(e) {
-        document.getElementById('personalForm').style.display = 'none';
-        document.getElementById('businessForm').style.display = 'block';
-        tab2.classList.add('active');
-        tab1.classList.remove('active');
-    });
+        tab2.addEventListener('click', function (e) {
+            document.getElementById('personalForm').style.display = 'none';
+            document.getElementById('businessForm').style.display = 'block';
+            tab2.classList.add('active');
+            tab1.classList.remove('active');
+        });
+    }
 
     const personalForm = document.getElementById('personalZakatForm');
     const businessForm = document.getElementById('businessZakatForm');
 
-    personalForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        submitZakatForm('/zakat/personal', new FormData(this));
-    });
+    if (personalForm) {
+        personalForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitZakatForm('/zakat/personal', new FormData(this));
+        });
 
-    businessForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        submitZakatForm('/zakat/business', new FormData(this));
-    });
+        personalForm.addEventListener('reset', function (e) {
+            e.preventDefault();
+            resetForm();
+        });
+    }
 
-    personalForm.addEventListener('reset', function(e) {
-        e.preventDefault();
-        resetForm();
-    });
+    if (businessForm) {
+        businessForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitZakatForm('/zakat/business', new FormData(this));
+        });
 
-    businessForm.addEventListener('reset', function(e) {
-        e.preventDefault();
-        resetForm();
-    });
+        businessForm.addEventListener('reset', function (e) {
+            e.preventDefault();
+            resetForm();
+        });
+    }
 
     function resetForm() {
         $.ajax({
             url: '/reset-zakat-form',
             type: 'GET',
-            success: function(response) {
+            success: function (response) {
                 window.location.reload();
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 console.error('Error resetting Zakat form');
             }
         });

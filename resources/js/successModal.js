@@ -1,7 +1,9 @@
-import { Modal } from 'bootstrap/js/src/modal.js';
+import { Modal } from 'bootstrap';
 
-document.addEventListener("DOMContentLoaded", function() {
-    if ( $('#payment-successful')) {
-        $('#payment-successful').modal('show');
+document.addEventListener("DOMContentLoaded", function () {
+    const el = document.getElementById('payment-successful');
+    if (el) {
+        const modal = new Modal(el);
+        modal.show();
     }
 });

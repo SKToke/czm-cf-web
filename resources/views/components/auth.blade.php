@@ -30,10 +30,10 @@
                 <ul class="submenu shadow">
                     @if(auth()->guest())
                         <li>
-                            <a data-bs-toggle="modal" id="require-register">Register</a>
+                            <a data-bs-toggle="modal" data-bs-target="#registerModal" id="require-register">Register</a>
                         </li>
                         <li>
-                            <a data-bs-toggle="modal" id="require-login">Login</a>
+                            <a data-bs-toggle="modal" data-bs-target="#loginModal" id="require-login">Login</a>
                         </li>
                     @else
                         <li>
