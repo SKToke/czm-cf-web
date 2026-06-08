@@ -10,19 +10,19 @@
                 <td>Total Donations Today</td>
                 <td>{{ $donations }} Tk</td>
                 <td>{{ $donors }} donors</td>
-                <td><a href="{{env('APP_ADMIN_URL').'/donations'}}">See all</a></td>
+                <td><a href="{{ admin_url('donations') }}">See all</a></td>
             </tr>
             <tr>
                 <td>Total Campaign Subscriptions Today</td>
                 <td>-</td>
                 <td>{{ $campaignSubscriptions }}</td>
-                <td><a href="{{env('APP_ADMIN_URL').'/campaign-subscriptions'}}">See all</a></td>
+                <td><a href="{{ admin_url('campaign-subscriptions') }}">See all</a></td>
             </tr>
             <tr>
                 <td>Total Newsletter Subscriptions Today</td>
                 <td>-</td>
                 <td>{{ $newsletterSubscriptions }}</td>
-                <td><a href="{{env('APP_ADMIN_URL').'/newsletter_subscriptions'}}">See all</a></td>
+                <td><a href="{{ admin_url('newsletter_subscriptions') }}">See all</a></td>
             </tr>
         </table>
     </div>

@@ -7,7 +7,7 @@
 <div class="row">
     <div class="col">
         <div class="card extra-visit-card" style="width: 20rem;">
-            <a href="{{ env('APP_ADMIN_URL') . '/reports' }}">
+            <a href="{{ admin_url('reports') }}">
                 <div class="card-body">
                     <h5 class="card-title">Reports</h5>
                     <p class="card-text">
@@ -22,7 +22,7 @@
     </div>
     <div class="col">
         <div class="card extra-visit-card" style="width: 20rem;">
-            <a href="{{ env('APP_ADMIN_URL') . '/user-zakat-calculations' }}">
+            <a href="{{ admin_url('user-zakat-calculations') }}">
                 <div class="card-body">
                     <h5 class="card-title">User Zakat Calculation records</h5>
                     <p class="card-text">
@@ -37,7 +37,7 @@
     </div>
     <div class="col">
         <div class="card extra-visit-card" style="width: 20rem;">
-            <a href="{{ env('APP_ADMIN_URL') . '/nisabs' }}">
+            <a href="{{ admin_url('nisabs') }}">
                 <div class="card-body">
                     <h5 class="card-title">Nisab Chart</h5>
                     <p class="card-text mb-0">
@@ -55,7 +55,7 @@
     </div>
     <div class="col">
         <div class="card extra-visit-card" style="width: 20rem;">
-            <a href="{{ env('APP_ADMIN_URL') . '/contact-us-queries' }}">
+            <a href="{{ admin_url('contact-us-queries') }}">
                 <div class="card-body">
                     <h5 class="card-title">Contact-us queries</h5>
                     <p class="card-text">
@@ -70,7 +70,7 @@
     </div>
     <div class="col">
         <div class="card extra-visit-card" style="width: 20rem;">
-            <a href="{{ env('APP_ADMIN_URL') . '/notifications' }}">
+            <a href="{{ admin_url('notifications') }}">
                 <div class="card-body">
                     <h5 class="card-title">Notifications</h5>
                     <p class="card-text">
