@@ -210,7 +210,7 @@ class BkashService
 
         $url = $this->baseUrl . 'tokenized-checkout/payment-with-agreement/create';
 
-        $callback = config('bkash.' . config('bkash.mode') . '.callback_url') . "bkash/callback";
+        $callback = config('bkash.' . config('bkash.mode') . '.callback_url') . "bkash/payment/callback";
 
         $headers = [
             'Authorization' => $token,
