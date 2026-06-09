@@ -19,18 +19,18 @@ class BkashService
 
     public function __construct()
     {
-        $this->baseUrl = config('bkash.base_url');
-        $this->username = config('bkash.username');
-        $this->password = config('bkash.password');
-        $this->appKey = config('bkash.app_key');
-        $this->appSecret = config('bkash.app_secret');
+        $this->baseUrl = config('bkash.' . config('bkash.mode') . '.base_url');
+        $this->username = config('bkash.' . config('bkash.mode') . '.username');
+        $this->password = config('bkash.' . config('bkash.mode') . '.password');
+        $this->appKey = config('bkash.' . config('bkash.mode') . '.app_key');
+        $this->appSecret = config('bkash.' . config('bkash.mode') . '.app_secret');
     }
 
     public function createAgreement($payerReference)
     {
         $token = $this->getToken();
 
-        $callback = env('NGROK_BASE_URL') . "bkash/callback";
+        $callback = config('bkash.' . config('bkash.mode') . '.callback_url') . "bkash/callback";
 
         $url = $this->baseUrl . 'tokenized-checkout/agreement/create';
 
@@ -210,7 +210,7 @@ class BkashService
 
         $url = $this->baseUrl . 'tokenized-checkout/payment-with-agreement/create';
 
-        $callback = env('NGROK_BASE_URL') . "bkash/payment/callback";
+        $callback = config('bkash.' . config('bkash.mode') . '.callback_url') . "bkash/callback";
 
         $headers = [
             'Authorization' => $token,
