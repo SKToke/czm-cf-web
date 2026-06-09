@@ -82,7 +82,7 @@
                        id="bkash"
                        name="payment_method"
                        value="bkash"
-                       disabled
+                       checked
                 >
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="bkash">
@@ -92,28 +92,25 @@
                     bKash
                 </label>
             </span>
-                    <span class="czm-radio-option-container">
+                    <span class="czm-radio-option-container" style="opacity: 0.5;">
                 <input type="radio"
                        class="czm-radio-btn"
                        id="card"
                        name="payment_method"
-                       value="card" checked>
+                       value="card" disabled>
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="card">
                     <img src="{{ asset('images/payment-logo/card-icon-logo.svg') }}"
                          width="28"
                          alt="Card">
-                    Visa / Master
+                    Visa / Master (Disabled)
                 </label>
             </span>
                 </div>
             </div>
             {{-- PAYMENT BUTTON --}}
-            <button id="sslczPayBtn"
-                    class="border shadow text-white w-100 py-3 czm-primary-bg mt_30"
-                    token=""
-                    postdata=""
-                    endpoint="{{ url('/daily-sadaqah.store') }}">
+            <button id="payBtn" type="submit"
+                    class="border shadow text-white w-100 py-3 czm-primary-bg mt_30">
                 Pay Now
             </button>
         </div>

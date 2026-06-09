@@ -55,11 +55,6 @@ class DailySadaqahController extends Controller
 
     public function subscribe(Request $request)
     {
-        Log::channel('sslcommerz')->info('Subscribe', [
-            'message' => 'Subscribe - Enter',
-            'request' => $request->all()
-        ]);
-
         $rules = [
             'payment_amount' => ['required', 'numeric', 'min:1'],
             'frequency' => ['required', 'in:daily,monthly'],
@@ -71,6 +66,15 @@ class DailySadaqahController extends Controller
             $rules['payment_phone'] = ['nullable', 'string'];
         }
         $validated = $request->validate($rules);
+
+        if ($request->payment_method === 'bkash') {
+            return redirect('/bkash/agreement');
+        }
+
+        Log::channel('sslcommerz')->info('Subscribe', [
+            'message' => 'Subscribe - Enter',
+            'request' => $request->all()
+        ]);
 
         if (auth()->check()) {
             $user = auth()->user();
