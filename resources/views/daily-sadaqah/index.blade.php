@@ -1,6 +1,6 @@
 <x-main>
-    @if(request()->has('confirmation') && request()->query('confirmation') == 'success')
-        @include('payment.payment-successful')
+    @if(request()->has('confirmation'))
+        @include('payment.payment-status-modal')
     @endif
     <style>
         .amount-btn,

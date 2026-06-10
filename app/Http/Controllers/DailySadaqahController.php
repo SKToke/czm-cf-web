@@ -68,6 +68,11 @@ class DailySadaqahController extends Controller
         $validated = $request->validate($rules);
 
         if ($request->payment_method === 'bkash') {
+            session([
+                'payment_origin' => 'daily-sadaqah.index',
+                'subscription_amount' => $request->payment_amount,
+                'subscription_frequency' => $request->frequency,
+            ]);
             return redirect('/bkash/agreement');
         }
 

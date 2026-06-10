@@ -219,11 +219,29 @@ Route::get('/bkash/callback', [BkashController::class, 'callback'])->name('bkash
 Route::get('/bkash/pay', [BkashController::class, 'pay']);
 Route::get('/bkash/payment/callback', [BkashController::class, 'paymentCallback']);
 
-Route::get('/bkash/payment/success', fn() => 'Payment Successful');
-Route::get('/bkash/payment/fail', fn() => session('message') ?? 'Payment Failed');
-Route::get('/bkash/payment/cancel', fn() => session('message') ?? 'Payment Cancelled');
-Route::get('/bkash/agreement/success', fn() => 'Agreement Successful');
-Route::get('/bkash/agreement/fail', fn() => 'Agreement Failed');
+Route::get('/bkash/payment/success', function () {
+    $route = session('payment_origin', 'daily-sadaqah.index');
+    return redirect()->route($route, ['confirmation' => 'success']);
+});
+Route::get('/bkash/payment/fail', function () {
+    $route = session('payment_origin', 'daily-sadaqah.index');
+    return redirect()->route($route, ['confirmation' => 'fail'])
+        ->with('error_message', session('message') ?? 'Payment Failed');
+});
+Route::get('/bkash/payment/cancel', function () {
+    $route = session('payment_origin', 'daily-sadaqah.index');
+    return redirect()->route($route, ['confirmation' => 'cancel'])
+        ->with('error_message', session('message') ?? 'Payment Cancelled');
+});
+Route::get('/bkash/agreement/success', function () {
+    $route = session('payment_origin', 'daily-sadaqah.index');
+    return redirect()->route($route, ['confirmation' => 'agreement_success']);
+});
+Route::get('/bkash/agreement/fail', function () {
+    $route = session('payment_origin', 'daily-sadaqah.index');
+    return redirect()->route($route, ['confirmation' => 'agreement_fail'])
+        ->with('error_message', session('message') ?? 'Agreement Failed');
+});
 
 Route::get('/bkash/refund', function (
     \App\Services\BkashService $bkash
