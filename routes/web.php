@@ -213,10 +213,8 @@ Route::get('/images/{imageName}', function ($imageName) {
 })->name('images.logo');
 
 //bKash
-Route::get('/bkash/token', fn(BkashService $bkash) => $bkash->getToken());
-Route::get('/bkash/agreement', [BkashController::class, 'createAgreement']);
+Route::get('/checkout/bkash', [BkashController::class,'checkout']);
 Route::get('/bkash/callback', [BkashController::class, 'callback'])->name('bkash.callback');
-Route::get('/bkash/pay', [BkashController::class, 'pay']);
 Route::get('/bkash/payment/callback', [BkashController::class, 'paymentCallback']);
 
 Route::get('/bkash/payment/success', function () {
@@ -233,16 +231,17 @@ Route::get('/bkash/payment/cancel', function () {
     return redirect()->route($route, ['confirmation' => 'cancel'])
         ->with('error_message', session('message') ?? 'Payment Cancelled');
 });
-Route::get('/bkash/agreement/success', function () {
-    $route = session('payment_origin', 'daily-sadaqah.index');
-    return redirect()->route($route, ['confirmation' => 'agreement_success']);
-});
 Route::get('/bkash/agreement/fail', function () {
     $route = session('payment_origin', 'daily-sadaqah.index');
     return redirect()->route($route, ['confirmation' => 'agreement_fail'])
         ->with('error_message', session('message') ?? 'Agreement Failed');
 });
 
+Route::get('/bkash/agreement/success', function () {
+    $route = session('payment_origin', 'daily-sadaqah.index');
+    return redirect()->route($route, ['confirmation' => 'agreement_success']);
+});
+Route::get('/bkash/token', fn(BkashService $bkash) => $bkash->getToken());
 Route::get('/bkash/refund', function (
     \App\Services\BkashService $bkash
 ) {

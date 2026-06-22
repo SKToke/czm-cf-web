@@ -68,6 +68,18 @@ class DailySadaqahController extends Controller
         $validated = $request->validate($rules);
 
         if ($request->payment_method === 'bkash') {
+            if (!auth()->check()) {
+                $user = User::where('email', $request->payment_email)->first();
+                if (!$user) {
+                    $user = User::create([
+                        'first_name' => $request->payment_name,
+                        'email' => $request->payment_email,
+                        'mobile_no' => $request->payment_phone,
+                        'password' => bcrypt('123456'),
+                    ]);
+                }
+                auth()->login($user);
+            }
             session([
                 'payment_origin' => 'daily-sadaqah.index',
                 'subscription_amount' => $request->payment_amount,

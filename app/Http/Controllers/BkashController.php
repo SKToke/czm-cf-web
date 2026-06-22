@@ -10,10 +10,24 @@ use Illuminate\Support\Str;
 
 class BkashController extends Controller
 {
+    public function checkout(BkashService $bkash)
+    {
+        $agreement = BkashAgreement::query()
+            ->where('user_id', auth()->id())
+            ->where('status', 'Completed')
+            ->latest()
+            ->first();
+
+        if (!$agreement) {
+            return $this->createAgreement($bkash);
+        }
+
+        return $this->pay($bkash);
+    }
+
     public function createAgreement(BkashService $bkash)
     {
         $payerReference = auth()->id(); // user id
-        $payerReference = "USER" . random_int(1, 9999);
 
         $data = $bkash->createAgreement($payerReference);
 
@@ -26,13 +40,18 @@ class BkashController extends Controller
 
     public function pay(BkashService $bkash)
     {
-        $agreement = BkashAgreement::where('status', 'Completed')->latest()->first();
+        $agreement = BkashAgreement::where('user_id', auth()->id())->where('status', 'Completed')->latest()->first();
+
+        if (!$agreement) {
+            return redirect('/bkash/agreement');
+        }
+
         $invoice = 'Inv_' . Str::uuid() . '_' . now()->format('YmdHisv');
 
         $data = $bkash->createPaymentWithAgreement(
             $agreement->agreement_id,
             $agreement->payer_reference,
-            10,
+            session('subscription_amount'),
             $invoice
         );
 
@@ -90,7 +109,7 @@ class BkashController extends Controller
             ]
         );
 
-        return redirect('/bkash/agreement/success');
+        return redirect('/checkout/bkash');
     }
 
     /**

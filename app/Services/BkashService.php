@@ -45,7 +45,7 @@ class BkashService
             "payerReference" => (string)$payerReference,
             "callbackURL" => $callback,
         ];
-//        dd($token, $callback, $url, $body, $headers);
+        
         $response = Http::timeout(30)->withHeaders($headers)->post($url, $body);
 
         //log
@@ -62,8 +62,10 @@ class BkashService
 
     public function getToken()
     {
-        if (Cache::has('bkash_token')) {
-            return Cache::get('bkash_token');
+        $cacheKey = 'bkash_token_' . config('bkash.mode');
+
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
         }
 
         $url = $this->baseUrl . 'tokenized-checkout/auth/grant-token';
@@ -99,7 +101,7 @@ class BkashService
             throw new \Exception('Bkash token error');
         }
 
-        Cache::put('bkash_token', $data['id_token'], now()->addMinutes(55));
+        Cache::put($cacheKey, $data['id_token'], now()->addMinutes(55));
 
         return $data['id_token'];
     }
