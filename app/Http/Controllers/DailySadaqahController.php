@@ -73,7 +73,7 @@ class DailySadaqahController extends Controller
                 'subscription_amount' => $request->payment_amount,
                 'subscription_frequency' => $request->frequency,
             ]);
-            return redirect('/bkash/agreement');
+            return redirect('/checkout/bkash');
         }
 
         Log::channel('sslcommerz')->info('Subscribe', [
@@ -261,7 +261,7 @@ class DailySadaqahController extends Controller
             ]);
 
             if ($subscription->next_billing_at) {
-                $nextBilling = $subscription->next_billing_at->copy();
+                $nextBilling = \Illuminate\Support\Carbon::parse($subscription->next_billing_at);
                 if ($subscription->frequency_type === 'daily') {
                     $nextBilling->addDay();
                 } else {
@@ -350,7 +350,7 @@ class DailySadaqahController extends Controller
             ]);
             // Calculate next billing date
             if ($subscription->next_billing_at) {
-                $nextBilling = $subscription->next_billing_at->copy();
+                $nextBilling = \Illuminate\Support\Carbon::parse($subscription->next_billing_at);
                 if ($subscription->frequency_type === 'daily') {
                     $nextBilling->addDay();
                 } else {
