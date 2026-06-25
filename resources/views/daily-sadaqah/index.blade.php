@@ -33,9 +33,9 @@
                 <div class="row">
                     {{-- NOTICE --}}
                     <div class="p-3 mb-3 rounded bg-light text-center text-dark">
-                        <h4>Participate in all the charitable works of the Foundation</h4>
-                        By donating to this section, you can become a partner in all the charitable works of the
-                        Foundation. Because this fund is open for all the charitable activities run by the Foundation.
+                        <h4>নিয়মিত সদাকাহ, অবিরাম বারাকাহ</h4>
+                        আল্লাহর কাছে সবচেয়ে প্রিয় আমল হলো সেই আমল, যা নিয়মিত করা হয়—যদিও তা পরিমাণে অল্প হয়।
+                        (সহীহ বুখারী ৬৪৬৪ ও মুসলিম )
                     </div>
                     <div class="col-md-6 order-md-1 order-2">
                         @include('daily-sadaqah._left-content')

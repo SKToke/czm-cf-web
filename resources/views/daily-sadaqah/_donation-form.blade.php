@@ -76,34 +76,38 @@
             <div class="form-group mb-3">
                 <div class="field-label">Payment Method</div>
                 <div class="d-flex gap-4 mt-2">
-            <span class="czm-radio-option-container">
-                <input type="radio"
-                       class="czm-radio-btn"
-                       id="bkash"
-                       name="payment_method"
-                       value="bkash"
-                       checked
-                >
-                <label class="czm-payment-radio-label d-flex align-items-center gap-2"
-                       for="bkash">
-                    <img src="{{ asset('images/payment-logo/bkash-icon-logo.svg') }}"
-                         width="25"
-                         alt="bKash">
-                    bKash
-                </label>
-            </span>
-                    <span class="czm-radio-option-container" style="opacity: 0.5;">
+
+                    {{-- BKASH --}}
+                    {{--<span class="czm-radio-option-container">
+                        <input type="radio"
+                               class="czm-radio-btn"
+                               id="bkash"
+                               name="payment_method"
+                               value="bkash"
+                               checked
+                        >
+                        <label class="czm-payment-radio-label d-flex align-items-center gap-2"
+                               for="bkash">
+                            <img src="{{ asset('images/payment-logo/bkash-icon-logo.svg') }}"
+                                 width="25"
+                                 alt="bKash">
+                            bKash
+                        </label>
+                    </span>--}}
+
+                    {{-- VISA --}}
+                    <span class="czm-radio-option-container">
                 <input type="radio"
                        class="czm-radio-btn"
                        id="card"
                        name="payment_method"
-                       value="card" disabled>
+                       value="card" checked>
                 <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                        for="card">
                     <img src="{{ asset('images/payment-logo/card-icon-logo.svg') }}"
                          width="28"
                          alt="Card">
-                    Visa / Master (Disabled)
+                    Visa / Master
                 </label>
             </span>
                 </div>
@@ -117,7 +121,7 @@
     </form>
     {{-- NOTICE --}}
     <div class="p-3 mb-3 rounded bg-light text-center text-dark">
-        নিয়মিত অনুদান সংক্রান্ত যেকোনো বিষয় বুঝতে অসুবিধা হলে —
-        autopay@czm-bd.org / 01729 296 296
+        নিয়মিত অনুদান সংক্রান্ত যেকোনো প্রয়োজনে —
+        donation@czm-bd.org / 01729 296 296
     </div>
 </div>
