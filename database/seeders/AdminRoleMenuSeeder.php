@@ -184,7 +184,7 @@ class AdminRoleMenuSeeder extends Seeder
                 DB::table('admin_role_menu')->insert(['role_id' => $boardSecretary->id, 'menu_id' => $menuItem->id]);
                 DB::table('admin_role_menu')->insert(['role_id' => $accountant->id, 'menu_id' => $menuItem->id]);
             }
-            if ($menuItem->title == "Recurring Subscriptions") {
+            if ($menuItem->title == "Recurring Payment") {
                 DB::table('admin_role_menu')->insert(['role_id' => $superAdmin->id, 'menu_id' => $menuItem->id]);
                 DB::table('admin_role_menu')->insert(['role_id' => $admin->id, 'menu_id' => $menuItem->id]);
                 DB::table('admin_role_menu')->insert(['role_id' => $resourceMobilizer->id, 'menu_id' => $menuItem->id]);

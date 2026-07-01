@@ -438,7 +438,7 @@ class AdminMenuSeeder extends Seeder
             [
                 'parent_id' => 0,
                 'order' => 6,
-                'title' => 'Recurring Subscriptions',
+                'title' => 'Recurring Payment',
                 'icon' => 'icon-sync',
                 'uri' => 'recurring-subscriptions',
                 'permission' => null,
