@@ -13,6 +13,12 @@
                 <td><a href="{{ admin_url('donations') }}">See all</a></td>
             </tr>
             <tr>
+                <td>Total Recurring Donation Today</td>
+                <td>{{ $recurringDonations }} Tk</td>
+                <td>{{ $recurringDonors }} donors</td>
+                <td><a href="{{ admin_url('recurring-subscriptions') }}">See all</a></td>
+            </tr>
+            <tr>
                 <td>Total Campaign Subscriptions Today</td>
                 <td>-</td>
                 <td>{{ $campaignSubscriptions }}</td>

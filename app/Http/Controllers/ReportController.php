@@ -25,10 +25,97 @@ class ReportController extends Controller
         $endDate = $request->input('end_date');
         $program = $request->input('program');
 
-        if ($startDate || $endDate || $program) {
-            $filteredData = $this->filterDataByDateRange($report->data, $startDate, $endDate, $program, $report->report_type);
+        if ($report->report_type == ReportTypeEnum::Recurring_Transactions->value) {
+            $query = \App\Models\RecurringTransaction::where('payment_status', 'valid')->with('subscription.donor');
+            if ($startDate) {
+                $query->whereDate('paid_at', '>=', $startDate);
+            }
+            if ($endDate) {
+                $query->whereDate('paid_at', '<=', $endDate);
+            }
+            $transactions = $query->get();
+            $filteredData = [];
+            foreach ($transactions as $txn) {
+                $subscription = $txn->subscription;
+                $donor = $subscription?->donor;
+                $filteredData[] = [
+                    'Transaction_ID' => $txn->tran_id,
+                    'Transaction_Date' => $txn->paid_at ? \Carbon\Carbon::parse($txn->paid_at)->format('Y-m-d H:i:s') : \Carbon\Carbon::parse($txn->created_at)->format('Y-m-d H:i:s'),
+                    'Donor_Name' => $donor?->name,
+                    'Mobile' => $donor?->phone,
+                    'Email' => $donor?->email,
+                    'Frequency' => $subscription?->frequency_type,
+                    'Payment_Status' => $txn->payment_status,
+                    'Amount' => $txn->amount,
+                ];
+            }
+            if (empty($filteredData)) {
+                $filteredData[] = [
+                    'Transaction_ID' => '',
+                    'Transaction_Date' => '',
+                    'Donor_Name' => '',
+                    'Mobile' => '',
+                    'Email' => '',
+                    'Frequency' => '',
+                    'Payment_Status' => '',
+                    'Amount' => '',
+                ];
+            }
+        } else if ($report->report_type == ReportTypeEnum::Recurring_Subscriptions->value) {
+            $query = \App\Models\RecurringSubscription::with('donor');
+            if ($startDate) {
+                $query->where(function($q) use ($startDate) {
+                    $q->whereDate('started_at', '>=', $startDate)
+                      ->orWhere(function($subQ) use ($startDate) {
+                          $subQ->whereNull('started_at')->whereDate('created_at', '>=', $startDate);
+                      });
+                });
+            }
+            if ($endDate) {
+                $query->where(function($q) use ($endDate) {
+                    $q->whereDate('started_at', '<=', $endDate)
+                      ->orWhere(function($subQ) use ($endDate) {
+                          $subQ->whereNull('started_at')->whereDate('created_at', '<=', $endDate);
+                      });
+                });
+            }
+            $subscriptions = $query->get();
+            $filteredData = [];
+            foreach ($subscriptions as $sub) {
+                $donor = $sub->donor;
+                $filteredData[] = [
+                    'Subscription_ID' => $sub->subscription_id,
+                    'Start_Date' => $sub->started_at ? \Carbon\Carbon::parse($sub->started_at)->format('Y-m-d') : ($sub->created_at ? \Carbon\Carbon::parse($sub->created_at)->format('Y-m-d') : ''),
+                    'Donor_Name' => $donor?->name,
+                    'Mobile' => $donor?->phone,
+                    'Email' => $donor?->email,
+                    'Amount' => $sub->amount,
+                    'Frequency' => $sub->frequency_type,
+                    'Billing_Day' => $sub->billing_day,
+                    'Status' => $sub->status,
+                    'Next_Billing_Date' => $sub->next_billing_at ? \Carbon\Carbon::parse($sub->next_billing_at)->format('Y-m-d') : '',
+                ];
+            }
+            if (empty($filteredData)) {
+                $filteredData[] = [
+                    'Subscription_ID' => '',
+                    'Start_Date' => '',
+                    'Donor_Name' => '',
+                    'Mobile' => '',
+                    'Email' => '',
+                    'Amount' => '',
+                    'Frequency' => '',
+                    'Billing_Day' => '',
+                    'Status' => '',
+                    'Next_Billing_Date' => '',
+                ];
+            }
         } else {
-            $filteredData = $report->data;
+            if ($startDate || $endDate || $program) {
+                $filteredData = $this->filterDataByDateRange($report->data, $startDate, $endDate, $program, $report->report_type);
+            } else {
+                $filteredData = $report->data;
+            }
         }
 
         $current_time = now()->format('Ymd_His');
@@ -97,6 +184,8 @@ class ReportController extends Controller
             ReportTypeEnum::User_Zakat_Calculation->value => 'Date',
             ReportTypeEnum::Publication->value => 'Release_Date',
             ReportTypeEnum::Publication_Download_History->value => 'Download_Date',
+            ReportTypeEnum::Recurring_Transactions->value => 'Transaction_Date',
+            ReportTypeEnum::Recurring_Subscriptions->value => 'Start_Date',
         ];
 
         return $reportTypeDateFieldMapping[$reportType] ?? null;

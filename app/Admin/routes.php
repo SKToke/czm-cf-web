@@ -61,5 +61,4 @@ Route::group([
 
     $router->resource('recurring-subscriptions', RecurringSubscriptionController::class);
 
-
 });

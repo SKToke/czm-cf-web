@@ -16,4 +16,6 @@ enum ReportTypeEnum: int
     case Amount_Paid_By_Project = 9;
     case Disbursement_Report = 10;
     case Disbursement_Report_By_Project = 11;
+    case Recurring_Transactions = 12;
+    case Recurring_Subscriptions = 13;
 }

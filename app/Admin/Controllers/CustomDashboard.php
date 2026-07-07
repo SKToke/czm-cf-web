@@ -13,6 +13,7 @@ use App\Models\Nisab;
 use App\Models\Notification;
 use App\Models\Program;
 use App\Models\RecurringSubscription;
+use App\Models\RecurringTransaction;
 use App\Models\User;
 use App\Models\UserZakatCalculation;
 use Carbon\Carbon;
@@ -91,11 +92,18 @@ class CustomDashboard
     {
         $donations = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)->whereDate('created_at', today())->sum('amount');
         $donors = Donation::where('transaction_status', TransactionTypeEnum::Complete->value)->whereDate('created_at', today())->distinct('donor_id')->count();
+        $recurringDonations = RecurringTransaction::where('payment_status', 'valid')->whereDate('paid_at', today())->sum('amount');
+        $recurringDonors = RecurringSubscription::whereHas('transactions', function ($query) {
+            $query->where('payment_status', 'valid')
+                ->whereDate('paid_at', today());
+        })->distinct('donor_id')->count('donor_id');
         $campaignSubscriptions = CampaignSubscription::where('active', true)->whereDate('created_at', today())->count();
         $newsletterSubscriptions = NewsletterSubscription::whereDate('created_at', today())->count();
         return Admin::component('admin.dashboard.todays-updates', [
             'donations' => $donations,
             'donors' => $donors,
+            'recurringDonations' => $recurringDonations,
+            'recurringDonors' => $recurringDonors,
             'campaignSubscriptions' => $campaignSubscriptions,
             'newsletterSubscriptions' => $newsletterSubscriptions,
         ]);
