@@ -118,7 +118,9 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'mobile_no' => ['nullable', 'string', 'min:10', 'max:15'],
+            'mobile_no' => ['nullable', 'string', 'regex:/^01[0-9]{9}$/'],
+        ], [
+            'mobile_no.regex' => 'The mobile number is invalid.',
         ]);
 
         if ($validator->fails()) {

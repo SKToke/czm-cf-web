@@ -73,6 +73,42 @@
                     @endif
                 </div>
 
+                <div class="field form-group mb-3" style="display: none !important;">
+                    <label for="website">Website</label>
+                    <input type="text" name="website" id="website" autocomplete="off" tabindex="-1">
+                </div>
+
+                <!-- Stateless Math Captcha Challenge -->
+                @php
+                    $num1 = rand(1, 9);
+                    $num2 = rand(1, 9);
+                    $operator = rand(0, 1) ? '+' : '-';
+                    if ($operator === '-') {
+                        if ($num1 < $num2) {
+                            $temp = $num1;
+                            $num1 = $num2;
+                            $num2 = $temp;
+                        }
+                        $answer = $num1 - $num2;
+                    } else {
+                        $answer = $num1 + $num2;
+                    }
+                    $captchaHash = encrypt($answer);
+                @endphp
+
+                <div class="field form-group mb-3">
+                    <label for="captcha_answer" class="mb-2">Security Question: What is {{ $num1 }} {{ $operator }} {{ $num2 }}?*</label>
+                    <br>
+                    <input type="hidden" name="captcha_hash" value="{{ $captchaHash }}">
+                    <input type="text" name="captcha_answer" class="form-control" placeholder="Enter answer" required>
+                    @if(isset($errors) && $errors->any())
+                    @error('captcha_answer')
+                    <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                    @endif
+                </div>
+
+
                 <div class="actions mb-3 btn-devise-submit">
                     <button type="submit" class="btn btn-primary">Sign up</button>
                 </div>

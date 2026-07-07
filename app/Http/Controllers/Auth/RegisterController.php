@@ -43,8 +43,31 @@ class RegisterController extends Controller
             'last_name' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'mobile_no' => ['nullable', 'string', 'min:10', 'max:15'],
+            'mobile_no' => ['nullable', 'string', 'regex:/^01[0-9]{9}$/'],
+            'captcha_answer' => ['required'],
+            'captcha_hash' => ['required'],
+        ], [
+            'mobile_no.regex' => 'The mobile number is invalid.',
+            'captcha_answer.required' => 'Please answer the security question.',
         ]);
+
+        $validator->after(function ($validator) use ($data) {
+            // Honeypot check
+            if (!empty($data['website'])) {
+                $validator->errors()->add('website', 'Spam detected.');
+                return;
+            }
+
+            // Math Captcha check
+            try {
+                $decrypted = decrypt($data['captcha_hash']);
+                if (trim($data['captcha_answer']) !== strval($decrypted)) {
+                    $validator->errors()->add('captcha_answer', 'The security answer is incorrect.');
+                }
+            } catch (\Exception $e) {
+                $validator->errors()->add('captcha_answer', 'Security check failed. Please refresh and try again.');
+            }
+        });
 
         if ($validator->fails()) {
             FlashHelper::trigger('Sorry! Something went wrong. Try again.', 'error');
