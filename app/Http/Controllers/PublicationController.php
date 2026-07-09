@@ -141,7 +141,10 @@ class PublicationController extends Controller
 
             return $response;
         } else {
-            return view('components.download_modal', ['downloadPath' => route('download', ['id' => $id])]);
+            return view('components.download_modal', [
+                'publication' => $publication,
+                'downloadPath' => route('download', ['id' => $id])
+            ]);
         }
     }
 

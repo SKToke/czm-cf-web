@@ -12,7 +12,7 @@
         @endif
     </div>
     <div class="subscription-form">
-        <form method="POST" action="{{ route('download', ['id' => $publication->id]) }}">
+        <form method="POST" action="{{ $downloadPath ?? route('download', ['id' => $publication->id]) }}">
             @csrf
             <div class="personal-info mt-50 mb-10">
                 <div class="field-group mt-20">
