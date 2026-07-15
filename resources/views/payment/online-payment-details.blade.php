@@ -19,7 +19,7 @@
     <div class="row mt-20">
         <div class="col-2 text-center align-self-center">
             <img src="images/payment-logo/nagad-icon-logo.svg"
-                 alt="Bkash-logo-payment"
+                 alt="nagad-logo-payment"
                  width="30px"
                  height="auto"
             >
@@ -61,11 +61,27 @@
         </div>
     </div>
 
+    {{--Cellfin payment information--}}
+    <div class="row mt-20">
+        <div class="col-2 text-center align-self-center">
+            <img src="images/payment-logo/cellfin-icon-logo.svg"
+                 alt="cellfin-logo-payment"
+                 width="30px"
+                 height="auto"
+            >
+        </div>
+        <div class="col-10">
+            <strong>Cellfin:&nbsp;</strong> 01729 296 296
+            <br>
+            (Merchant Account, Select Payment option)
+        </div>
+    </div>
+
     {{--Rocket payment information--}}
     <div class="row mt-20">
         <div class="col-2 text-center align-self-center">
             <img src="images/payment-logo/rocket-icon-logo.svg"
-                 alt="Bkash-logo-payment"
+                 alt="rocket-logo-payment"
                  width="30px"
                  height="auto"
             >

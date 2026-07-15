@@ -2,8 +2,8 @@
     <div class="text-dark d-flex justify-content-center text-center czm-donation-declaration">
         Center for Zakat Management (CZM) has been implementing a set of comprehensive programs
         focused on the income generation, livelihood development, education, primarily healthcare
-        and emergency assistance. For the past 16 years, CZM services impacted more than
-        16 Lakh needy people under different programs.
+        and emergency assistance. For the past 18 years, CZM services impacted more than
+        19 Lakh needy people under different programs.
     </div>
     <div class="other-payment-container">
         <div class="row text-dark">

@@ -18,15 +18,16 @@
                                         <br class="d-md-none d-block">
 
                                         @if(!auth()->user())
-                                        <span class="czm-radio-option-container p-10 ml-20">
+                                            <span class="czm-radio-option-container p-10 ml-20">
                                             <input type="radio" checked class="czm-radio-btn"
                                                    id="donor-type-1" name="donor-type" value="1">
-                                            <label class="czm-payment-radio-label" for="donor-type-1">Regular / Own</label>
+                                            <label class="czm-payment-radio-label"
+                                                   for="donor-type-1">Regular / Own</label>
                                         </span>
                                         @endif
 
                                         @if(!auth()->guest())
-                                        <span class="czm-radio-option-container p-10 ml-20">
+                                            <span class="czm-radio-option-container p-10 ml-20">
                                             <input type="radio" checked class="czm-radio-btn"
                                                    id="donor-type-2" name="donor-type" value="2">
                                             <label class="czm-payment-radio-label" for="donor-type-2">You</label>
@@ -43,8 +44,9 @@
                                     </div>
                                     <div class="form-group col-lg-6 col-md-6 col-xs-12">
                                         <div class="field-label">Amount <span class="required">*</span></div>
-                                        <input type="text" placeholder="Amount (BDT)" required name="payment-amount" id="amount"
-                                            value="{{ request()->has('payableZakat') ? request('payableZakat') : null }}">
+                                        <input type="text" placeholder="Amount (BDT)" required name="payment-amount"
+                                               id="amount"
+                                               value="{{ request()->has('payableZakat') ? request('payableZakat') : null }}">
                                     </div>
 
                                     <div class="form-group col-lg-6 col-md-6 col-xs-12 payment-name-wrapper">
@@ -54,12 +56,13 @@
 
                                     <div class="form-group col-lg-6 col-md-6 col-xs-12 payment-email-wrapper">
                                         <div class="field-label">Email <span class="required">*</span></div>
-                                        <input type="email" placeholder="Email" required name="payment-email" id="email">
+                                        <input type="email" placeholder="Email" required name="payment-email"
+                                               id="email">
                                     </div>
 
                                     <div class="form-group col-lg-6 col-md-6 col-xs-12 payment-phone-wrapper">
                                         <div class="field-label">Phone</div>
-                                        <input type="text" placeholder="+880"  name="payment-phone" id="phone">
+                                        <input type="text" placeholder="+880" name="payment-phone" id="phone">
                                     </div>
                                 </div>
                                 <br class="d-none d-md-block">
@@ -68,24 +71,27 @@
                                     <br class="d-md-none d-block">
                                     <br class="d-md-none d-block">
                                     <span class="czm-radio-option-container p-10 ml-20">
-                                        <input type="radio" {{ ((!request()->has('check-donation')) || (request()->query('check-donation')==false)) ? 'checked' : null }} class="czm-radio-btn"
+                                        <input type="radio"
+                                               {{ ((!request()->has('check-donation')) || (request()->query('check-donation')==false)) ? 'checked' : null }} class="czm-radio-btn"
                                                id="payment-type-1" name="payment-type" value="1">
                                         <label class="czm-payment-radio-label" for="payment-type-1">Zakat</label>
                                     </span>
                                     <span class="czm-radio-option-container p-10 ml-20">
-                                        <input type="radio" {{ ((request()->has('check-donation')) && (request()->query('check-donation')==true)) ? 'checked' : null }} class="czm-radio-btn"
-                                               id="payment-type-2" name="payment-type" value="2">
-                                        <label class="czm-payment-radio-label" for="payment-type-2">Sadakah / Donation</label>
-                                    </span>
-
-                                    <span class="czm-radio-option-container p-10 ml-20">
-                                        <input type="radio" {{ ((request()->has('check-donation')) && (request()->query('check-donation')==true)) ? 'checked' : null }} class="czm-radio-btn"
+                                        <input type="radio"
+                                               {{ ((request()->has('check-donation')) && (request()->query('check-donation')==true)) ? 'checked' : null }} class="czm-radio-btn"
                                                id="payment-type-3" name="payment-type" value="3">
                                         <label class="czm-payment-radio-label" for="payment-type-3">Cash Waqf</label>
                                     </span>
+                                    <span class="czm-radio-option-container p-10 ml-20">
+                                        <input type="radio"
+                                               {{ ((request()->has('check-donation')) && (request()->query('check-donation')==true)) ? 'checked' : null }} class="czm-radio-btn"
+                                               id="payment-type-2" name="payment-type" value="2">
+                                        <label class="czm-payment-radio-label"
+                                               for="payment-type-2">Sadakah / Donation</label>
+                                    </span>
                                 </div>
                                 <br class="d-none d-md-block">
-                                 <span class="text-dark">
+                                <span class="text-dark">
                                      <input type="checkbox" name="payment-agree" required/>
                                      <span class="ml-5">
                                          By clicking PAY NOW, you agree to our
@@ -124,7 +130,7 @@
 
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         var obj = {};
 
         // Helper function to get value if element exists
@@ -143,7 +149,7 @@
         obj.phone = val('phone');
 
         // Assign the first non-empty payment type value
-        obj.donation_type = val('payment-type-1') || val('payment-type-2')|| val('payment-type-3');
+        obj.donation_type = val('payment-type-1') || val('payment-type-2') || val('payment-type-3');
 
         // Setting postdata for the SSLCommerz button
         var sslczPayBtn = document.getElementById('sslczPayBtn');
