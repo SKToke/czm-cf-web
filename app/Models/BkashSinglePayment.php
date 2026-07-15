@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BkashPayment extends Model
+class BkashSinglePayment extends Model
 {
+    protected $table = 'bkash_single_payments';
+
     protected $fillable = [
         'payment_id',
         'trx_id',

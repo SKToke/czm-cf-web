@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BkashAgreement;
-use App\Models\BkashPayment;
-use App\Services\BkashService;
+use App\Models\BkashSingleAgreement;
+use App\Models\BkashSinglePayment;
+use App\Services\BkashSingleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class BkashController extends Controller
+class BkashSingleController extends Controller
 {
-    public function checkout(BkashService $bkash)
+    public function checkout(BkashSingleService $bkash)
     {
-        $agreement = BkashAgreement::query()
+        $agreement = BkashSingleAgreement::query()
             ->where('user_id', auth()->id())
             ->where('status', 'Completed')
             ->latest()
@@ -25,7 +25,7 @@ class BkashController extends Controller
         return $this->pay($bkash);
     }
 
-    public function createAgreement(BkashService $bkash)
+    public function createAgreement(BkashSingleService $bkash)
     {
         $payerReference = auth()->id(); // user id
 
@@ -38,12 +38,12 @@ class BkashController extends Controller
         return redirect()->away($data['bkashURL']);
     }
 
-    public function pay(BkashService $bkash)
+    public function pay(BkashSingleService $bkash)
     {
-        $agreement = BkashAgreement::where('user_id', auth()->id())->where('status', 'Completed')->latest()->first();
+        $agreement = BkashSingleAgreement::where('user_id', auth()->id())->where('status', 'Completed')->latest()->first();
 
         if (!$agreement) {
-            return redirect('/bkash/agreement');
+            return redirect('/checkout/bkash-single');
         }
 
         $invoice = 'Inv_' . Str::uuid() . '_' . now()->format('YmdHisv');
@@ -65,10 +65,10 @@ class BkashController extends Controller
     /**
      * @throws \Exception
      */
-    public function callback(Request $request, BkashService $bkash)
+    public function callback(Request $request, BkashSingleService $bkash)
     {
         if ($request->status === 'cancel') {
-            return redirect('/bkash/payment/cancel')->with('message', 'Payment Cancelled');
+            return redirect('/bkash-single/payment/cancel')->with('message', 'Payment Cancelled');
         }
 
         if ($request->status === 'failure') {
@@ -83,11 +83,11 @@ class BkashController extends Controller
                 ?? $request->externalCode
                 ?? null;
             $message = bkashErrorMessage($errorCode);
-            return redirect('/bkash/payment/fail')->with('message', $message);
+            return redirect('/bkash-single/payment/fail')->with('message', $message);
         }
 
         if ($request->status !== 'success') {
-            return redirect('/bkash/agreement/fail');
+            return redirect('/bkash-single/agreement/fail');
         }
 
         $agreementId = $request->agreementId;
@@ -96,10 +96,10 @@ class BkashController extends Controller
         $body = $result['body'] ?? $result;
 
         if (($body['agreementStatus'] ?? '') !== 'Completed') {
-            return redirect('/bkash/agreement/fail');
+            return redirect('/bkash-single/agreement/fail');
         }
 
-        BkashAgreement::updateOrCreate(
+        BkashSingleAgreement::updateOrCreate(
             ['agreement_id' => $body['agreementId']],
             [
                 'payer_reference' => $body['payerReference'] ?? null,
@@ -109,16 +109,16 @@ class BkashController extends Controller
             ]
         );
 
-        return redirect('/checkout/bkash');
+        return redirect('/checkout/bkash-single');
     }
 
     /**
      * @throws \Exception
      */
-    public function paymentCallback(Request $request, BkashService $bkash)
+    public function paymentCallback(Request $request, BkashSingleService $bkash)
     {
         if ($request->status === 'cancel') {
-            return redirect('/bkash/payment/cancel')->with('message', 'Payment Cancelled');
+            return redirect('/bkash-single/payment/cancel')->with('message', 'Payment Cancelled');
         }
 
         if ($request->status === 'failure') {
@@ -132,16 +132,16 @@ class BkashController extends Controller
                 ?? $request->externalCode
                 ?? null;
             $message = bkashErrorMessage($errorCode);
-            return redirect('/bkash/payment/fail')->with('message', $message);
+            return redirect('/bkash-single/payment/fail')->with('message', $message);
         }
 
         if ($request->status !== 'success') {
-            return redirect('/bkash/payment/fail');
+            return redirect('/bkash-single/payment/fail');
         }
 
-        $existingPayment = BkashPayment::where('payment_id', $request->paymentID)->first();
+        $existingPayment = BkashSinglePayment::where('payment_id', $request->paymentID)->first();
         if ($existingPayment) {
-            return redirect('/bkash/payment/fail')->with('message', 'Duplicate transaction detected');
+            return redirect('/bkash-single/payment/fail')->with('message', 'Duplicate transaction detected');
         }
 
         $execute = $bkash->executePaymentWithAgreement(
@@ -156,17 +156,17 @@ class BkashController extends Controller
             $errorCode = $execute['externalCode'] ?? null;
             // handle duplicate
             if ($errorCode === '2029') {
-                return redirect('/bkash/payment/fail')->with('message', bkashErrorMessage('2029'));
+                return redirect('/bkash-single/payment/fail')->with('message', bkashErrorMessage('2029'));
             }
             $query = $bkash->queryPayment($request->paymentID);
             if (($query['transactionStatus'] ?? null) !== 'Completed') {
                 $errorCode = $query['externalCode'] ?? $errorCode;
-                return redirect('/bkash/payment/fail')->with('message', bkashErrorMessage($errorCode));
+                return redirect('/bkash-single/payment/fail')->with('message', bkashErrorMessage($errorCode));
             }
             $final = $query;
         }
 
-        BkashPayment::create([
+        BkashSinglePayment::create([
             'payment_id' => $final['paymentId'] ?? null,
             'trx_id' => $final['trxId'] ?? null,
             'agreement_id' => $final['agreementId'] ?? null,
@@ -175,6 +175,6 @@ class BkashController extends Controller
             'status' => $final['transactionStatus'] ?? null,
         ]);
 
-        return redirect('/bkash/payment/success');
+        return redirect('/bkash-single/payment/success');
     }
 }

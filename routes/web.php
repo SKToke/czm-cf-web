@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\BkashController;
+use App\Http\Controllers\BkashSingleController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ContentController;
@@ -18,7 +18,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDailySadaqahController;
 use App\Http\Controllers\ZakatCalculatorController;
-use App\Services\BkashService;
+use App\Services\BkashSingleService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -213,40 +213,40 @@ Route::get('/images/{imageName}', function ($imageName) {
 })->name('images.logo');
 
 //bKash
-Route::get('/checkout/bkash', [BkashController::class,'checkout']);
-Route::get('/bkash/callback', [BkashController::class, 'callback'])->name('bkash.callback');
-Route::get('/bkash/payment/callback', [BkashController::class, 'paymentCallback']);
+Route::get('/checkout/bkash-single', [BkashSingleController::class,'checkout']);
+Route::get('/bkash-single/callback', [BkashSingleController::class, 'callback'])->name('bkash-single.callback');
+Route::get('/bkash-single/payment/callback', [BkashSingleController::class, 'paymentCallback']);
 
-Route::get('/bkash/payment/success', function () {
+Route::get('/bkash-single/payment/success', function () {
     $route = session('payment_origin', 'daily-sadaqah.index');
     return redirect()->route($route, ['confirmation' => 'success']);
 });
-Route::get('/bkash/payment/fail', function () {
+Route::get('/bkash-single/payment/fail', function () {
     $route = session('payment_origin', 'daily-sadaqah.index');
     return redirect()->route($route, ['confirmation' => 'fail'])
         ->with('error_message', session('message') ?? 'Payment Failed');
 });
-Route::get('/bkash/payment/cancel', function () {
+Route::get('/bkash-single/payment/cancel', function () {
     $route = session('payment_origin', 'daily-sadaqah.index');
     return redirect()->route($route, ['confirmation' => 'cancel'])
         ->with('error_message', session('message') ?? 'Payment Cancelled');
 });
-Route::get('/bkash/agreement/fail', function () {
+Route::get('/bkash-single/agreement/fail', function () {
     $route = session('payment_origin', 'daily-sadaqah.index');
     return redirect()->route($route, ['confirmation' => 'agreement_fail'])
         ->with('error_message', session('message') ?? 'Agreement Failed');
 });
 
-Route::get('/bkash/agreement/success', function () {
+Route::get('/bkash-single/agreement/success', function () {
     $route = session('payment_origin', 'daily-sadaqah.index');
     return redirect()->route($route, ['confirmation' => 'agreement_success']);
 });
-Route::get('/bkash/token', fn(BkashService $bkash) => $bkash->getToken());
-Route::get('/bkash/refund', function (
-    \App\Services\BkashService $bkash
+Route::get('/bkash-single/token', fn(BkashSingleService $bkash) => $bkash->getToken());
+Route::get('/bkash-single/refund', function (
+    BkashSingleService $bkash
 ) {
 
-    $payment = \App\Models\BkashPayment::latest()->first();
+    $payment = \App\Models\BkashSinglePayment::latest()->first();
 
     $refund = $bkash->refund(
         $payment->payment_id,
@@ -265,29 +265,29 @@ Route::get('/bkash/refund', function (
 
     return $refund;
 });
-Route::get('/bkash/search', function (
-    \App\Services\BkashService $bkash
+Route::get('/bkash-single/search', function (
+    BkashSingleService $bkash
 ) {
 
-    $payment = \App\Models\BkashPayment::latest()->first();
+    $payment = \App\Models\BkashSinglePayment::latest()->first();
 
     return $bkash->searchTransaction(
         $payment->trx_id
     );
 
 });
-Route::get('/bkash/query-test', function (
-    \App\Services\BkashService $bkash
+Route::get('/bkash-single/query-test', function (
+    BkashSingleService $bkash
 ) {
-    $payment = \App\Models\BkashPayment::latest()->first();
+    $payment = \App\Models\BkashSinglePayment::latest()->first();
 
     return $bkash->queryPayment($payment->payment_id);
 });
 
-Route::get('/bkash/agreement/query', function (
-    \App\Services\BkashService $bkash
+Route::get('/bkash-single/agreement/query', function (
+    BkashSingleService $bkash
 ) {
-    $agreement = \App\Models\BkashAgreement::latest()->first();
+    $agreement = \App\Models\BkashSingleAgreement::latest()->first();
 
     return $bkash->queryAgreement($agreement->agreement_id);
 });

@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('bkash_payments', function (Blueprint $table) {
+        Schema::create('bkash_single_payments', function (Blueprint $table) {
             $table->id();
 
             $table->string('payment_id')->nullable();
@@ -33,6 +33,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('bkash_payments');
+        Schema::dropIfExists('bkash_single_payments');
     }
 };

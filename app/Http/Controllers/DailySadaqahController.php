@@ -85,7 +85,7 @@ class DailySadaqahController extends Controller
                 'subscription_amount' => $request->payment_amount,
                 'subscription_frequency' => $request->frequency,
             ]);
-            return redirect('/checkout/bkash');
+            return redirect('/checkout/bkash-single');
         }
 
         Log::channel('sslcommerz')->info('Subscribe', [

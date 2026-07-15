@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 /**
  *
  */
-class BkashServiceV2
+class BkashSingleService
 {
     protected $baseUrl;
     protected $username;
@@ -19,18 +19,18 @@ class BkashServiceV2
 
     public function __construct()
     {
-        $this->baseUrl = config('bkash.base_url');
-        $this->username = config('bkash.username');
-        $this->password = config('bkash.password');
-        $this->appKey = config('bkash.app_key');
-        $this->appSecret = config('bkash.app_secret');
+        $this->baseUrl = config('bkash.' . config('bkash.mode') . '.base_url');
+        $this->username = config('bkash.' . config('bkash.mode') . '.username');
+        $this->password = config('bkash.' . config('bkash.mode') . '.password');
+        $this->appKey = config('bkash.' . config('bkash.mode') . '.app_key');
+        $this->appSecret = config('bkash.' . config('bkash.mode') . '.app_secret');
     }
 
     public function createAgreement($payerReference)
     {
         $token = $this->getToken();
 
-        $callback = env('NGROK_BASE_URL') . "bkash/callback";
+        $callback = config('bkash.' . config('bkash.mode') . '.callback_url') . "bkash-single/callback";
 
         $url = $this->baseUrl . 'tokenized-checkout/agreement/create';
 
@@ -45,6 +45,7 @@ class BkashServiceV2
             "payerReference" => (string)$payerReference,
             "callbackURL" => $callback,
         ];
+        
         $response = Http::timeout(30)->withHeaders($headers)->post($url, $body);
 
         //log
@@ -61,8 +62,10 @@ class BkashServiceV2
 
     public function getToken()
     {
-        if (Cache::has('bkash_token')) {
-            return Cache::get('bkash_token');
+        $cacheKey = 'bkash_single_token_' . config('bkash.mode');
+
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
         }
 
         $url = $this->baseUrl . 'tokenized-checkout/auth/grant-token';
@@ -98,9 +101,30 @@ class BkashServiceV2
             throw new \Exception('Bkash token error');
         }
 
-        Cache::put('bkash_token', $data['id_token'], now()->addMinutes(55));
+        Cache::put($cacheKey, $data['id_token'], now()->addMinutes(55));
 
         return $data['id_token'];
+    }
+
+    public function queryAgreement($agreementId)
+    {
+        $token = trim($this->getToken());
+
+        $url = $this->baseUrl . 'tokenized-checkout/query/agreement';
+
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Authorization' => $token,
+                'X-App-Key' => $this->appKey,
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ])
+            ->asJson()
+            ->post($url, [
+                "agreementId" => $agreementId
+            ]);
+
+        return $response->json();
     }
 
     /**
@@ -115,10 +139,8 @@ class BkashServiceV2
         $headers = [
             'Authorization' => $token,
             'X-App-Key' => $this->appKey,
-            'username' => $this->username,
-            'password' => $this->password,
-            'Accept' => 'application/json',
             'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
         ];
 
         $body = [
@@ -190,7 +212,7 @@ class BkashServiceV2
 
         $url = $this->baseUrl . 'tokenized-checkout/payment-with-agreement/create';
 
-        $callback = env('NGROK_BASE_URL') . "bkash/payment/callback";
+        $callback = config('bkash.' . config('bkash.mode') . '.callback_url') . "bkash-single/payment/callback";
 
         $headers = [
             'Authorization' => $token,
@@ -314,10 +336,7 @@ class BkashServiceV2
             'response' => $response->body(),
         ]);
 
-        return [
-            'status' => $response->status(),
-            'body' => $response->body(),
-        ];
+        return $response->json();
     }
 
     public function refundStatus($paymentId, $trxId)

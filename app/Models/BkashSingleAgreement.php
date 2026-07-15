@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BkashAgreement extends Model
+class BkashSingleAgreement extends Model
 {
+    protected $table = 'bkash_single_agreements';
+
     protected $fillable = [
         'user_id',
         'agreement_id',
