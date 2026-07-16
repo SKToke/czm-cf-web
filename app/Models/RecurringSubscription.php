@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class RecurringSubscription extends Model
 {
     protected $fillable = [
+        'payment_gateway',
         'donor_id',
         'refer',
         'subscription_id',

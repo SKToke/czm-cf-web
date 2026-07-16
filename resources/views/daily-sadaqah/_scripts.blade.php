@@ -150,9 +150,34 @@
         });
 
         // ===============================
+        // PAYMENT METHOD SWITCH
+        // ===============================
+        const paymentRadioButtons = document.querySelectorAll('input[name="payment_method"]');
+        const bkashNumberContainer = document.getElementById('bkash-number-container');
+        const bkashNumberInput = document.getElementById('bkash_number');
+
+        function toggleBkashNumberField() {
+            const checkedRadio = document.querySelector('input[name="payment_method"]:checked');
+            if (checkedRadio && checkedRadio.value === 'bkash') {
+                bkashNumberContainer.classList.remove('d-none');
+                bkashNumberInput.required = true;
+                bkashNumberInput.disabled = false;
+            } else {
+                bkashNumberContainer.classList.add('d-none');
+                bkashNumberInput.required = false;
+                bkashNumberInput.disabled = true;
+            }
+        }
+
+        paymentRadioButtons.forEach(radio => {
+            radio.addEventListener('change', toggleBkashNumberField);
+        });
+
+        // ===============================
         // INIT LOAD
         // ===============================
         renderAmounts('daily');
+        toggleBkashNumberField();
 
     });
 </script>

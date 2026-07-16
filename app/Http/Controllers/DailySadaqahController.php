@@ -60,6 +60,9 @@ class DailySadaqahController extends Controller
             'frequency' => ['required', 'in:daily,monthly'],
             'payment_method' => ['required'],
         ];
+        if ($request->payment_method === 'bkash') {
+            $rules['bkash_number'] = ['required', 'string', 'regex:/^(?:\+88|88)?(01[3-9]\d{8})$/'];
+        }
         if (!auth()->check()) {
             $rules['payment_name'] = ['required', 'string', 'max:255'];
             $rules['payment_email'] = ['required', 'email', 'max:255'];
@@ -84,8 +87,9 @@ class DailySadaqahController extends Controller
                 'payment_origin' => 'daily-sadaqah.index',
                 'subscription_amount' => $request->payment_amount,
                 'subscription_frequency' => $request->frequency,
+                'bkash_number' => $request->bkash_number,
             ]);
-            return redirect('/checkout/bkash-single');
+            return redirect('/checkout/bkash-recurring');
         }
 
         Log::channel('sslcommerz')->info('Subscribe', [

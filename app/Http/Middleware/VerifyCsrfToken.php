@@ -23,5 +23,6 @@ class VerifyCsrfToken extends Middleware
         'daily-sadaqah-cancel',
         'daily-sadaqah-ipn',
         'daily-sadaqah-bill-query',
+        'bkash-recurring/webhook',
     ];
 }

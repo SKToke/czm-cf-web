@@ -78,7 +78,7 @@
                 <div class="d-flex gap-4 mt-2">
 
                     {{-- BKASH --}}
-                    {{--<span class="czm-radio-option-container">
+                    <span class="czm-radio-option-container">
                         <input type="radio"
                                class="czm-radio-btn"
                                id="bkash"
@@ -93,24 +93,39 @@
                                  alt="bKash">
                             bKash
                         </label>
-                    </span>--}}
+                    </span>
 
                     {{-- VISA --}}
                     <span class="czm-radio-option-container">
-                <input type="radio"
-                       class="czm-radio-btn"
-                       id="card"
-                       name="payment_method"
-                       value="card" checked>
-                <label class="czm-payment-radio-label d-flex align-items-center gap-2"
-                       for="card">
-                    <img src="{{ asset('images/payment-logo/card-icon-logo.svg') }}"
-                         width="28"
-                         alt="Card">
-                    Visa / Master
-                </label>
-            </span>
+                        <input type="radio"
+                               class="czm-radio-btn"
+                               id="card"
+                               name="payment_method"
+                               value="card"
+                        >
+                        <label class="czm-payment-radio-label d-flex align-items-center gap-2"
+                               for="card">
+                            <img src="{{ asset('images/payment-logo/card-icon-logo.svg') }}"
+                                 width="28"
+                                 alt="Card">
+                            Visa / Master
+                        </label>
+                    </span>
                 </div>
+            </div>
+
+            {{-- BKASH NUMBER INPUT --}}
+            <div class="form-group mb-3" id="bkash-number-container">
+                <div class="field-label">bKash Mobile Number<span class="text-danger">*</span></div>
+                <input type="text"
+                       name="bkash_number"
+                       id="bkash_number"
+                       placeholder="e.g. 017XXXXXXXX"
+                       class="form-control"
+                       required>
+                @error('bkash_number')
+                    <span class="text-danger small">{{ $message }}</span>
+                @enderror
             </div>
             {{-- PAYMENT BUTTON --}}
             <button id="payBtn" type="submit"

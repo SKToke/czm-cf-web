@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\BkashSingleController;
+use App\Http\Controllers\BkashRecurringController;
+use App\Http\Controllers\BkashRecurringWebhookController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\ContentController;
@@ -216,6 +218,11 @@ Route::get('/images/{imageName}', function ($imageName) {
 Route::get('/checkout/bkash-single', [BkashSingleController::class,'checkout']);
 Route::get('/bkash-single/callback', [BkashSingleController::class, 'callback'])->name('bkash-single.callback');
 Route::get('/bkash-single/payment/callback', [BkashSingleController::class, 'paymentCallback']);
+
+// bKash Recurring
+Route::get('/checkout/bkash-recurring', [BkashRecurringController::class, 'checkout']);
+Route::get('/bkash-recurring/callback', [BkashRecurringController::class, 'callback'])->name('bkash.recurring.callback');
+Route::post('/bkash-recurring/webhook', [BkashRecurringWebhookController::class, 'handle']);
 
 Route::get('/bkash-single/payment/success', function () {
     $route = session('payment_origin', 'daily-sadaqah.index');
