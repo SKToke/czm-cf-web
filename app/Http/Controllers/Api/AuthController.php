@@ -53,7 +53,7 @@ class AuthController extends Controller
 
             if (null === $userEmail) {
                 $userId = $request->get('id');
-                $userEmail = "${userId}@facebook.com";
+                $userEmail = "{$userId}@facebook.com";
             }
 
             //find user
@@ -64,7 +64,7 @@ class AuthController extends Controller
             //if user exits check social_info
             if ($user) {
 
-                $key = "${provider}_id";
+                $key = "{$provider}_id";
                 $val = $request->get('id');
 
                 $infoArray = json_decode($user->social_info, true);
@@ -78,7 +78,7 @@ class AuthController extends Controller
 
             //If user not found then create new user and add info
             if (! $user) {
-                $key = "${provider}_id";
+                $key = "{$provider}_id";
                 $val = $request->get('id');
 
                 $infoArray = [

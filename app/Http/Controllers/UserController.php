@@ -62,7 +62,7 @@ class UserController extends Controller
             $userEmail = $socialUser->getEmail();
             if (null === $userEmail) {
                 $userId = $socialUser->getId();
-                $userEmail = "${userId}@facebook.com";
+                $userEmail = "{$userId}@facebook.com";
             }
 
             //find user
@@ -72,7 +72,7 @@ class UserController extends Controller
 
             //if user exits check social_info
             if ($user) {
-                $key = "${provider}_id";
+                $key = "{$provider}_id";
                 $val = $socialUser->getId();
 
                 $infoArray = json_decode($user->social_info, true);
@@ -85,7 +85,7 @@ class UserController extends Controller
 
             //if user not found then create new user and add info
             if (! $user) {
-                $key = "${provider}_id";
+                $key = "{$provider}_id";
                 $val = $socialUser->getId();
 
                 $infoArray = [
