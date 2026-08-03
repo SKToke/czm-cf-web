@@ -19,6 +19,8 @@ return [
         'app_secret' => env("BKASH_LIVE_APP_SECRET"),
     ],
 
+    'show_option' => env('BKASH_SHOW_OPTION', false),
+
     'recurring' => [
         'sandbox' => [
             'base_url' => env('BKASH_RECURRING_SANDBOX_BASE_URL', 'https://gateway.sbrecurring.pay.bka.sh/'),

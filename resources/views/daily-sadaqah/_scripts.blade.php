@@ -157,6 +157,7 @@
         const bkashNumberInput = document.getElementById('bkash_number');
 
         function toggleBkashNumberField() {
+            if (!bkashNumberContainer || !bkashNumberInput) return;
             const checkedRadio = document.querySelector('input[name="payment_method"]:checked');
             if (checkedRadio && checkedRadio.value === 'bkash') {
                 bkashNumberContainer.classList.remove('d-none');

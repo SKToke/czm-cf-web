@@ -72,11 +72,20 @@
                            class="form-control">
                 </div>
             @endauth
+            @php
+                $showBkashTest = request()->has('test_bkash') || old('test_bkash') || config('bkash.show_option', false);
+            @endphp
+
+            @if($showBkashTest)
+                <input type="hidden" name="test_bkash" value="1">
+            @endif
+
             {{-- PAYMENT METHOD --}}
             <div class="form-group mb-3">
                 <div class="field-label">Payment Method</div>
                 <div class="d-flex gap-4 mt-2">
 
+                    @if($showBkashTest)
                     {{-- BKASH --}}
                     <span class="czm-radio-option-container">
                         <input type="radio"
@@ -84,7 +93,7 @@
                                id="bkash"
                                name="payment_method"
                                value="bkash"
-                               checked
+                               {{ old('payment_method', 'bkash') === 'bkash' ? 'checked' : '' }}
                         >
                         <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                                for="bkash">
@@ -94,6 +103,7 @@
                             bKash
                         </label>
                     </span>
+                    @endif
 
                     {{-- VISA --}}
                     <span class="czm-radio-option-container">
@@ -102,6 +112,7 @@
                                id="card"
                                name="payment_method"
                                value="card"
+                               {{ !$showBkashTest || old('payment_method') === 'card' ? 'checked' : '' }}
                         >
                         <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                                for="card">
@@ -114,6 +125,7 @@
                 </div>
             </div>
 
+            @if($showBkashTest)
             {{-- BKASH NUMBER INPUT --}}
             <div class="form-group mb-3" id="bkash-number-container">
                 <div class="field-label">bKash Mobile Number<span class="text-danger">*</span></div>
@@ -122,11 +134,13 @@
                        id="bkash_number"
                        placeholder="e.g. 017XXXXXXXX"
                        class="form-control"
+                       value="{{ old('bkash_number') }}"
                        required>
                 @error('bkash_number')
                     <span class="text-danger small">{{ $message }}</span>
                 @enderror
             </div>
+            @endif
             {{-- PAYMENT BUTTON --}}
             <button id="payBtn" type="submit"
                     class="border shadow text-white w-100 py-3 czm-primary-bg mt_30">
