@@ -127,9 +127,15 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'bkash' => [
+        'bkash-single' => [
             'driver' => 'single',
-            'path' => storage_path('logs/bkash.log'),
+            'path' => storage_path('logs/bkash-single.log'),
+            'level' => 'debug',
+        ],
+
+        'bkash-recurring' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/bkash-recurring.log'),
             'level' => 'debug',
         ],
 

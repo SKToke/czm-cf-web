@@ -125,22 +125,7 @@
                 </div>
             </div>
 
-            @if($showBkashTest)
-            {{-- BKASH NUMBER INPUT --}}
-            <div class="form-group mb-3" id="bkash-number-container">
-                <div class="field-label">bKash Mobile Number<span class="text-danger">*</span></div>
-                <input type="text"
-                       name="bkash_number"
-                       id="bkash_number"
-                       placeholder="e.g. 017XXXXXXXX"
-                       class="form-control"
-                       value="{{ old('bkash_number') }}"
-                       required>
-                @error('bkash_number')
-                    <span class="text-danger small">{{ $message }}</span>
-                @enderror
-            </div>
-            @endif
+
             {{-- PAYMENT BUTTON --}}
             <button id="payBtn" type="submit"
                     class="border shadow text-white w-100 py-3 czm-primary-bg mt_30">

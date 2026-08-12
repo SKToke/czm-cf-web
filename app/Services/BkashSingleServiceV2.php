@@ -48,7 +48,7 @@ class BkashSingleServiceV2
         $response = Http::timeout(30)->withHeaders($headers)->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('Create Agreement API', [
+        Log::channel('bkash-single')->info('Create Agreement API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
@@ -84,7 +84,7 @@ class BkashSingleServiceV2
             ->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('Grant Token API', [
+        Log::channel('bkash-single')->info('Grant Token API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
@@ -131,7 +131,7 @@ class BkashSingleServiceV2
             ->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('Query Payment API', [
+        Log::channel('bkash-single')->info('Query Payment API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
@@ -168,7 +168,7 @@ class BkashSingleServiceV2
             ->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('executePaymentWithAgreement API', [
+        Log::channel('bkash-single')->info('executePaymentWithAgreement API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
@@ -219,7 +219,7 @@ class BkashSingleServiceV2
             ->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('createPaymentWithAgreement', [
+        Log::channel('bkash-single')->info('createPaymentWithAgreement', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
@@ -258,7 +258,7 @@ class BkashSingleServiceV2
             ->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('Execute Agreement API', [
+        Log::channel('bkash-single')->info('Execute Agreement API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
@@ -306,7 +306,7 @@ class BkashSingleServiceV2
             ->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('Refund API', [
+        Log::channel('bkash-single')->info('Refund API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
@@ -346,7 +346,7 @@ class BkashSingleServiceV2
             ->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('RefundStatus API', [
+        Log::channel('bkash-single')->info('RefundStatus API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
@@ -380,7 +380,7 @@ class BkashSingleServiceV2
             ->post($url, $body);
 
         //log
-        Log::channel('bkash')->info('Search Transaction API', [
+        Log::channel('bkash-single')->info('Search Transaction API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,

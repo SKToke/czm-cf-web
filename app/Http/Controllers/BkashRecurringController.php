@@ -31,15 +31,14 @@ class BkashRecurringController extends Controller
 
         $amount = session('subscription_amount');
         $frequency = session('subscription_frequency');
-        $bkashNumber = session('bkash_number');
 
-        if (!$amount || !$frequency || !$bkashNumber) {
+        if (!$amount || !$frequency) {
             return redirect()->route('daily-sadaqah.index')
                 ->with('error_message', 'Invalid donation details. Please try again.');
         }
 
-        // Generate subscriptionRequestId
-        $subscriptionRequestId = 'subReq_' . Str::random(8) . '_' . now()->getTimestampMs();
+        // Generate subscriptionRequestId (strictly alphanumeric, no special characters like underscores)
+        $subscriptionRequestId = 'SUBREQ' . Str::random(8) . now()->getTimestampMs();
 
         // Create initial initiated subscription in our DB
         $subscription = RecurringSubscription::create([
@@ -55,13 +54,15 @@ class BkashRecurringController extends Controller
 
         $redirectUrl = route('bkash.recurring.callback');
 
-        // Request bKash subscription creation
+        // Request bKash subscription creation (subscriptionReference must be between 3 and 80 chars)
+        $subscriptionReference = 'SUB-' . $subscription->id;
+
         $response = $this->bkashService->createSubscription(
             $subscriptionRequestId,
-            (string)$subscription->id,
+            $subscriptionReference,
             (float)$amount,
             $frequency,
-            $bkashNumber,
+            null,
             $redirectUrl
         );
 
@@ -79,7 +80,7 @@ class BkashRecurringController extends Controller
             'last_payment_status' => 'failed',
         ]);
 
-        $errorMessage = $response['errorDescription'] ?? 'Failed to initiate bKash recurring subscription.';
+        $errorMessage = $response['reason'][0]['message'] ?? $response['errorDescription'] ?? 'Failed to initiate bKash recurring subscription.';
         return redirect()->route('daily-sadaqah.index', ['confirmation' => 'fail'])
             ->with('error_message', $errorMessage);
     }
@@ -89,7 +90,8 @@ class BkashRecurringController extends Controller
      */
     public function callback(Request $request)
     {
-        $requestId = $request->query('subscriptionRequestId') ?? $request->query('requestId');
+        $requestId = $request->query('subscriptionRequestId') ?? $request->query('requestId') ?? $request->query('subscriptionReference');
+        $subscriptionIdParam = $request->query('subscriptionId');
         
         $subscription = null;
 
@@ -97,16 +99,27 @@ class BkashRecurringController extends Controller
             $subscription = RecurringSubscription::where('last_tran_id', $requestId)
                 ->where('payment_gateway', 'bkash')
                 ->first();
+
+            if (!$subscription && str_starts_with($requestId, 'SUB-')) {
+                $subId = (int) str_replace('SUB-', '', $requestId);
+                $subscription = RecurringSubscription::find($subId);
+            }
+        }
+
+        if (!$subscription && $subscriptionIdParam) {
+            $subscription = RecurringSubscription::where('subscription_id', $subscriptionIdParam)
+                ->where('payment_gateway', 'bkash')
+                ->first();
         }
 
         if (!$subscription && auth()->check()) {
-            // Fallback to the latest initiated subscription for this user
+            // Fallback to the latest subscription for this user (whether initiated or already active via webhook)
             $user = auth()->user();
-            $donor = $user->donor;
+            $donor = $user->donor ?? $user->findOrCreateDonor();
             if ($donor) {
                 $subscription = RecurringSubscription::where('donor_id', $donor->id)
                     ->where('payment_gateway', 'bkash')
-                    ->where('status', 'initiated')
+                    ->whereIn('status', ['initiated', 'active'])
                     ->latest()
                     ->first();
             }
@@ -117,7 +130,7 @@ class BkashRecurringController extends Controller
                 ->with('error_message', 'Subscription session not found.');
         }
 
-        // If the webhook already successfully activated it
+        // If the webhook or fallback already activated it
         if ($subscription->status === 'active') {
             return redirect()->route('daily-sadaqah.index', ['confirmation' => 'success']);
         }

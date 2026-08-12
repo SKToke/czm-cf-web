@@ -10,6 +10,7 @@ class BkashRecurringService
     protected $baseUrl;
     protected $apiKey;
     protected $serviceId;
+    protected $merchantShortCode;
 
     public function __construct()
     {
@@ -17,6 +18,7 @@ class BkashRecurringService
         $this->baseUrl = rtrim(config("bkash.recurring.{$mode}.base_url"), '/') . '/';
         $this->apiKey = config("bkash.recurring.{$mode}.api_key");
         $this->serviceId = config("bkash.recurring.{$mode}.service_id");
+        $this->merchantShortCode = config("bkash.recurring.{$mode}.merchant_short_code");
     }
 
     /**
@@ -29,7 +31,7 @@ class BkashRecurringService
 
         return [
             'version' => 'v1.0',
-            'channelId' => '2', // 1: Customer APP, 2: Merchant WEB
+            'channelId' => 2, // 1: Customer APP, 2: Merchant WEB
             'timeStamp' => $timestamp,
             'x-api-key' => $this->apiKey,
             'Content-Type' => 'application/json',
@@ -45,10 +47,10 @@ class BkashRecurringService
         string $subscriptionReference,
         float $amount,
         string $frequency,
-        string $payerWallet,
+        ?string $payerWallet,
         string $redirectUrl
     ): array {
-        $url = $this->baseUrl . 'api/subscription';
+        $url = $this->baseUrl . 'gateway/api/subscription';
 
         // Timezone validation for start date (Note-2: start date cannot be today after 11:30 PM)
         $now = now()->setTimezone('Asia/Dhaka');
@@ -71,22 +73,26 @@ class BkashRecurringService
         };
 
         $body = [
-            'subscriptionRequestId' => $subscriptionRequestId,
-            'serviceId' => (int)$this->serviceId,
-            'subscriptionReference' => $subscriptionReference,
-            'paymentType' => 'FIXED',
-            'subscriptionType' => 'WITH_PAYMENT', // charge immediately
             'amount' => $amount,
+            'amountQueryUrl' => null,
             'firstPaymentAmount' => $amount,
-            'maxCapRequired' => false,
-            'frequency' => $mappedFrequency,
+            'firstPaymentIncludedInCycle' => true,
+            'serviceId' => (int)$this->serviceId,
+            'currency' => 'BDT',
             'startDate' => $startDateStr,
             'expiryDate' => $expiryDateStr,
+            'frequency' => $mappedFrequency,
+            'subscriptionType' => 'BASIC',
+            'maxCapAmount' => null,
+            'maxCapRequired' => false,
+            'merchantShortCode' => $this->merchantShortCode,
+            'payer' => null,
             'payerType' => 'CUSTOMER',
-            'payer' => $payerWallet,
-            'currency' => 'BDT',
-            'firstPaymentIncludedInCycle' => true,
+            'paymentType' => 'FIXED',
             'redirectUrl' => $redirectUrl,
+            'subscriptionRequestId' => $subscriptionRequestId,
+            'subscriptionReference' => $subscriptionReference,
+            'extraParams' => null,
         ];
 
         $headers = $this->getHeaders();
@@ -95,15 +101,16 @@ class BkashRecurringService
             ->withHeaders($headers)
             ->post($url, $body);
 
-        Log::channel('bkash')->info('Bkash Recurring Create Subscription API', [
+        Log::channel('bkash-recurring')->info('Bkash Recurring Create Subscription API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
             'status' => $response->status(),
+            'rawBody' => $response->body(),
             'response' => $response->json(),
         ]);
 
-        return $response->json();
+        return $response->json() ?? [];
     }
 
     /**
@@ -111,21 +118,22 @@ class BkashRecurringService
      */
     public function querySubscription(int $subscriptionId): array
     {
-        $url = $this->baseUrl . "api/subscriptions/{$subscriptionId}";
+        $url = $this->baseUrl . "gateway/api/subscriptions/{$subscriptionId}";
         $headers = $this->getHeaders();
 
         $response = Http::timeout(30)
             ->withHeaders($headers)
             ->get($url);
 
-        Log::channel('bkash')->info('Bkash Recurring Query Subscription API', [
+        Log::channel('bkash-recurring')->info('Bkash Recurring Query Subscription API', [
             'url' => $url,
             'headers' => $headers,
             'status' => $response->status(),
+            'rawBody' => $response->body(),
             'response' => $response->json(),
         ]);
 
-        return $response->json();
+        return $response->json() ?? [];
     }
 
     /**
@@ -133,21 +141,22 @@ class BkashRecurringService
      */
     public function querySubscriptionByRequestId(string $requestId): array
     {
-        $url = $this->baseUrl . "api/subscriptions/request-id/{$requestId}";
+        $url = $this->baseUrl . "gateway/api/subscriptions/request-id/{$requestId}";
         $headers = $this->getHeaders();
 
         $response = Http::timeout(30)
             ->withHeaders($headers)
             ->get($url);
 
-        Log::channel('bkash')->info('Bkash Recurring Query Subscription By RequestId API', [
+        Log::channel('bkash-recurring')->info('Bkash Recurring Query Subscription By RequestId API', [
             'url' => $url,
             'headers' => $headers,
             'status' => $response->status(),
+            'rawBody' => $response->body(),
             'response' => $response->json(),
         ]);
 
-        return $response->json();
+        return $response->json() ?? [];
     }
 
     /**
@@ -155,24 +164,23 @@ class BkashRecurringService
      */
     public function cancelSubscription(int $subscriptionId, string $reason = 'Customer Requested'): array
     {
-        $url = $this->baseUrl . "api/subscriptions/{$subscriptionId}";
+        $url = $this->baseUrl . "gateway/api/subscriptions/{$subscriptionId}?reason=" . urlencode($reason);
         $headers = $this->getHeaders();
 
         $response = Http::timeout(30)
             ->withHeaders($headers)
-            ->delete($url, [
-                'reason' => $reason
-            ]);
+            ->delete($url);
 
-        Log::channel('bkash')->info('Bkash Recurring Cancel Subscription API', [
+        Log::channel('bkash-recurring')->info('Bkash Recurring Cancel Subscription API', [
             'url' => $url,
             'headers' => $headers,
             'reason' => $reason,
             'status' => $response->status(),
+            'rawBody' => $response->body(),
             'response' => $response->json(),
         ]);
 
-        return $response->json();
+        return $response->json() ?? [];
     }
 
     /**
@@ -180,8 +188,9 @@ class BkashRecurringService
      */
     public function refundSubscription(int $paymentId, float $amount): array
     {
-        $url = $this->baseUrl . 'api/subscription/payment/refund';
+        $url = $this->baseUrl . 'gateway/api/subscription/payment/refund';
         $headers = $this->getHeaders();
+        $headers['requestId'] = 'REF' . time() . rand(1000, 9999);
 
         $body = [
             'paymentId' => $paymentId,
@@ -192,14 +201,15 @@ class BkashRecurringService
             ->withHeaders($headers)
             ->post($url, $body);
 
-        Log::channel('bkash')->info('Bkash Recurring Refund API', [
+        Log::channel('bkash-recurring')->info('Bkash Recurring Refund API', [
             'url' => $url,
             'headers' => $headers,
             'request' => $body,
             'status' => $response->status(),
+            'rawBody' => $response->body(),
             'response' => $response->json(),
         ]);
 
-        return $response->json();
+        return $response->json() ?? [];
     }
 }

@@ -72,7 +72,7 @@ class BkashSingleController extends Controller
         }
 
         if ($request->status === 'failure') {
-            \Log::channel('bkash')->error('callback - Payment Failed', [
+            \Log::channel('bkash-single')->error('callback - Payment Failed', [
                 'status' => $request->status,
                 'errorCode' => $request->errorCode ?? null,
                 'request' => $request->all(),
@@ -122,7 +122,7 @@ class BkashSingleController extends Controller
         }
 
         if ($request->status === 'failure') {
-            \Log::channel('bkash')->error('paymentCallback - Payment Failed', [
+            \Log::channel('bkash-single')->error('paymentCallback - Payment Failed', [
                 'status' => $request->status,
                 'errorCode' => $request->errorCode ?? null,
                 'request' => $request->all(),

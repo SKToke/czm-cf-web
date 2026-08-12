@@ -26,11 +26,13 @@ return [
             'base_url' => env('BKASH_RECURRING_SANDBOX_BASE_URL', 'https://gateway.sbrecurring.pay.bka.sh/'),
             'api_key' => env('BKASH_RECURRING_SANDBOX_API_KEY'),
             'service_id' => env('BKASH_RECURRING_SANDBOX_SERVICE_ID'),
+            'merchant_short_code' => env('BKASH_RECURRING_SANDBOX_MERCHANT_SHORT_CODE'),
         ],
         'live' => [
             'base_url' => env('BKASH_RECURRING_LIVE_BASE_URL', 'https://gateway.recurring.pay.bka.sh/'),
             'api_key' => env('BKASH_RECURRING_LIVE_API_KEY'),
             'service_id' => env('BKASH_RECURRING_LIVE_SERVICE_ID'),
+            'merchant_short_code' => env('BKASH_RECURRING_LIVE_MERCHANT_SHORT_CODE'),
         ],
     ]
 ];

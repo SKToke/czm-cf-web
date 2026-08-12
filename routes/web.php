@@ -125,16 +125,6 @@ Route::post('/fail', [PaymentController::class, 'fail'])->name('payment.fail');
 Route::post('/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 Route::post('/ipn', [PaymentController::class, 'ipn'])->name('payment.ipn');
 
-// Daily Sadaqah Payment Routes
-Route::get('/daily-sadaqah', [DailySadaqahController::class, 'index'])->name('daily-sadaqah.index');
-Route::post('/daily-sadaqah', [DailySadaqahController::class, 'subscribe'])->name('daily-sadaqah.store');
-Route::match(['get', 'post'], '/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
-Route::match(['get', 'post'], '/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
-Route::match(['get', 'post'], '/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
-Route::post('/daily-sadaqah-init-ipn', [DailySadaqahController::class, 'init_ipn'])->name('daily-sadaqah.init_ipn');
-Route::post('/daily-sadaqah-ipn', [DailySadaqahController::class, 'ipn'])->name('daily-sadaqah.ipn');
-Route::post('/daily-sadaqah-bill-query', [DailySadaqahController::class, 'billQuery'])->name('daily-sadaqah.bill-query');
-
 //Job Routes
 Route::get('/czm-job-posts', [JobPostController::class, 'index'])->name('jobPost.index');
 Route::post('/filter-job-posts', [JobPostController::class, 'filterJobs'])->name('filter-jobs');
@@ -213,6 +203,16 @@ Route::get('/images/{imageName}', function ($imageName) {
 
     return response()->file($path);
 })->name('images.logo');
+
+// Daily Sadaqah Payment Routes
+Route::get('/daily-sadaqah', [DailySadaqahController::class, 'index'])->name('daily-sadaqah.index');
+Route::post('/daily-sadaqah', [DailySadaqahController::class, 'subscribe'])->name('daily-sadaqah.store');
+Route::match(['get', 'post'], '/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
+Route::match(['get', 'post'], '/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
+Route::match(['get', 'post'], '/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
+Route::post('/daily-sadaqah-init-ipn', [DailySadaqahController::class, 'init_ipn'])->name('daily-sadaqah.init_ipn');
+Route::post('/daily-sadaqah-ipn', [DailySadaqahController::class, 'ipn'])->name('daily-sadaqah.ipn');
+Route::post('/daily-sadaqah-bill-query', [DailySadaqahController::class, 'billQuery'])->name('daily-sadaqah.bill-query');
 
 //bKash
 Route::get('/checkout/bkash-single', [BkashSingleController::class,'checkout']);

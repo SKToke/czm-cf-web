@@ -18,13 +18,13 @@ class BkashRecurringWebhookController extends Controller
         $signatureHeader = $request->header('Signature') ?? $request->header('X-Signature');
         $webhookTypeHeader = $request->header('Type') ?? $request->header('type');
 
-        Log::channel('bkash')->info('Bkash Webhook Received Headers', [
+        Log::channel('bkash-recurring')->info('Bkash Webhook Received Headers', [
             'Signature' => $signatureHeader,
             'Type' => $webhookTypeHeader,
         ]);
 
         if (!$signatureHeader) {
-            Log::channel('bkash')->error('Bkash Webhook missing Signature header.');
+            Log::channel('bkash-recurring')->error('Bkash Webhook missing Signature header.');
             return response()->json(['error' => 'Missing Signature'], 400);
         }
 
@@ -33,7 +33,7 @@ class BkashRecurringWebhookController extends Controller
         $apiKey = config("bkash.recurring.{$mode}.api_key");
 
         if (!$apiKey) {
-            Log::channel('bkash')->error('Bkash API Key not configured for mode: ' . $mode);
+            Log::channel('bkash-recurring')->error('Bkash API Key not configured for mode: ' . $mode);
             return response()->json(['error' => 'Server Configuration Error'], 500);
         }
 
@@ -48,25 +48,25 @@ class BkashRecurringWebhookController extends Controller
             $expectedDigest = hash_hmac('sha256', $payload, $key, true);
 
             if (!hash_equals($expectedDigest, $signature)) {
-                Log::channel('bkash')->error('Bkash Webhook signature validation failed.', [
+                Log::channel('bkash-recurring')->error('Bkash Webhook signature validation failed.', [
                     'payload' => $payload,
                     'signature_header' => $signatureHeader
                 ]);
                 return response()->json(['error' => 'Invalid Signature'], 401);
             }
         } catch (\Exception $e) {
-            Log::channel('bkash')->error('Bkash Webhook signature validation exception: ' . $e->getMessage());
+            Log::channel('bkash-recurring')->error('Bkash Webhook signature validation exception: ' . $e->getMessage());
             return response()->json(['error' => 'Internal Error'], 500);
         }
 
         // Parse JSON payload
         $data = json_decode($payload, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            Log::channel('bkash')->error('Bkash Webhook invalid JSON payload: ' . json_last_error_msg());
+            Log::channel('bkash-recurring')->error('Bkash Webhook invalid JSON payload: ' . json_last_error_msg());
             return response()->json(['error' => 'Invalid JSON'], 400);
         }
 
-        Log::channel('bkash')->info('Bkash Webhook Signature Validated Successfully', [
+        Log::channel('bkash-recurring')->info('Bkash Webhook Signature Validated Successfully', [
             'type' => $webhookTypeHeader,
             'data' => $data
         ]);
@@ -77,7 +77,7 @@ class BkashRecurringWebhookController extends Controller
         $subscriptionId = $data['subscriptionId'] ?? null;
 
         if (!$subscriptionRequestId && !$subscriptionId) {
-            Log::channel('bkash')->error('Bkash Webhook missing identifiers.', $data);
+            Log::channel('bkash-recurring')->error('Bkash Webhook missing identifiers.', $data);
             return response()->json(['message' => 'Missing Identifiers'], 400);
         }
 
@@ -95,7 +95,7 @@ class BkashRecurringWebhookController extends Controller
         }
 
         if (!$subscription) {
-            Log::channel('bkash')->warning('Bkash Webhook subscription not found in local DB.', [
+            Log::channel('bkash-recurring')->warning('Bkash Webhook subscription not found in local DB.', [
                 'subscriptionRequestId' => $subscriptionRequestId,
                 'subscriptionId' => $subscriptionId
             ]);
@@ -190,11 +190,11 @@ class BkashRecurringWebhookController extends Controller
 
             case 'refund':
                 // Record the refund transaction status if needed
-                Log::channel('bkash')->info('Bkash Webhook Refund processed.', $data);
+                Log::channel('bkash-recurring')->info('Bkash Webhook Refund processed.', $data);
                 break;
 
             default:
-                Log::channel('bkash')->warning('Bkash Webhook unknown type received: ' . $type);
+                Log::channel('bkash-recurring')->warning('Bkash Webhook unknown type received: ' . $type);
                 break;
         }
 
