@@ -111,30 +111,16 @@ class BkashRecurringWebhookController extends Controller
                         'status' => 'active',
                         'subscription_id' => $data['subscriptionId'] ?? $subscription->subscription_id,
                         'subscription_status_onreq' => $status,
-                        'started_at' => isset($data['timeStamp']) ? now()->parse($data['timeStamp']) : now(),
-                        'next_billing_at' => isset($data['nextPaymentDate']) ? now()->parse($data['nextPaymentDate']) : $subscription->next_billing_at,
-                        'last_payment_status' => 'success',
+                        'started_at' => isset($data['timeStamp'])
+                            ? now()->parse($data['timeStamp'])
+                            : now(),
+                        'next_billing_at' => isset($data['nextPaymentDate'])
+                            ? now()->parse($data['nextPaymentDate'])
+                            : $subscription->next_billing_at,
                     ]);
-
-                    // Record initial payment transaction if we haven't already
-                    if (isset($data['trxId']) && $data['trxId']) {
-                        $existingTx = RecurringTransaction::where('tran_id', $data['trxId'])->first();
-                        if (!$existingTx) {
-                            RecurringTransaction::create([
-                                'recurring_subscription_id' => $subscription->id,
-                                'tran_id' => $data['trxId'],
-                                'amount' => $data['amount'] ?? $subscription->amount,
-                                'currency' => 'BDT',
-                                'payment_status' => 'success',
-                                'paid_at' => now(),
-                                'gateway_response' => $data,
-                            ]);
-                        }
-                    }
                 } elseif (in_array($status, ['FAILED', 'CANCELLED', 'EXPIRED'])) {
                     $subscription->update([
                         'status' => strtolower($status),
-                        'last_payment_status' => 'failed',
                     ]);
                 }
                 break;
@@ -151,6 +137,7 @@ class BkashRecurringWebhookController extends Controller
 
                         RecurringTransaction::create([
                             'recurring_subscription_id' => $subscription->id,
+                            'payment_id' => $data['paymentId'] ?? null,
                             'tran_id' => $trxId,
                             'amount' => $data['amount'] ?? $subscription->amount,
                             'currency' => 'BDT',

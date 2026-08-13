@@ -82,7 +82,7 @@ class BkashRecurringService
             'startDate' => $startDateStr,
             'expiryDate' => $expiryDateStr,
             'frequency' => $mappedFrequency,
-            'subscriptionType' => 'BASIC',
+            'subscriptionType' => 'WITH_PAYMENT',
             'maxCapAmount' => null,
             'maxCapRequired' => false,
             'merchantShortCode' => $this->merchantShortCode,
@@ -212,4 +212,146 @@ class BkashRecurringService
 
         return $response->json() ?? [];
     }
+
+    /**
+     * Execute a scheduled or manual recurring payment for a subscription
+     */
+    public function executePayment(int $subscriptionId, float $amount): array
+    {
+        $url = $this->baseUrl . 'gateway/api/subscription/payment/execute';
+        $headers = $this->getHeaders();
+
+        $body = [
+            'subscriptionId' => $subscriptionId,
+            'amount' => $amount,
+        ];
+
+        $response = Http::timeout(30)
+            ->withHeaders($headers)
+            ->post($url, $body);
+
+        Log::channel('bkash-recurring')->info('Bkash Recurring Execute Payment API', [
+            'url' => $url,
+            'headers' => $headers,
+            'request' => $body,
+            'status' => $response->status(),
+            'rawBody' => $response->body(),
+            'response' => $response->json(),
+        ]);
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Query payment details using payment_id
+     */
+    public function queryPaymentByPaymentId(int $paymentId): array
+    {
+        $url = $this->baseUrl . "gateway/api/subscription/payment/{$paymentId}";
+        $headers = $this->getHeaders();
+
+        $response = Http::timeout(30)
+            ->withHeaders($headers)
+            ->get($url);
+
+        Log::channel('bkash-recurring')->info('Bkash Recurring Query Payment By PaymentId API', [
+            'url' => $url,
+            'headers' => $headers,
+            'status' => $response->status(),
+            'rawBody' => $response->body(),
+            'response' => $response->json(),
+        ]);
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Query payments under a recurring subscription by subscription_id
+     */
+    public function queryPaymentsBySubscriptionId(int $subscriptionId): array
+    {
+        $url = $this->baseUrl . "gateway/api/subscriptions/{$subscriptionId}/payments";
+        $headers = $this->getHeaders();
+
+        $response = Http::timeout(30)
+            ->withHeaders($headers)
+            ->get($url);
+
+        Log::channel('bkash-recurring')->info('Bkash Recurring Query Payments By SubscriptionId API', [
+            'url' => $url,
+            'headers' => $headers,
+            'status' => $response->status(),
+            'rawBody' => $response->body(),
+            'response' => $response->json(),
+        ]);
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Extend subscription expiry date using subscription_id
+     */
+    public function extendSubscription(int $subscriptionId, string $newExpiryDate): array
+    {
+        $url = $this->baseUrl . "gateway/api/subscriptions/{$subscriptionId}/extend";
+        $headers = $this->getHeaders();
+
+        $body = [
+            'expiryDate' => $newExpiryDate,
+        ];
+
+        $response = Http::timeout(30)
+            ->withHeaders($headers)
+            ->post($url, $body);
+
+        Log::channel('bkash-recurring')->info('Bkash Recurring Extend Subscription API', [
+            'url' => $url,
+            'headers' => $headers,
+            'request' => $body,
+            'status' => $response->status(),
+            'rawBody' => $response->body(),
+            'response' => $response->json(),
+        ]);
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Get billing schedule given start date, expiry date, and frequency
+     */
+    public function getSchedule(string $startDate, string $expiryDate, string $frequency): array
+    {
+        $url = $this->baseUrl . 'gateway/api/subscription/schedule';
+        $headers = $this->getHeaders();
+
+        $mappedFrequency = match (strtolower($frequency)) {
+            'daily' => 'DAILY',
+            'weekly' => 'WEEKLY',
+            'monthly', 'calendar_month' => 'CALENDAR_MONTH',
+            'yearly', 'calendar_year' => 'CALENDAR_YEAR',
+            default => strtoupper($frequency)
+        };
+
+        $body = [
+            'startDate' => $startDate,
+            'expiryDate' => $expiryDate,
+            'frequency' => $mappedFrequency,
+        ];
+
+        $response = Http::timeout(30)
+            ->withHeaders($headers)
+            ->post($url, $body);
+
+        Log::channel('bkash-recurring')->info('Bkash Recurring Get Schedule API', [
+            'url' => $url,
+            'headers' => $headers,
+            'request' => $body,
+            'status' => $response->status(),
+            'rawBody' => $response->body(),
+            'response' => $response->json(),
+        ]);
+
+        return $response->json() ?? [];
+    }
 }
+

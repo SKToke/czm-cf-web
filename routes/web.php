@@ -298,3 +298,5 @@ Route::get('/bkash-single/agreement/query', function (
 
     return $bkash->queryAgreement($agreement->agreement_id);
 });
+
+

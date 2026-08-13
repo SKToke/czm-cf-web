@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('recurring_subscription_id');
 
-            $table->string('tran_id');
+            $table->string('tran_id')->unique();
             $table->decimal('amount', 10, 2);
             $table->string('currency')->default('BDT');
 

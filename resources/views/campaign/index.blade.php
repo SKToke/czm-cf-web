@@ -24,7 +24,7 @@
                     </select>
 
                     <label for="last_date" class="d-inline-block">for Donation End Date</label>
-                    <input type="date" name="last_date" id="last_date" class="d-inline-block custom-date-field" data-target="case-filter.selectDate" placeholder="mm/dd/yyyy" value="mm/dd/yyyy">
+                    <input type="date" name="last_date" id="last_date" class="d-inline-block custom-date-field" data-target="case-filter.selectDate" placeholder="mm/dd/yyyy">
 
                     <div class="mt-3">
                         <label for="min_amount" class="d-inline-block">Allocated Amount From</label>

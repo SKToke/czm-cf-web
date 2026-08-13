@@ -8,6 +8,7 @@ class RecurringTransaction extends Model
 {
     protected $fillable = [
         'recurring_subscription_id',
+        'payment_id',
         'tran_id',
         'amount',
         'currency',

@@ -85,7 +85,11 @@ class CampaignController extends Controller
         }
 
         if ($request->filled('last_date')) {
-            $campaigns->where('donation_end_time', '>=', Carbon::parse($request->input('last_date'))->addDay());
+            try {
+                $campaigns->where('donation_end_time', '>=', Carbon::parse($request->input('last_date'))->addDay());
+            } catch (\Throwable $e) {
+                // Ignore invalid date format
+            }
         }
 
         if ($request->filled('min_amount')) {
