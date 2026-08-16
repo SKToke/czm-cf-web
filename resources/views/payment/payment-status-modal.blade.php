@@ -1,6 +1,9 @@
 @php
     $status = request()->query('confirmation');
-    $errorMessage = session('error_message') ?? 'An unexpected event occurred.';
+    $errorMessage = session('error_message') ?? request()->query('error_message') ?? 'An unexpected event occurred.';
+    $subscriptionId = request()->query('subscriptionId');
+    $reference = request()->query('reference');
+    $invoice = request()->query('invoice');
     
     // Determine details based on status
     $modalTitle = '';
@@ -11,15 +14,17 @@
     $btnText = 'Close';
     $btnRoute = '#';
     $btnClass = 'czm-primary-bg';
+    $showDetailsBox = false;
     
-    if ($status === 'success') {
-        $modalTitle = 'Donation Successful!';
-        $modalBody = 'Thank you for your generous contribution. Your payment has been processed successfully.';
+    if (in_array($status, ['success', 'recurring_success'])) {
+        $modalTitle = 'Subscription Activated Successfully!';
+        $modalBody = 'Thank you! Your recurring donation subscription has been authorized and activated successfully.';
         $iconClass = 'fa-solid fa-circle-check';
         $iconColor = '#1a7f37';
         $iconBgColor = 'rgba(26, 127, 55, 0.1)';
-        $btnText = 'Back to Home';
-        $btnRoute = route('home');
+        $btnText = 'Go to My Subscriptions';
+        $btnRoute = route('user-daily-sadaqah.index');
+        $showDetailsBox = true;
     } elseif ($status === 'agreement_success') {
         $modalTitle = 'Auto-Pay Setup Successful!';
         $amount = session('subscription_amount');
@@ -31,28 +36,30 @@
             $modalBody .= ' BDT ' . e($amount) . ' will be donated automatically ' . $freqText . '.';
         }
         $iconClass = 'fa-solid fa-circle-check';
-        $iconColor = '#E2125D'; // bKash brand pink-red
+        $iconColor = '#E2125D';
         $iconBgColor = 'rgba(226, 18, 93, 0.1)';
         $btnText = 'Go to Dashboard';
         $btnRoute = route('donation-history');
-    } elseif (in_array($status, ['fail', 'agreement_fail'])) {
-        $modalTitle = $status === 'agreement_fail' ? 'Auto-Pay Setup Failed' : 'Payment Failed';
+    } elseif (in_array($status, ['fail', 'recurring_fail', 'agreement_fail'])) {
+        $modalTitle = 'Subscription Authorization Failed';
         $modalBody = $errorMessage;
         $iconClass = 'fa-solid fa-circle-xmark';
         $iconColor = '#d93025';
         $iconBgColor = 'rgba(217, 48, 37, 0.1)';
         $btnText = 'Try Again';
-        $btnRoute = '#';
+        $btnRoute = route('daily-sadaqah.index');
         $btnClass = 'btn-danger-custom';
-    } elseif ($status === 'cancel') {
-        $modalTitle = 'Transaction Cancelled';
-        $modalBody = 'You have cancelled the payment process. No amount has been debited.';
+        $showDetailsBox = true;
+    } elseif (in_array($status, ['cancel', 'recurring_cancel'])) {
+        $modalTitle = 'Subscription Cancelled';
+        $modalBody = 'Your recurring subscription has been cancelled successfully.';
         $iconClass = 'fa-solid fa-circle-exclamation';
         $iconColor = '#f9ab00';
         $iconBgColor = 'rgba(249, 171, 0, 0.1)';
-        $btnText = 'Close';
-        $btnRoute = '#';
+        $btnText = 'Return to Subscriptions';
+        $btnRoute = route('user-daily-sadaqah.index');
         $btnClass = 'btn-warning-custom';
+        $showDetailsBox = true;
     }
 @endphp
 
@@ -70,7 +77,30 @@
                     </div>
                     
                     <h3 class="czm-status-title mb-3">{{ $modalTitle }}</h3>
-                    <p class="text-muted czm-status-text px-3 mb-4">{{ $modalBody }}</p>
+                    <p class="text-muted czm-status-text px-3 mb-3">{{ $modalBody }}</p>
+
+                    @if($showDetailsBox && ($subscriptionId || $reference || $invoice))
+                        <div class="p-3 my-3 rounded bg-light border text-start" style="font-size: 0.9rem;">
+                            @if($subscriptionId)
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span class="text-muted">Recurring ID:</span>
+                                    <strong class="text-dark">{{ $subscriptionId }}</strong>
+                                </div>
+                            @endif
+                            @if($reference)
+                                <div class="d-flex justify-content-between py-1 border-bottom">
+                                    <span class="text-muted">Reference:</span>
+                                    <strong class="text-dark">{{ $reference }}</strong>
+                                </div>
+                            @endif
+                            @if($invoice)
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted">Invoice / Request ID:</span>
+                                    <strong class="text-dark font-monospace" style="font-size: 0.82rem;">{{ $invoice }}</strong>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                     
                     <div class="d-flex justify-content-center mt-4">
                         @if($btnRoute === '#')
@@ -90,6 +120,7 @@
         </div>
     </div>
 </div>
+
 
 <style>
     /* Premium Modal Styling */

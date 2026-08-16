@@ -66,6 +66,9 @@ class BkashRecurringController extends Controller
             $redirectUrl
         );
 
+        // Save session request ID to track this specific attempt
+        session(['bkash_recurring_request_id' => $subscriptionRequestId]);
+
         if (isset($response['redirectURL'])) {
             $subscription->update([
                 'subscription_id_onreq' => $subscriptionRequestId,
@@ -81,8 +84,11 @@ class BkashRecurringController extends Controller
         ]);
 
         $errorMessage = $response['reason'][0]['message'] ?? $response['errorDescription'] ?? 'Failed to initiate bKash recurring subscription.';
-        return redirect()->route('daily-sadaqah.index', ['confirmation' => 'fail'])
-            ->with('error_message', $errorMessage);
+        return redirect()->route('daily-sadaqah.index', [
+            'confirmation' => 'recurring_fail',
+            'invoice' => $subscriptionRequestId,
+            'reference' => $subscriptionReference,
+        ])->with('error_message', $errorMessage);
     }
 
     /**
@@ -90,8 +96,13 @@ class BkashRecurringController extends Controller
      */
     public function callback(Request $request)
     {
-        $requestId = $request->query('subscriptionRequestId') ?? $request->query('requestId') ?? $request->query('subscriptionReference');
+        $requestId = $request->query('subscriptionRequestId') 
+            ?? $request->query('requestId') 
+            ?? $request->query('subscriptionReference')
+            ?? session('bkash_recurring_request_id');
+            
         $subscriptionIdParam = $request->query('subscriptionId');
+        $callbackStatus = strtolower((string)($request->query('status') ?? $request->query('paymentStatus') ?? $request->query('subscriptionStatus') ?? ''));
         
         $subscription = null;
 
@@ -113,38 +124,70 @@ class BkashRecurringController extends Controller
         }
 
         if (!$subscription && auth()->check()) {
-            // Fallback to the latest subscription for this user (whether initiated or already active via webhook)
+            // Fallback ONLY to latest initiated subscription (never grab an already active one)
             $user = auth()->user();
             $donor = $user->donor ?? $user->findOrCreateDonor();
             if ($donor) {
                 $subscription = RecurringSubscription::where('donor_id', $donor->id)
                     ->where('payment_gateway', 'bkash')
-                    ->whereIn('status', ['initiated', 'active'])
+                    ->where('status', 'initiated')
                     ->latest()
                     ->first();
             }
         }
 
         if (!$subscription) {
-            return redirect()->route('daily-sadaqah.index', ['confirmation' => 'fail'])
-                ->with('error_message', 'Subscription session not found.');
+            return redirect()->route('daily-sadaqah.index', [
+                'confirmation' => 'recurring_fail',
+                'invoice' => $requestId ?? 'N/A',
+                'reference' => 'N/A',
+            ])->with('error_message', 'Subscription session not found.');
         }
 
-        // If the webhook or fallback already activated it
-        if ($subscription->status === 'active') {
-            return redirect()->route('daily-sadaqah.index', ['confirmation' => 'success']);
+        $subscriptionRef = 'SUB-' . $subscription->id;
+
+        // 1. Handle deliberate User Cancellation
+        if (in_array($callbackStatus, ['cancel', 'cancelled'])) {
+            $subscription->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+                'last_payment_status' => 'cancelled',
+            ]);
+
+            return redirect()->route('daily-sadaqah.index', [
+                'confirmation' => 'recurring_cancel',
+                'subscriptionId' => $subscription->subscription_id ?? 'N/A',
+                'reference' => $subscriptionRef,
+                'invoice' => $subscription->last_tran_id,
+            ])->with('error_message', 'You have cancelled the subscription process. No amount has been deducted.');
         }
 
-        // Query status from bKash (Fallback since webhook might be asynchronous/delayed)
+        // 2. Handle Explicit Failure Callback
+        if (in_array($callbackStatus, ['failure', 'failed', 'fail'])) {
+            $subscription->update([
+                'status' => 'failed',
+                'last_payment_status' => 'failed',
+            ]);
+
+            return redirect()->route('daily-sadaqah.index', [
+                'confirmation' => 'recurring_fail',
+                'invoice' => $subscription->last_tran_id,
+                'reference' => $subscriptionRef,
+            ])->with('error_message', 'Subscription authorization failed. Please check your account details or PIN and try again.');
+        }
+
+        // 3. Query live status from bKash (Fallback since webhook might be asynchronous/delayed)
         $query = $this->bkashService->querySubscriptionByRequestId($subscription->last_tran_id);
 
-        $status = $query['status'] ?? null;
+        $status = strtoupper((string)($query['status'] ?? ''));
 
         if (in_array($status, ['SUCCEEDED', 'VERIFIED'])) {
+            $bkashSubId = $query['id'] ?? $subscription->subscription_id;
+
             // Update local subscription to active
             $subscription->update([
                 'status' => 'active',
-                'subscription_id' => $query['id'] ?? null,
+                'subscription_id' => $bkashSubId,
                 'subscription_status_onreq' => $status,
                 'started_at' => isset($query['createdAt']) ? now()->parse($query['createdAt']) : now(),
                 'next_billing_at' => isset($query['nextPaymentDate']) ? now()->parse($query['nextPaymentDate']) : null,
@@ -157,6 +200,7 @@ class BkashRecurringController extends Controller
             if (!$existingTx) {
                 RecurringTransaction::create([
                     'recurring_subscription_id' => $subscription->id,
+                    'payment_id' => $query['paymentId'] ?? null,
                     'tran_id' => $subscription->last_tran_id,
                     'amount' => $subscription->amount,
                     'currency' => 'BDT',
@@ -166,16 +210,44 @@ class BkashRecurringController extends Controller
                 ]);
             }
 
-            return redirect()->route('daily-sadaqah.index', ['confirmation' => 'success']);
+            return redirect()->route('daily-sadaqah.index', [
+                'confirmation' => 'recurring_success',
+                'subscriptionId' => $bkashSubId,
+                'reference' => $subscriptionRef,
+            ]);
         }
 
-        // Otherwise mark failed
+        // 4. If bKash gateway query reports CANCELLED
+        if ($status === 'CANCELLED') {
+            $subscription->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+                'last_payment_status' => 'cancelled',
+            ]);
+
+            return redirect()->route('daily-sadaqah.index', [
+                'confirmation' => 'recurring_cancel',
+                'subscriptionId' => $subscription->subscription_id ?? 'N/A',
+                'reference' => $subscriptionRef,
+                'invoice' => $subscription->last_tran_id,
+            ])->with('error_message', 'You have cancelled the subscription process.');
+        }
+
+        // 5. Otherwise Authorization failed or PIN was wrong
         $subscription->update([
             'status' => 'failed',
             'last_payment_status' => 'failed',
         ]);
 
-        return redirect()->route('daily-sadaqah.index', ['confirmation' => 'fail'])
-            ->with('error_message', 'Subscription authorization failed or was cancelled.');
+        $failReason = $query['reason'] ?? $query['message'] ?? 'Subscription authorization failed. Please check your account details or PIN and try again.';
+
+        return redirect()->route('daily-sadaqah.index', [
+            'confirmation' => 'recurring_fail',
+            'invoice' => $subscription->last_tran_id,
+            'reference' => $subscriptionRef,
+        ])->with('error_message', $failReason);
     }
+
+
+
 }
