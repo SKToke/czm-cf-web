@@ -10,7 +10,7 @@ use OpenAdmin\Admin\Actions\RowAction;
 class SyncSubscription extends RowAction
 {
     public $name = 'Sync Gateway';
-    public $icon = 'icon-refresh';
+    public $icon = 'icon-sync';
 
     public function handle(Model $model)
     {

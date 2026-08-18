@@ -127,7 +127,9 @@ class RecurringSubscriptionController extends AdminController
         });
 
         $grid->actions(function ($actions) {
-            $actions->add(new SyncSubscription());
+            if ($actions->row->payment_gateway === 'bkash') {
+                $actions->add(new SyncSubscription());
+            }
             if ($actions->row->status !== 'cancelled') {
                 $actions->add(new CancelSubscription());
             }
