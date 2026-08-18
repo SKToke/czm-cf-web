@@ -34,12 +34,22 @@ class SyncSubscription extends RowAction
                         default => $status
                     };
 
-                    $model->update([
+                    $updateData = [
                         'status' => $localStatus,
                         'subscription_id' => $query['id'] ?? $model->subscription_id,
                         'subscription_status_onreq' => $query['status'] ?? $model->subscription_status_onreq,
+                        'payer_number' => $query['payer'] ?? $model->payer_number,
                         'next_billing_at' => isset($query['nextPaymentDate']) ? now()->parse($query['nextPaymentDate']) : $model->next_billing_at,
-                    ]);
+                        'expires_at' => isset($query['expiryDate']) ? now()->parse($query['expiryDate']) : $model->expires_at,
+                        'deduction_failure_count' => $query['deductionFailureCount'] ?? $model->deduction_failure_count ?? 0,
+                    ];
+
+                    if ($localStatus === 'cancelled') {
+                        $updateData['cancelled_at'] = isset($query['cancelledTime']) ? now()->parse($query['cancelledTime']) : ($model->cancelled_at ?? now());
+                        $updateData['cancelled_by'] = $query['cancelledBy'] ?? $model->cancelled_by ?? 'GATEWAY';
+                    }
+
+                    $model->update($updateData);
 
                     return $this->response()->success('Synced with bKash: Status is ' . $query['status'])->refresh();
                 }

@@ -128,7 +128,8 @@ class UserDailySadaqahController extends Controller
 
         $subscription->update([
             'status' => 'cancelled',
-            'cancelled_at' => now()
+            'cancelled_at' => now(),
+            'cancelled_by' => 'CUSTOMER',
         ]);
 
         return back()->with('success', 'Subscription has been cancelled successfully.');

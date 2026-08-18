@@ -38,6 +38,10 @@ class RefundTransaction extends RowAction
 
                 $model->update([
                     'payment_status' => 'refunded',
+                    'refund_trx_id' => $res['reverseTrxId'] ?? $res['trxId'] ?? null,
+                    'refunded_amount' => $amount,
+                    'refunded_at' => now(),
+                    'refund_reason' => $reason,
                 ]);
 
                 Log::channel('bkash-recurring')->info('Admin refund executed', [
@@ -57,6 +61,9 @@ class RefundTransaction extends RowAction
         // For other gateways
         $model->update([
             'payment_status' => 'refunded',
+            'refunded_amount' => $amount,
+            'refunded_at' => now(),
+            'refund_reason' => $reason,
         ]);
 
         return $this->response()->success('Transaction marked as refunded.')->refresh();

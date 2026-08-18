@@ -48,7 +48,8 @@ class CancelSubscription extends RowAction
 
         $model->update([
             'status' => 'cancelled',
-            'cancelled_at' => now()
+            'cancelled_at' => now(),
+            'cancelled_by' => 'ADMIN',
         ]);
 
         return $this->response()->success('Subscription cancelled on gateway and locally.')->refresh();

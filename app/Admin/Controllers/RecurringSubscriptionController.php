@@ -153,6 +153,7 @@ class RecurringSubscriptionController extends AdminController
             return strtoupper($gateway ?? 'SSLCOMMERZ');
         });
         $show->field('donor.name', 'Donor Name');
+        $show->field('payer_number', 'bKash Payer Mobile');
         $show->field('subscription_id', 'Gateway Subscription ID');
         $show->field('last_tran_id', 'Request / Last Tran ID');
         $show->field('amount', 'Amount')->as(function ($amount) {
@@ -166,8 +167,11 @@ class RecurringSubscriptionController extends AdminController
         });
         $show->field('started_at', 'Started At');
         $show->field('next_billing_at', 'Next Billing Date');
+        $show->field('expires_at', 'Gateway Expiry Date');
+        $show->field('deduction_failure_count', 'Deduction Failure Count');
         $show->field('paused_at', 'Paused At');
         $show->field('cancelled_at', 'Cancelled At');
+        $show->field('cancelled_by', 'Cancelled By');
 
         $show->transactions('Deduction Transactions', function ($grid) {
             $grid->column('id', 'ID');
@@ -183,6 +187,11 @@ class RecurringSubscriptionController extends AdminController
                 'refunded' => 'warning',
             ]);
             $grid->column('paid_at', 'Payment Date');
+            $grid->column('refund_trx_id', 'Refund TrxID');
+            $grid->column('refunded_amount', 'Refunded Amount')->display(function ($amount) {
+                return $amount ? number_format($amount, 2) . ' BDT' : '-';
+            });
+            $grid->column('refunded_at', 'Refund Date');
 
             $grid->actions(function ($actions) {
                 $actions->disableView();

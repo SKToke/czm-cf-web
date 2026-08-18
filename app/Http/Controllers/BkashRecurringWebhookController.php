@@ -111,16 +111,22 @@ class BkashRecurringWebhookController extends Controller
                         'status' => 'active',
                         'subscription_id' => $data['subscriptionId'] ?? $subscription->subscription_id,
                         'subscription_status_onreq' => $status,
+                        'payer_number' => $data['payer'] ?? $subscription->payer_number,
                         'started_at' => isset($data['timeStamp'])
                             ? now()->parse($data['timeStamp'])
                             : now(),
                         'next_billing_at' => isset($data['nextPaymentDate'])
                             ? now()->parse($data['nextPaymentDate'])
                             : $subscription->next_billing_at,
+                        'expires_at' => isset($data['expiryDate'])
+                            ? now()->parse($data['expiryDate'])
+                            : $subscription->expires_at,
+                        'deduction_failure_count' => $data['deductionFailureCount'] ?? $subscription->deduction_failure_count ?? 0,
                     ]);
                 } elseif (in_array($status, ['FAILED', 'CANCELLED', 'EXPIRED'])) {
                     $subscription->update([
                         'status' => strtolower($status),
+                        'cancelled_by' => $data['cancelledBy'] ?? $subscription->cancelled_by,
                     ]);
                 }
                 break;
@@ -156,6 +162,7 @@ class BkashRecurringWebhookController extends Controller
                         } else {
                             $subscription->update([
                                 'last_payment_status' => 'failed',
+                                'deduction_failure_count' => ($subscription->deduction_failure_count ?? 0) + 1,
                             ]);
                         }
                     }
@@ -165,7 +172,8 @@ class BkashRecurringWebhookController extends Controller
             case 'cancel':
                 $subscription->update([
                     'status' => 'cancelled',
-                    'cancelled_at' => now(),
+                    'cancelled_at' => isset($data['cancelledTime']) ? now()->parse($data['cancelledTime']) : now(),
+                    'cancelled_by' => $data['cancelledBy'] ?? 'CUSTOMER',
                 ]);
                 break;
 
@@ -176,8 +184,20 @@ class BkashRecurringWebhookController extends Controller
                 break;
 
             case 'refund':
-                // Record the refund transaction status if needed
-                Log::channel('bkash-recurring')->info('Bkash Webhook Refund processed.', $data);
+                $paymentId = $data['paymentId'] ?? null;
+                $reverseTrxId = $data['reverseTrxId'] ?? $data['trxId'] ?? null;
+                if ($paymentId) {
+                    $tx = RecurringTransaction::where('payment_id', $paymentId)->first();
+                    if ($tx) {
+                        $tx->update([
+                            'payment_status' => 'refunded',
+                            'refund_trx_id' => $reverseTrxId,
+                            'refunded_amount' => $data['reverseTrxAmount'] ?? $data['amount'] ?? $tx->amount,
+                            'refunded_at' => isset($data['reverseTrxTime']) ? now()->parse($data['reverseTrxTime']) : now(),
+                            'refund_reason' => $data['reason'] ?? 'bKash Webhook Refund',
+                        ]);
+                    }
+                }
                 break;
 
             default:

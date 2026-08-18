@@ -29,6 +29,11 @@ class RecurringSubscription extends Model
         'last_payment_at',
         'last_payment_status',
 
+        'payer_number',
+        'expires_at',
+        'deduction_failure_count',
+        'cancelled_by',
+
         'val_id',
         'bank_tran_id',
         'card_issuer_bank',
@@ -37,14 +42,16 @@ class RecurringSubscription extends Model
         'card_sub_brand',
     ];
 
-    protected $dates = [
-        'started_at',
-        'next_billing_at',
-        'paused_at',
-        'resumed_at',
-        'cancel_requested_at',
-        'cancelled_at',
-        'last_payment_at',
+    protected $casts = [
+        'started_at' => 'datetime',
+        'next_billing_at' => 'datetime',
+        'expires_at' => 'datetime',
+        'paused_at' => 'datetime',
+        'resumed_at' => 'datetime',
+        'cancel_requested_at' => 'datetime',
+        'cancelled_at' => 'datetime',
+        'last_payment_at' => 'datetime',
+        'deduction_failure_count' => 'integer',
     ];
 
     public function donor(): \Illuminate\Database\Eloquent\Relations\BelongsTo

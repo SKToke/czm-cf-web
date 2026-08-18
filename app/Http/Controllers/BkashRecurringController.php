@@ -189,8 +189,11 @@ class BkashRecurringController extends Controller
                 'status' => 'active',
                 'subscription_id' => $bkashSubId,
                 'subscription_status_onreq' => $status,
+                'payer_number' => $query['payer'] ?? $subscription->payer_number,
                 'started_at' => isset($query['createdAt']) ? now()->parse($query['createdAt']) : now(),
                 'next_billing_at' => isset($query['nextPaymentDate']) ? now()->parse($query['nextPaymentDate']) : null,
+                'expires_at' => isset($query['expiryDate']) ? now()->parse($query['expiryDate']) : $subscription->expires_at,
+                'deduction_failure_count' => $query['deductionFailureCount'] ?? 0,
                 'last_payment_at' => now(),
                 'last_payment_status' => 'success',
             ]);
@@ -221,7 +224,8 @@ class BkashRecurringController extends Controller
         if ($status === 'CANCELLED') {
             $subscription->update([
                 'status' => 'cancelled',
-                'cancelled_at' => now(),
+                'cancelled_at' => isset($query['cancelledTime']) ? now()->parse($query['cancelledTime']) : now(),
+                'cancelled_by' => $query['cancelledBy'] ?? 'CUSTOMER',
                 'last_payment_status' => 'cancelled',
             ]);
 
