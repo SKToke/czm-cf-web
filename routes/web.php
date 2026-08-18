@@ -17,10 +17,12 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SslCommerzRecurringController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDailySadaqahController;
 use App\Http\Controllers\ZakatCalculatorController;
 use App\Services\BkashSingleService;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -39,16 +41,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/clear', function () {
     Artisan::call('cache:clear');
     Artisan::call('config:clear');
+    Artisan::call('route:clear');
     Artisan::call('view:clear');
+    Artisan::call('event:clear');
+    Artisan::call('clear-compiled');
     Artisan::call('optimize:clear');
-    return "All (cache,config,view,optimize) Cleared!";
+    return "All (cache, config, route, view, event, compiled, optimize) Cleared!";
 });
 /*====== Cache =======*/
 Route::get('/cache', function () {
     Artisan::call('config:cache');
     Artisan::call('route:cache');
     Artisan::call('view:cache');
-    return "All (config,view,route) Cached!";
+    Artisan::call('event:cache');
+    return "All (config, route, view, event) Cached!";
 });
 
 Auth::routes(['verify' => true]);
@@ -207,12 +213,13 @@ Route::get('/images/{imageName}', function ($imageName) {
 // Daily Sadaqah Payment Routes
 Route::get('/daily-sadaqah', [DailySadaqahController::class, 'index'])->name('daily-sadaqah.index');
 Route::post('/daily-sadaqah', [DailySadaqahController::class, 'subscribe'])->name('daily-sadaqah.store');
-Route::match(['get', 'post'], '/daily-sadaqah-success', [DailySadaqahController::class, 'success'])->name('daily-sadaqah.success');
-Route::match(['get', 'post'], '/daily-sadaqah-fail', [DailySadaqahController::class, 'fail'])->name('daily-sadaqah.fail');
-Route::match(['get', 'post'], '/daily-sadaqah-cancel', [DailySadaqahController::class, 'cancel'])->name('daily-sadaqah.cancel');
-Route::post('/daily-sadaqah-init-ipn', [DailySadaqahController::class, 'init_ipn'])->name('daily-sadaqah.init_ipn');
-Route::post('/daily-sadaqah-ipn', [DailySadaqahController::class, 'ipn'])->name('daily-sadaqah.ipn');
-Route::post('/daily-sadaqah-bill-query', [DailySadaqahController::class, 'billQuery'])->name('daily-sadaqah.bill-query');
+
+// SSLCommerz Recurring Routes
+Route::match(['get', 'post'], '/daily-sadaqah-success', [SslCommerzRecurringController::class, 'success'])->name('daily-sadaqah.success');
+Route::match(['get', 'post'], '/daily-sadaqah-fail', [SslCommerzRecurringController::class, 'fail'])->name('daily-sadaqah.fail');
+Route::match(['get', 'post'], '/daily-sadaqah-cancel', [SslCommerzRecurringController::class, 'cancel'])->name('daily-sadaqah.cancel');
+Route::post('/daily-sadaqah-ipn', [SslCommerzRecurringController::class, 'ipn'])->name('daily-sadaqah.ipn');
+Route::post('/daily-sadaqah-bill-query', [SslCommerzRecurringController::class, 'billQuery'])->name('daily-sadaqah.bill-query');
 
 //bKash
 Route::get('/checkout/bkash-single', [BkashSingleController::class,'checkout']);

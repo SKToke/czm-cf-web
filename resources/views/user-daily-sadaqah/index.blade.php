@@ -64,7 +64,8 @@
 
                             <td>
                                 @if($subscription->payment_gateway === 'bkash')
-                                    <span class="text-muted small">bKash Recurring Wallet</span>
+                                    <span>bKash Wallet</span><br>
+                                    <span class="text-muted small">{{ $subscription->payer_number ?: 'bKash Account' }}</span>
                                 @else
                                     {{ $subscription->card_issuer_bank ?: 'Card Payment' }}<br>
                                     <span class="text-muted small">{{ $subscription->card_no ? '****' . substr($subscription->card_no, -4) : '' }}</span>
