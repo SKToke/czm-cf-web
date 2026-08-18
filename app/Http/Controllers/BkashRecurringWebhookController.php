@@ -134,37 +134,65 @@ class BkashRecurringWebhookController extends Controller
             case 'payment':
                 $paymentStatus = $data['paymentStatus'] ?? '';
                 $trxId = $data['trxId'] ?? null;
+                $paymentId = $data['paymentId'] ?? null;
+                $isSuccess = ($paymentStatus === 'SUCCEEDED_PAYMENT');
+                $status = $isSuccess ? 'success' : 'failed';
 
-                if ($trxId) {
-                    $existingTx = RecurringTransaction::where('tran_id', $trxId)->first();
+                if ($trxId || $paymentId) {
+                    // 1. Check if a transaction with this trxId or paymentId already exists
+                    $existingTx = RecurringTransaction::where(function ($q) use ($trxId, $paymentId) {
+                        if ($trxId) {
+                            $q->where('tran_id', $trxId);
+                        }
+                        if ($paymentId) {
+                            $q->orWhere('payment_id', $paymentId);
+                        }
+                    })->first();
+
+                    // 2. If not found by trxId/paymentId, check if this is the initial payment
+                    // that was created during callback with subscriptionRequestId (last_tran_id)
                     if (!$existingTx) {
-                        $isSuccess = ($paymentStatus === 'SUCCEEDED_PAYMENT');
-                        $status = $isSuccess ? 'success' : 'failed';
+                        $existingTx = RecurringTransaction::where('recurring_subscription_id', $subscription->id)
+                            ->where('tran_id', $subscription->last_tran_id)
+                            ->first();
+                    }
 
+                    if ($existingTx) {
+                        // Reconcile and upgrade placeholder transaction with actual financial trxId and paymentId
+                        $existingTx->update([
+                            'tran_id' => $trxId ?? $existingTx->tran_id,
+                            'payment_id' => $paymentId ?? $existingTx->payment_id,
+                            'payment_status' => $status,
+                            'amount' => $data['amount'] ?? $existingTx->amount,
+                            'gateway_response' => $data,
+                            'paid_at' => $isSuccess ? ($existingTx->paid_at ?? now()) : $existingTx->paid_at,
+                        ]);
+                    } else {
+                        // Create new recurring cycle transaction record
                         RecurringTransaction::create([
                             'recurring_subscription_id' => $subscription->id,
-                            'payment_id' => $data['paymentId'] ?? null,
-                            'tran_id' => $trxId,
+                            'payment_id' => $paymentId,
+                            'tran_id' => $trxId ?? ('TrID' . uniqid()),
                             'amount' => $data['amount'] ?? $subscription->amount,
                             'currency' => 'BDT',
                             'payment_status' => $status,
-                            'paid_at' => now(),
+                            'paid_at' => $isSuccess ? now() : null,
                             'gateway_response' => $data,
                         ]);
+                    }
 
-                        if ($isSuccess) {
-                            $subscription->update([
-                                'status' => 'active',
-                                'last_payment_at' => now(),
-                                'last_payment_status' => 'success',
-                                'next_billing_at' => isset($data['nextPaymentDate']) ? now()->parse($data['nextPaymentDate']) : $subscription->next_billing_at,
-                            ]);
-                        } else {
-                            $subscription->update([
-                                'last_payment_status' => 'failed',
-                                'deduction_failure_count' => ($subscription->deduction_failure_count ?? 0) + 1,
-                            ]);
-                        }
+                    if ($isSuccess) {
+                        $subscription->update([
+                            'status' => 'active',
+                            'last_payment_at' => now(),
+                            'last_payment_status' => 'success',
+                            'next_billing_at' => isset($data['nextPaymentDate']) ? now()->parse($data['nextPaymentDate']) : $subscription->next_billing_at,
+                        ]);
+                    } else {
+                        $subscription->update([
+                            'last_payment_status' => 'failed',
+                            'deduction_failure_count' => ($subscription->deduction_failure_count ?? 0) + 1,
+                        ]);
                     }
                 }
                 break;

@@ -198,8 +198,14 @@ class BkashRecurringController extends Controller
                 'last_payment_status' => 'success',
             ]);
 
-            // Save first transaction record (if payment was successful)
-            $existingTx = RecurringTransaction::where('tran_id', $subscription->last_tran_id)->first();
+            // Save first transaction record (if not already recorded by webhook)
+            $existingTx = RecurringTransaction::where('recurring_subscription_id', $subscription->id)
+                ->where(function ($q) use ($subscription) {
+                    $q->where('tran_id', $subscription->last_tran_id)
+                      ->orWhereNotNull('payment_id');
+                })
+                ->first();
+
             if (!$existingTx) {
                 RecurringTransaction::create([
                     'recurring_subscription_id' => $subscription->id,
@@ -210,6 +216,11 @@ class BkashRecurringController extends Controller
                     'payment_status' => 'success',
                     'paid_at' => now(),
                     'gateway_response' => $query,
+                ]);
+            } else {
+                $existingTx->update([
+                    'payment_status' => 'success',
+                    'gateway_response' => array_merge((array)$existingTx->gateway_response, $query),
                 ]);
             }
 
