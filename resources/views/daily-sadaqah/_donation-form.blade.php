@@ -72,20 +72,11 @@
                            class="form-control">
                 </div>
             @endauth
-            @php
-                $showBkashTest = request()->has('test_bkash') || old('test_bkash') || config('bkash.show_option', false);
-            @endphp
-
-            @if($showBkashTest)
-                <input type="hidden" name="test_bkash" value="1">
-            @endif
-
             {{-- PAYMENT METHOD --}}
             <div class="form-group mb-3">
                 <div class="field-label">Payment Method</div>
                 <div class="d-flex gap-4 mt-2">
 
-                    @if($showBkashTest)
                     {{-- BKASH --}}
                     <span class="czm-radio-option-container">
                         <input type="radio"
@@ -103,7 +94,6 @@
                             bKash
                         </label>
                     </span>
-                    @endif
 
                     {{-- VISA --}}
                     <span class="czm-radio-option-container">
@@ -112,7 +102,7 @@
                                id="card"
                                name="payment_method"
                                value="card"
-                               {{ !$showBkashTest || old('payment_method') === 'card' ? 'checked' : '' }}
+                               {{ old('payment_method') === 'card' ? 'checked' : '' }}
                         >
                         <label class="czm-payment-radio-label d-flex align-items-center gap-2"
                                for="card">
