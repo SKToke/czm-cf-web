@@ -45,25 +45,20 @@
         </a>
     </div>
 
-    <!-- Buttons Section -->
-    {{--<div class="d-flex  align-items-center justify-content-md-between justify-content-between calc-width">
-        <a class="czm-primary-btn me-2 d-md-flex d-none"  id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" href="{{ route('payment.index', ['check-donation' => true]) }}">
-            Calculate Zakat
-        </a>
-        <ul class="dropdown-menu zakat-header" aria-labelledby="dropdownMenuButton1">
-            <li><a class="dropdown-item" href="{{ route('zakat-calculator') }}">Zakat Calculator</a></li>
-            <hr>
-            <li><a class="dropdown-item" href="{{ route('zakat-calculator') }}">Nisab value</a></li>
-        </ul>
-        <a class="czm-secondary-btn d-flex" href="{{ route('payment.index', ['check-donation' => true]) }}">
-            Donate Now
-        </a>
-    </div>--}}
-
-
     <!-- Auth Section -->
     <div class="d-flex align-items-center justify-content-end auth-width">
         <x-auth/>
     </div>
 
 </div>
+
+<!-- Mobile Action Buttons Bar (Design B: Only visible on mobile < md) -->
+<div class="czm-mobile-action-bar d-flex d-md-none px-3 py-2">
+    <a class="czm-mobile-btn czm-mobile-info-btn flex-fill me-2 text-center" href="{{ route('daily-sadaqah.index') }}">
+        <i class="fa-solid fa-hand-holding-heart me-1"></i> Daily Sadaqah
+    </a>
+    <a class="czm-mobile-btn czm-mobile-secondary-btn flex-fill text-center" href="{{ route('payment.index', ['check-donation' => true]) }}">
+        <i class="fa-solid fa-heart me-1"></i> Donate Now
+    </a>
+</div>
+

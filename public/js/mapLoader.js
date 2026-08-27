@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var mapElement = document.getElementById('map');
     const scrollToTopButton = document.getElementById('scrollToTop');
 
-    if (mapElement) { // Check if the map element exists on the page
+    if (mapElement && typeof google !== 'undefined' && typeof google.maps !== 'undefined') { // Check if map element and google maps exist
         var map = new google.maps.Map(mapElement, {
             zoom: 17,
             center: czmLocation

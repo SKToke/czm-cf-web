@@ -92,6 +92,12 @@ use App\Models\Program;
                     <li>
                         <a href="{{ route('campaigns') }}">Support Campaigns</a>
                     </li>
+                    <li class="d-lg-none">
+                        <a href="{{ route('daily-sadaqah.index') }}">Daily Sadaqah</a>
+                    </li>
+                    <li class="d-lg-none">
+                        <a href="{{ route('payment.index', ['check-donation' => true]) }}">Donate Now</a>
+                    </li>
                     <li class="dropdown">
                         <a href="#" onclick="return false;" style="cursor: default;">
                             Stories
@@ -135,10 +141,70 @@ use App\Models\Program;
                 </ul>
             </div>
             <div class="nav-footer">
-                <button>
+                <button type="button" aria-label="Toggle Navigation">
                     <i class="fa fa-bars"></i>
                 </button>
             </div>
         </div>
     </div>
 </nav>
+
+<script>
+(function() {
+    function initMobileNav() {
+        document.addEventListener('click', function(e) {
+            // Check hamburger button click
+            var toggleBtn = e.target.closest('.navigation .nav-footer button') || e.target.closest('.navigation .nav-footer');
+            if (toggleBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                var nav = toggleBtn.closest('.navigation');
+                if (nav) {
+                    var navHeader = nav.querySelector('.nav-header');
+                    if (navHeader) {
+                        var computedDisplay = window.getComputedStyle(navHeader).display;
+                        if (computedDisplay === 'none') {
+                            navHeader.style.display = 'block';
+                        } else {
+                            navHeader.style.display = 'none';
+                        }
+                    }
+                }
+                return;
+            }
+
+            // Check mobile submenu dropdown toggle
+            var dropdownLink = e.target.closest('.navigation .nav-header .dropdown > a');
+            if (dropdownLink && window.innerWidth <= 1024) {
+                e.preventDefault();
+                e.stopPropagation();
+                var parentLi = dropdownLink.parentElement;
+                var submenu = parentLi ? parentLi.querySelector('.submenu') : null;
+                if (submenu) {
+                    var isSubmenuVisible = window.getComputedStyle(submenu).display !== 'none';
+                    if (isSubmenuVisible) {
+                        submenu.style.display = 'none';
+                    } else {
+                        var siblingSubmenus = parentLi.parentElement.querySelectorAll('.submenu');
+                        siblingSubmenus.forEach(function(s) { if (s !== submenu) s.style.display = 'none'; });
+                        submenu.style.display = 'block';
+                    }
+                }
+                return;
+            }
+
+            // Close when clicking outside on mobile
+            if (window.innerWidth <= 1024 && !e.target.closest('.navigation')) {
+                var allNavHeaders = document.querySelectorAll('.navigation .nav-header');
+                allNavHeaders.forEach(function(nh) { nh.style.display = 'none'; });
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileNav);
+    } else {
+        initMobileNav();
+    }
+})();
+</script>

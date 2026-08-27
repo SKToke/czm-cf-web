@@ -6,14 +6,17 @@ jQuery(document).ready(function($) {
 
     // Function to handle sticky header
     function stickyHeader() {
-        if ($('.stricky')) {
-            var strickyScrollPos = $('.stricky').next().offset().top;
-            if ($(window).scrollTop() > strickyScrollPos) {
-                $('.stricky').removeClass('fadeIn animated');
-                $('.stricky').addClass('stricky-fixed fadeInDown animated');
-            } else if ($(window).scrollTop() <= strickyScrollPos) {
-                $('.stricky').removeClass('stricky-fixed fadeInDown animated');
-                $('.stricky').addClass('slideIn animated');
+        if ($('.stricky').length) {
+            var $next = $('.stricky').next();
+            if ($next.length && $next.offset()) {
+                var strickyScrollPos = $next.offset().top;
+                if ($(window).scrollTop() > strickyScrollPos) {
+                    $('.stricky').removeClass('fadeIn animated');
+                    $('.stricky').addClass('stricky-fixed fadeInDown animated');
+                } else if ($(window).scrollTop() <= strickyScrollPos) {
+                    $('.stricky').removeClass('stricky-fixed fadeInDown animated');
+                    $('.stricky').addClass('slideIn animated');
+                }
             }
         }
     }

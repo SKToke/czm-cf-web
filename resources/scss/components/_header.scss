@@ -94,3 +94,58 @@
         margin-left: 10px;
     }
 }
+
+/* Mobile Action Bar (Only active on mobile screens < 768px) */
+.czm-mobile-action-bar {
+    background: #ffffff;
+    padding: 8px 15px 12px 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    border-top: 1px solid #f0f0f0;
+
+    .czm-mobile-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Raleway', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 9px 12px;
+        border-radius: 25px;
+        text-decoration: none;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        transition: all 0.25s ease;
+
+        i {
+            font-size: 13px;
+        }
+
+        &:active {
+            transform: scale(0.97);
+        }
+    }
+
+    .czm-mobile-info-btn {
+        background: $czm-bright-cyan;
+        color: #ffffff;
+        border: 1px solid transparent;
+
+        &:hover, &:focus {
+            background-color: darken($czm-bright-cyan, 6%);
+            color: #ffffff;
+        }
+    }
+
+    .czm-mobile-secondary-btn {
+        background: $czm-secondary;
+        color: #ffffff;
+        border: 1px solid transparent;
+
+        &:hover, &:focus {
+            background-color: darken($czm-secondary, 6%);
+            color: #ffffff;
+        }
+    }
+}
+

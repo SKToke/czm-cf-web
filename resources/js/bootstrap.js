@@ -15,6 +15,16 @@ import $ from 'jquery';
 
 window.$ = window.jQuery = $;
 
+// Polyfill $.camelCase for owl.carousel and other jQuery plugins
+if (!$.camelCase) {
+    $.camelCase = function (string) {
+        return string.replace(/-([a-z])/g, function (all, letter) {
+            return letter.toUpperCase();
+        });
+    };
+}
+
+
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

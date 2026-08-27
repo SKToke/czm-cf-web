@@ -90,8 +90,9 @@
 
 @media (max-width: 1024px) {
 	.navigation {position: static;}
+	.mainmenu-area {position: relative; z-index: 99999;}
 	.mainmenu-area .container {position: relative;}
-	.navigation .nav-header {display: none;position: absolute;top: 100%;left:0;width: 100%;background: #262F36;z-index: 9999;max-height: 70vh;overflow: auto;}
+	.navigation .nav-header {display: none;position: absolute;top: 100%;left:0;width: 100%;background: #262F36;z-index: 999999;max-height: 70vh;overflow: auto;}
 
 	.navigation .nav-footer {display: block;}
 	.navigation .nav-footer button {width: 40px;height: 40px;background: #0ebfe5;color: #fff;border: none;outline: none;font-size: 18px;margin: 15px 0;}
